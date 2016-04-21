@@ -1,0 +1,120 @@
+\documentclass[9pt]{report}
+\usepackage{extsizes}
+\usepackage{amsmath}
+\usepackage{courier}
+\usepackage{stmaryrd}
+\usepackage{lscape}
+\usepackage{nameref}
+\usepackage{tabularx}
+\usepackage[pdftex]{graphicx}
+\usepackage{hyperref}
+\usepackage{mdframed}
+\hypersetup{
+    bookmarks=true,         % show bookmarks bar?
+    unicode=false,          % non-Latin characters in Acrobat�s bookmarks
+    pdftoolbar=true,        % show Acrobats toolbar?
+    pdfmenubar=true,        % show Acrobats menu?
+    pdffitwindow=true,      % page fit to window when opened
+%   pdftitle={My title},    % title
+%   pdfauthor={Author},     % author
+%   pdfsubject={Subject},   % subject of the document
+    pdfnewwindow=true,      % links in new window
+%   pdfkeywords={keywords}, % list of keywords
+    colorlinks=true,        % false: boxed links; true: colored links
+    linkcolor=blue,         % color of internal links
+    citecolor=blue,         % color of links to bibliography
+    filecolor=blue,         % color of file links
+    urlcolor=blue           % color of external links
+}
+\usepackage{pdfpages}
+\usepackage{xcolor}
+\usepackage{pxfonts}
+\usepackage{fancyhdr}
+\usepackage{verbatim}
+\pagestyle{fancy}
+\fancyhf{}
+%\pagestyle{plain}
+%\pagestyle{fancy}
+%\pagestyle{headings}
+%\lhead{} \chead{} \rhead{\thepage}
+%\lfoot{} \cfoot{\thepage} \rfoot{}
+\fancyhead[LE,RO]{\bfseries\thepage}
+\fancyhead[LO]{\bfseries\rightmark}
+\fancyhead[RE]{\bfseries\leftmark}
+\renewcommand{\headrulewidth}{0.3pt}
+\renewcommand{\footrulewidth}{0pt}
+\addtolength{\headheight}{0.3pt} % riserva spazio per la linea
+\fancypagestyle{plain}{
+  \fancyhead{}                        % ignora, nello stile plain, le intestazioni
+  \renewcommand{\headrulewidth}{0pt}  % e la linea
+}
+
+\fancyhf{}
+%\pagestyle{plain}
+\pagestyle{fancy}
+%\pagestyle{headings}
+%\lhead{} \chead{} \rhead{\thepage}
+%\lfoot{} \cfoot{\thepage} \rfoot{}
+\fancyhead[LE,RO]{\bfseries\thepage}
+\fancyhead[LO]{\bfseries\rightmark}
+\fancyhead[RE]{\bfseries\leftmark}
+\renewcommand{\headrulewidth}{0.3pt}
+\renewcommand{\footrulewidth}{0pt}
+\addtolength{\headheight}{0.3pt} % riserva spazio per la linea
+\fancypagestyle{plain}{
+  \fancyhead{}                        % ignora, nello stile plain, le intestazioni
+  \renewcommand{\headrulewidth}{0pt}  % e la linea
+}
+
+\usepackage{color}
+\definecolor{bgcolor}{rgb}{0.98,0.98,0.98}
+
+\usepackage{listings}
+\lstset{language=C}
+\lstset{
+  basicstyle=\footnotesize\ttfamily,
+  breaklines=true,
+  showstringspaces=false,
+  numbers=left,
+  backgroundcolor=\color{bgcolor},
+  commentstyle=\color{gray},
+  keywordstyle=\color{blue},
+  keywordstyle=[2]\color{teal},   % cyan or teal can also be a good choice, use \bfseries for bold
+  frame=none,                     % adds a frame around the code
+  tabsize=2,                      % sets default tabsize to 2 spaces
+  captionpos=b,                   % sets the caption-position to bottom
+  morekeywords=[2]{}              % if you want to add more keywords to the set
+    __
+}
+
+
+\oddsidemargin80pt      %commentare se si stampa solo fronte
+\evensidemargin40pt     %commentare se si stampa solo fronte
+
+\graphicspath{{./images/}}
+
+\newcommand{\ocal}{OpenCAL} %OpenCAL name macro expansion
+\newcommand{\ocalt}{\texttt{\ocal}} %OpenCAL name macro expansion
+
+
+\begin{document}
+
+%\frontmatter
+
+\input{front_cover.tex}
+\input{ack.tex}
+\input{data_structure.tex}
+
+\newpage
+
+\pagenumbering{roman}
+
+\tableofcontents
+
+\pagenumbering{arabic}
+
+
+
+%\backmatter
+
+\end{document}
