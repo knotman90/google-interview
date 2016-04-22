@@ -1,9 +1,15 @@
+
 \part{Data Structure}
 
 \chapter{Primitive Data Types}
 
 \section{Boolean}
-
+\iffalse
+https://oopscenities.net/2011/09/28/c-primitive-types/
+https://en.wikipedia.org/wiki/Primitive_data_type
+http://rypress.com/tutorials/objective-c/data-types/primitives
+https://en.wikipedia.org/wiki/C_data_types
+\fi
 \section{Character}
 
 \section{Floating-point}
@@ -20,6 +26,126 @@
 
 
 \chapter{Array}
+Array belongs to the so called \textit{Contiguous} Data Structure in which stored elements (all of the same type) are arranged in a \textbf{single} slab of memory. Array's elements can be easily  accessed given their \textit{indices} within the array itself the same way, using an analogy, we can locate an house in a specific street given its postcode. Array can also be tought as a collection of variables of the same type.
+
+Major characteristic of arrays are:
+\begin{description}
+\item [Constant time access] All the element of the array can be accessed in $\mathcal{O}(1)$. Array can be fully described by its
+	\begin{enumerate}
+		\item Starting address $m_0$
+		\item Size of Stored data type (e.g. 4 bytes for \texttt{int} or 1 byte for \texttt{char}) $S$
+		\item Number of stored elements (i.e. array length) $L$
+	\end{enumerate}
+	\begin{figure}[h]
+		\includegraphics[width=8cm]{array1.png}
+	\end{figure}
+	The starting address correnspond to the first element (in C-like languages index $0$) element.
+	 The second element starts at the address  $m_0 + S$, third at $m_0 + S + S$ and so on. so the element at index $i$ has index $s_i = m_0 +iS$.
+	
+\item [Only Data] Array are space efficient because they do not store any other information but data itself (unlike list for instance where each node of the list stores a pointer to the next element of the list). 
+ 
+\item [Memory locality] Array adhere perfectly to the principle of spatial locality\footnote{If a particular memory location is referenced at a particular time, then it is likely that nearby memory locations will be referenced in the near future. In this case it is common to attempt to guess the size and shape of the area around the current reference for which it is worthwhile to prepare faster access.} in which related storage locations are frequently accessed (iterating through an array is a very common idiom in all programming languages). This allows cache to work at his best.
+\end{description}
+
+Arrays have fixed size, and this in several application is a major downside (the size of the array is input dependent for instance). C-like languages allow for dynamic memory allocation at runtime (see \ref{chap:malloc} at page (\pageref{{chap;malloc}}). This involves the creation of a (different) larger (how larger is an important point) array and the copy of the first one in the beginning of the newly created one. If the program requires this dynamic enlarging often we could end up wasting much time in copying data here and there.
+The common strategy used for creating a dynamic array is to double the size of the array each time. This mitigate the average number of copies of each element. Let's imagine we start with an array of size one and we try to insert $n$ elements, doubling the size of the array when its capacity its full. The first element is has to be copied when the array expands after the fist, second, fourth, eighth ... $2^i = n$ insertion.
+It will take $i = log(n)$ doubling size for the array to have size $n$. Element in the last half of the array will be copied only one (at the last doubling). A quarter of the elements will be copied twic and so on. The total number of copies will be then
+\[
+M = \sum_{i=1}^{\log(n)} \frac{ni}{2^i} = n\sum_{i=1}^{\log(n)} \frac{i}{2^i} = n(\frac{1}{2}+\frac{1}{2} + \frac{3}{8} + \frac{1}{3} ... \frac{log(n)}{n})=2n
+\]
+So in average  each element is copied only two times.
+
+ \section{Problems and Solution}
+  \begin{problem}
+	Reverse an array in place.
+ \end{problem}
+ 
+ \begin{problem}
+    Implement a function to determine if a string has all unique characters. String can only contains latin 	characters. What happen if you are forced to use no additional data structures?
+\end{problem}
+
+ \begin{problem}
+    Implement a function to determine if a string has all unique characters. String can only contains latin 	characters. What happen if you are forced to use no additional data structures?
+\end{problem}
+
+ \begin{problem}
+    Implement a function to determine the number of repeated characters in a string. (e.g. google has 2 repeated characters, \textit{g} and \textit{o}).
+\end{problem}
+
+ \begin{problem}
+   Given an array of integer of given size containing numbers from 1 to $N \geq 2$ . Only one number is missing within the array. Write a function which output is that missing number.
+\end{problem}
+
+ \begin{problem}
+   Given an array of integer of size $N$ containing numbers from 1 to $N-2$. All numbers appear only once except one which is repeated twice. Write a function which return that number.
+\end{problem}
+
+ \begin{problem}
+Write a function which find the smallest and largest number in an unsorted array of integers. 
+\end{problem}
+
+ \begin{problem}
+	Sort an array of integer using a $\mathcal{O}(n^2)$  and a $\mathcal{O}(nlog(n))$  algorithm. Both algorithm should sort the array \textit{in-place}.
+\end{problem}
+
+ \begin{problem}
+	Given two array of sorted integer, \textit{A,B} find their intersection i.e. an array $C$ which contains only elements which belong both to A and B. $C=\{c_i \;|\; c_i \in A;,\; c_i \in B\}$
+\end{problem}
+
+ \begin{problem}
+	Given two array of unsorted integer in which only one element is repeted (the rest of them appear only once). Write a function which finds that element in $\mathcal{O}(n)$  time.
+\end{problem}
+
+ \begin{problem}
+	Write a function which finds the kth largest element in a unsorted array.
+\end{problem}
+ \begin{problem}
+	Write a function which finds the kth smallest element in a unsorted array.
+\end{problem}
+
+ \begin{problem}
+Count the number of distinct ( (a,b) is not distinct from (b,a) ) pairs in an array of integers which sum is equal to a given value $K$.
+\end{problem}
+
+ \begin{problem}
+Given three sorted array (in non decreasing order) find the intersection between all of their elements.
+\end{problem}
+
+ \begin{problem}
+Given an array, find the first repeated element. i.e. an element $e$ which occurs more than once and which index is the smallest. On the following input $1,2,3,4,5,3,2,2,7$ the function should return two because is the a repeated element with the smallest index (1).
+\end{problem}
+
+ \begin{problem}
+Given an array, return the larger and the 2th-largst element.
+\end{problem}
+
+
+ \begin{problem}
+Given an array of integer, find the smallest positive integer which cannot be represented as sum of any subset of the array. On  input 1, 3, 6, 10, 11, 15 the function should return 2. Note that the array can also contains negative numbers.
+\end{problem}
+
+ \begin{problem}
+Given an array of integer (positive and negative), return an array which elements are rearranged in alternating positive and negative. You are ensured that the number of positives and negatives matches. E.g. on input $(1,2,-6,4,8,-6,-5)$ the functions (only one of the possible valide output) return $(1,-6,2,-6,4,-5,8)$.
+\end{problem}
+
+ \begin{problem}
+Given an array of integer write a function which return true is a non empty subset of its element which sum up to $0$. False otherwise. 
+\end{problem}
+
+ \begin{problem}
+Given an array $A$ of integer find the length of the  longest sequence of consecutive integers. On input $1,56,8,-5,3,7,4,23,2,5)$ the function should return 5 (is the length of the consecutive subsequence $(1,2,3,4,5)$)
+ \end{problem}
+
+ \begin{problem}
+Find the minimum in a rotated sorted array. (a rotation of $1,2,3,4,5,6$ could be for instance $4,5,6,1,2,3$). The array does not contains duplicates.
+
+What if we allows for duplicated to be present? How does this changes the overall time complexity?
+ \end{problem}
+
+
+
+
+
 
 \chapter{List}
 \section{Singly Linked List}
@@ -64,4 +190,6 @@
 \section{Map}
 \section{MultiMap}
 \section{Hash table - Hash Map}
+\iffalse
 http://www.tommyds.it/doc/benchmark.html
+\fi
