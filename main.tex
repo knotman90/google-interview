@@ -1,6 +1,7 @@
-\documentclass[9pt]{report}
+\documentclass[9pt]{book}
 \usepackage{extsizes}
 \usepackage{amsmath}
+\usepackage{amsthm}
 \usepackage{courier}
 \usepackage{stmaryrd}
 \usepackage{lscape}
@@ -9,6 +10,7 @@
 \usepackage[pdftex]{graphicx}
 \usepackage{hyperref}
 \usepackage{mdframed}
+
 \hypersetup{
     bookmarks=true,         % show bookmarks bar?
     unicode=false,          % non-Latin characters in Acrobat�s bookmarks
@@ -93,8 +95,43 @@
 
 \graphicspath{{./images/}}
 
-\newtheorem{problem}{Problem}
 
+\usepackage{amsmath,amssymb}
+\usepackage{amsthm}
+\usepackage{thmtools}
+
+\declaretheoremstyle[
+spaceabove=6pt, spacebelow=6pt,
+headfont=\normalfont\bfseries,
+notefont=\mdseries, notebraces={(}{)},
+bodyfont=\normalfont,
+postheadspace=1em,
+headindent = \parindent,
+postheadhook = {\hspace*{\parindent}},
+postheadspace = \newline, 
+numberwithin=section
+]{exstyle}
+\declaretheoremstyle[
+spaceabove=6pt, spacebelow=6pt,
+headfont=\normalfont\bfseries,
+notefont=\mdseries, notebraces={(}{)},
+bodyfont=\normalfont,
+postheadspace=1em,
+headindent = \parindent,
+postheadhook = {\hspace*{\parindent}},
+postheadspace = \newline, 
+headpunct={},
+qed=$\blacktriangleleft$,
+numbered=no
+]{solstyle}
+\declaretheorem[style=exstyle]{example}
+\declaretheorem[style=solstyle]{solution}
+\declaretheorem[style=solstyle]{problem}
+
+
+\usepackage{graphicx}
+\usepackage{fancyvrb}
+\usepackage{color}
 
 \begin{document}
 
@@ -103,6 +140,7 @@
 \input{front_cover.tex}
 \input{ack.tex}
 \input{data_structure.tex}
+\input{project_euler.tex}
 
 \newpage
 
