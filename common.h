@@ -1,8 +1,5 @@
 /*
- * algorithm.h
- *
- *  Created on: 18 gen 2016
- *      Author: Davide Spataro
+ Author: Davide Spataro
  */
 
 #ifndef ALGORITHM_H_
@@ -67,12 +64,15 @@
 
 namespace DS {
 template <typename Iterator, typename Lambda>
+
 void for_each(Iterator s, Iterator e, Lambda l) {
   while (s != e) {
     l(*s);
     s++;
   }
 }
+
+
 
 template <typename Iterator>
 void print(Iterator s, Iterator e) {
@@ -183,44 +183,58 @@ D fold(Iterator s, Iterator e, const D& a, Lambda l) {
   return acc;
 }
 
+// Lambda has type: D -> T -> D
+template <typename D, typename Iterator, typename Lambda>
+D fold_idx(Iterator s, Iterator e, const D& a, Lambda l) {
+  D acc = a;
+  int idx=0;
+  while (s != e) {
+    acc = l(acc, *s,idx);
+    s++;
+    idx++;
+  }
+  return acc;
+}
+
+
 template <class T>
-T& min(T& op1, T& op2) {
+inline T& min(T& op1, T& op2) {
   if (op1 < op2)
     return op1;
   return op2;
 }
 
 template <class T>
-T& max(T& op1, T& op2) {
+inline T& max(T& op1, T& op2) {
   if (op1 > op2)
     return op1;
   return op2;
 }
 
 template <typename T>
-void readVector(std::vector<T>& v, const int size) {
+void readVector(std::vector<T>& v, const int size, std::istream& is=std::cin) {
   LOOPUP(i, size) {
     T a;
-    std::cin >> a;
+    is >> a;
     v.push_back(a);
   }
 }
 
 template <typename T, unsigned int D>
-void readArray(std::array<T, D>& v) {
+void readArray(std::array<T, D>& v, std::istream& is=std::cin) {
   LOOPUP(i, D) {
     T a;
-    std::cin >> a;
+    is>> a;
     v[i] = a;
   }
 }
 
 
-void read(auto& v, const unsigned int size) {
+void read(auto& v, const unsigned int size, std::istream& is=std::cin) {
     using T=typename std::remove_reference<decltype(v[0])>::type;
   LOOPUP(i, size) {
     T a;
-    std::cin >> a;
+    is>> a;
     v[i] = a;
   }
 }
@@ -289,14 +303,31 @@ Iterator binary_search(Iterator begin, Iterator end, T val,CMP_FN cmp=DS::lt)
 }
 
 template<class Iterator, class T,typename CMP_FN>
-bool binary_search(Iterator begin, Iterator end, T val,CMP_FN cmp=DS::lt){
+inline bool binary_search(Iterator begin, Iterator end, T val,CMP_FN cmp=DS::lt){
     return !binary_search(begin,end,val)==end;
 }
 
+inline bool inrange(const int l, const int r, const int idx){
+    return idx>=l && idx<=r;
+}
 
+template<class Iterator>
+inline auto sum(Iterator begin, Iterator end){
+    using T=typename std::remove_reference<decltype(*begin)>::type;
+    auto sum_fn = [&](double acc,const auto e){
+        return acc+e;
+    };
+    return DS::fold(begin,end,0,sum_fn);
+}
 
-
-
+template<class Iterator>
+inline auto multiply(Iterator begin, Iterator end){
+    using T=typename std::remove_reference<decltype(*begin)>::type;
+    auto mult_fn = [&](double acc,const auto e){
+        return acc*e;
+    };
+    return DS::fold(begin,end,1,mult_fn);
+}
 
 // check those-----------
 
@@ -346,3 +377,4 @@ inline std::ostream& operator<<(std::ostream& os, const std::map<T1, T2>& v) {
 }  // nameapace DS
 
 #endif /* ALGORITHM_H_ */
+
