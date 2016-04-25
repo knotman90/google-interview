@@ -56,6 +56,34 @@ M = \sum_{i=1}^{\log(n)} \frac{ni}{2^i} = n\sum_{i=1}^{\log(n)} \frac{i}{2^i} = 
 So in average  each element is copied only two times.
 
  \section{Problems and Solution}
+
+%---Problem---------------------------------
+\begin{problem}
+Given an array, $A$, of $N$ integers, print each element in reverse order as a single line of space-separated integers.
+\end{problem}	
+
+\begin{solution}
+
+		\begin{lstlisting}[language=C, caption="C"]
+        int main(){
+    int n; 
+    scanf("%d",&n);
+    int *arr = malloc(sizeof(int) * n);
+    for(int arr_i = 0; arr_i < n; arr_i++){
+       scanf("%d",&arr[arr_i]);
+    }
+    while(--n >=0){
+       printf("%i ",arr[n]);
+    }
+    
+    return 0;
+}
+
+		\end{lstlisting}  
+
+\end{solution}	
+%------------------------------------------------ 
+ 
   \begin{problem}
 	Reverse an array in place.
  \end{problem}
@@ -140,6 +168,68 @@ Given an array $A$ of integer find the length of the  longest sequence of consec
 Find the minimum in a rotated sorted array. (a rotation of $1,2,3,4,5,6$ could be for instance $4,5,6,1,2,3$). The array does not contains duplicates.
 
 What if we allows for duplicated to be present? How does this changes the overall time complexity?
+ \end{problem}
+
+ \begin{problem}\label{array:anagram}
+Given two string, determine which is the minimum number of deletions (a delete operation can be performed on both string) necessary for the two string to be a valid anagram\footnote{A word, phrase, or name formed by rearranging the letters of another, such as spar, formed from rasp.} of each other. Strings contains only latin characters with no space. Given \textit{hello} and \textit{belloz} the function should returns 2. ( See solution \ref{array:anagram_sol} at page \pageref{array:anagram_sol} )
+
+
+\begin{lstlisting}[ label=array:anagram_sol, caption=Solution to problem \ref{array:anagram} ]
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+#include <stdlib.h>
+
+void removeTrailingNL(char* s){
+    int size = strlen(s);
+    if(size > 0 && s[size-1] == '\n')
+        s[size-1] = '\0';
+}
+
+#define MAX_INPUT_SIZE (10000)
+int main() {
+    const int alph_size = 'z'-'a'+1;
+    int s1_freq[alph_size];
+    int s2_freq[alph_size];
+    //initialize frequencies arrays
+    for(int i = 0 ; i < alph_size ; i++){
+        s1_freq[i] = 0;
+        s2_freq[i] = 0;
+    }
+    //read both string
+    char s1[10000];
+    char s2[10000];
+    fgets(s1,MAX_INPUT_SIZE,stdin);
+    fgets(s2,MAX_INPUT_SIZE,stdin);
+    removeTrailingNL(s1);
+    removeTrailingNL(s2);
+    
+    int size_s1, size_s2;
+    size_s1 = strlen(s1);
+    size_s2 = strlen(s2);
+    //compute frequencies
+    for(int i  = 0 ; i< size_s1 ; i++)
+        s1_freq[s1[i]-'a'] = s1_freq[s1[i]-'a'] + 1;
+    for(int i  = 0 ; i< size_s2 ; i++)
+        s2_freq[s2[i]-'a'] = s2_freq[s2[i]-'a'] + 1;
+    /*
+  //print frequencies  
+ for(int i  = 0 ; i< alph_size ; i++){
+     printf("%c %i %i\n",'a'+i,s1_freq[i],s2_freq[i]);
+ }*/
+    
+    //compute minimum delete operation
+    int dels = 0;
+    for(int i  = 0 ; i< alph_size ; i++)
+        dels = dels + (abs(s1_freq[i] - s2_freq[i]));
+    
+    
+    //prints output
+    printf("%i",dels);
+   
+    return 0;
+}
+\end{lstlisting}
  \end{problem}
 
 
