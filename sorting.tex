@@ -1,7 +1,7 @@
 \chapter{Sorting}
 
 \section{Introduction}
-Why sortin is important
+Why sorting is important
 
 Give an example of sortin
 \begin{description}
@@ -150,10 +150,67 @@ void merge(Container& v, Container& scratch,  int s1,  int e1,  int e2,CMP_FN cm
 }
 \end{lstlisting}
 
+The following is the main mergesort method. It uses an helper function in order to hide the additional space required by the merge. Note that midpoint is computed using the \texttt{safe\_midpoint()} methods which avoids overflows for large $lo$ and $hi$ at a cost of an additional operation.
 
+\begin{lstlisting}[language=c++, caption="Merge-sort"]
+template<typename T>
+inline T safe_midpoint(const T lo, const T hi){
+    return lo+(hi-lo)/2;
+}
+template<typename T>
+inline T unsafe_midpoint(const T lo, const T hi){
+    return (hi+lo)/2;
+}
+#define TRIGGER_INSERTIONSORT (4)
+template < typename Container, typename CMP_FN>
+void mergesort_helper(Container& v,Container& scratch, const int s,const int e, CMP_FN cmp) {
+    if(e -s <= TRIGGER_INSERTIONSORT)
+        DS::insertionsort(v,s,e,cmp);
+    if(s < e){
+        int midpoint = safe_midpoint(s,e);
+        mergesort_helper(v,scratch,s,midpoint,cmp);
+        mergesort_helper(v,scratch,midpoint+1,e,cmp);
+        merge(v,scratch,s,midpoint,e,cmp);
+    }
+}
+// CMP_FN has type: D -> D -> bool
+template < typename Container, typename CMP_FN>
+void mergesort(Container& v, const int s,const int e, CMP_FN cmp) {
+    Container scratch(v.size());
+    mergesort_helper(v,scratch,s,e,cmp);
+
+}
+\end{lstlisting}
+
+
+\textbf{QuickSort is better for contiguous data structures}.
 In the merge sort algorithm, this subroutine is typically used to merge two sub-arrays $A[lo..mid]$, $A[mid..hi]$ of a single array $A$. This can be done by copying the sub-arrays into a temporary array, then applying the merge algorithm above.The allocation of a temporary array can be avoided, but at the expense of speed and programming ease. Various in-place merge algorithms have been devised, sometimes sacrificing the linear-time bound to produce an $\mathcal{nlog(n)}(n^2)$ algorithm.
 
+Quick Sort in its general form is an in-place sort (i.e. it does not require any extra storage) whereas merge sort requires $O(N)$ extra storage, where $N$ denote the array size which may be quite expensive. Allocating and de-allocating the extra space used for merge sort increases the running time of the algorithm. Comparing average complexity we find that both type of sorts have $O(NlogN)$ average complexity but the constants differ (and sometimes matter). For arrays, merge sort loses due to the use of extra $O(N)$ storage space.
+
+Most practical implementations of Quick Sort use randomized version. The randomized version has expected time complexity of O(nLogn). The worst case is possible in randomized version also, but worst case doesn’t occur for a particular pattern (like sorted array) and randomized Quick Sort works well in practice.
+Quick Sort is also a cache friendly sorting algorithm as it has good locality of reference when used for arrays.
+Quick Sort is also tail recursive, therefore tail call optimizations is done.
+
+\textbf{Merge-Sort is better for Linked Data Structure}.
+List case is different mainly due to differenc in memory allocation patterns w.t.r. to array.In linked list, we can insert items in the middle in $O(1)$ extra space and time. Therefore merge operation of merge sort can be implemented without extra space for linked lists (i.e. no waste of time during allocation and copy of any extra buffers). 
+For contiguous data structure, we can do $O(1)$ time and space random access as elements are continuous in memory. But  Unlike arrays, we can not do random access in linked list \footnote{In linked list to access $i^{th}$ element, we have to travel each and every node from the head to $i^{th}$ node as we don not have continuous block of memory}. Quick Sort requires a lot of this kind of accesses. Therefore, the overhead increases for quick sort. Merge sort accesses data sequentially and the need of random access is low.
+
+
+\subsubsection{Iterative Merge-Sort}
+
 \subsection{Complexity Analysis}
+
+Merge Sort is a recursive algorithm and time complexity can be expressed as following recurrence relation.
+$T(n) = 2T(n/2) + \Theta(n)$
+The above recurrence can be solved either using Recurrence Tree method or Master method. It falls in case II of Master Method and solution of the recurrence is $\Theta(nlog(n))$.
+Time complexity of Merge Sort is $\Theta(nlog(n))$ in all 3 cases (worst, average and best) as merge sort always divides the array in two halves and take linear time to merge two halves.
+Auxiliary Space: $O(n)$
+Sorting In Place: No in a typical implementation
+Stable: Yes
+
+
+
 
 \section{Quick-Sort}
 
@@ -166,3 +223,421 @@ In the merge sort algorithm, this subroutine is typically used to merge two sub-
 \section{Smoot-Sort}
 
 \subsection{Complexity Analysis}
+
+
+\section{Solving Recurrence relation}
+
+\section{Substitution method}
+\label{sec:substitutionmethod}
+Despite the name, this is not a method that gives us a solution for the recurrence. It serves only to prove that an initial solution guess is right. It basically use induction to prove that the guess holds and is an actual solution of the recurrence equation.
+
+
+\section{Recursion Tree method}
+A recursion tree is useful for visualizing what happens when a recurrence is iterated. It diagrams the tree of recursive calls and the amount of work done at each call.
+For instance, consider the recurrence
+\[T(n) = 2T(\frac{n}{2}) + n^2\]
+The recursion tree for this recurrence has the following form(see figure \ref{fig:rectree1})
+
+\begin{figure}
+\label{fig:rectree1}
+		\includegraphics[width=12cm]{recTree1.png}
+\end{figure}
+It is easy to compute the amount of work done at each recursion level simply summing up all the nodes at a certain level (see figure \ref{fig:rectree2}).
+\begin{figure}
+\label{fig:rectree2}
+		\includegraphics[width=12cm]{recTree2.png}
+\end{figure}
+
+In this case this is a geometric serie which sum limit is bounded by a quadratic function i.e. $O(n^2)$. 
+
+Recursion trees can be useful for gaining intuition about the closed form of a recurrence, but they are not a proof (and in fact it is easy to get the wrong answer with a recursion tree, as is the case with any method that includes ''...'' kinds of reasoning). As we saw last time, a good way of establishing a closed form for a recurrence is to make an educated guess and then prove by induction that your guess is indeed a solution (see section \ref{sec:substitutionmethod} at page \ref{sec:substitutionmethod}). Recurrence trees can be a good method of guessing.
+
+
+For example consider the following recurrence equation:
+\[ T(n) = T(\frac{n}{3}) + T(\frac{2n}{3}) + n\]
+
+Expanding the first levels of the corrensponding recursion tree we obtain the tree in figure \ref{fig:rectree3}.
+\begin{figure}
+\label{fig:rectree3}
+		\includegraphics[width=12cm]{recTree3.png}
+\end{figure}
+
+Each level sums up to $n$, the height of this tree is $log_{\frac{3}{2}}(n)$. So out guess is that $T=O(nlogn)$.
+
+Using the substitution method let's check if our guess is right.
+
+\section{Master method}
+
+
+
+
+\section{Questions \& Problems}
+%---Question ------------
+\begin{problem}
+Which of the following is not a stable sorting algorithm in its typical implementation.
+\begin{enumerate}
+\item Insertion-sort
+\item Merge-sort
+\item Quick-sort
+\item Bubble-sort
+\end{enumerate}
+
+\end{problem}
+
+%---Question------------
+\begin{problem}
+Consider a situation where swap operation is very costly. Which of the following sorting algorithms should be preferred so that the number of swap operations are minimized in general?
+\begin{enumerate}
+\item Insertion-sort
+\item Merge-sort
+\item Quick-sort
+\item Bubble-sort
+\end{enumerate}
+
+\end{problem}
+
+
+
+%---Question------------
+\begin{problem}
+You have to sort 1 GB of data with only 100 MB of available main memory. Which sorting technique will be most appropriate?
+\begin{enumerate}
+\item Insertion-sort
+\item Merge-sort
+\item Quick-sort
+\item Bubble-sort
+\end{enumerate}
+
+\end{problem}
+
+
+%---Question------------
+\begin{problem}
+In a modified merge sort, the input array is splitted at a position one-third of the length(N) of the array. What is the worst case time complexity of this merge sort?
+\begin{enumerate}
+\item $\mathcal{O}(nlog_3(n))$
+\item $\mathcal{O}(nlog_{\frac{2}{3}}(n))$
+\item $\mathcal{O}(nlog_{\frac{1}{3}}(n))$
+\item $\mathcal{O}(nlog_{\frac{3}{2}}(n))$
+
+\end{enumerate}
+
+\end{problem}
+
+
+%---Question------------
+\begin{problem}
+Which sorting algorithm will take least time when all elements of input array are identical? Consider typical implementations of sorting algorithms.
+\begin{enumerate}
+\item Insertion-sort
+\item Merge-sort
+\item Quick-sort
+\item Bubble-sort
+\end{enumerate}
+
+\end{problem}
+
+
+%---Question------------
+\begin{problem}
+A list of n string, each of length n, is sorted into lexicographic order using the merge-sort algorithm. The worst case running time of this computation is:
+\begin{enumerate}
+\item $\mathcal{O}(nlog(n))$
+\item $\mathcal{O}(n^2log(n))$
+\item $\mathcal{O}(n^2 + log(n))$
+\item $\mathcal{O}(n^2)$
+\end{enumerate}
+
+\end{problem}
+
+
+%---Question1------------
+\begin{problem}
+Which of the following sorting algorithms has the lowest worst-case complexity?
+\begin{enumerate}
+\item Insertion-sort
+\item Merge-sort
+\item Quick-sort
+\item Bubble-sort
+\end{enumerate}
+
+\end{problem}
+
+
+
+%---Question1------------
+\begin{problem}
+Which of the following is true about merge sort?
+\begin{enumerate}
+\item Merge Sort works better than quick sort if data is accessed from slow sequential memory.
+\item Merge Sort is stable sort by nature
+\item Merge sort outperforms heap sort in most of the practical situations.
+\item All the above.
+\end{enumerate}
+
+\end{problem}
+
+
+%---Question1------------
+\begin{problem}
+Assume that a mergesort algorithm in the worst case takes 30 seconds for an input of size 64. Which of the following most closely approximates the maximum input size of a problem that can be solved in 6 minutes?
+\begin{enumerate}
+\item $2^8$
+\item $2^9$
+\item $2^{10}$
+\item $2^{11}$
+\end{enumerate}
+
+\end{problem}
+
+
+
+%---Problem------------
+\begin{problem}
+\textit{Given an array, write a program that prints 1 if array is sorted in non-decreasing order, else prints 0.}
+
+\textbf{Input:}
+The first line of input contains an integer $T$ denoting the number of test cases.
+The first line of each test case contains $N$, which is the size of array (on the following line).
+The second line of each test case contains $N$ input $C[i]$.
+
+\textbf{Output:}
+Print 1 if array is sorted, else print 0.
+
+\textbf{Constraints:}
+\begin{multline}\\
+1 \leq T \leq 100\\
+1 \leq N \leq 500\\
+1 \leq C[i] \leq 1200\\
+\end{multline}
+\end{problem}
+
+\begin{solution}
+\begin{lstlisting}[language=C++, caption="C++ Solution"]
+	int main(){
+		return 0;	
+	}
+\end{lstlisting}
+
+\end{solution}
+
+
+
+%---Problem------------
+\begin{problem}
+\textit{Given a binary array, sort it in non-decreasing order.}
+
+\textbf{Input:}
+First line contains an integer denoting the test cases $T$.  Every test case contains two lines, first line is size $N$ and second line is space separated elements of array
+
+\textbf{Output:}
+Space separated elements of sorted arrays.  There should be a new line between output of every test case.
+
+\textbf{Constraints:}
+\begin{multline}\\
+10 \leq T \leq 100\\
+1 \leq N \leq 10000\\
+\end{multline}
+
+\textbf{Example:}
+\begin{verbatim}
+Input:
+2
+5
+1 0 1 1 0
+10
+1 0 1 1 1 1 1 0 0 0
+
+Output:
+0 0 1 1 1
+0 0 0 0 1 1 1 1 1 1 
+
+\end{verbatim}
+
+\end{problem}
+
+\begin{solution}
+\begin{lstlisting}[language=C++, caption="C++ Solution"]
+	int main(){
+		return 0;	
+	}
+\end{lstlisting}
+
+\end{solution}
+
+
+
+%---Problem------------
+\begin{problem}
+\textit{Given an array, print k largest elements from the array.}
+
+\textbf{Input:}
+The first line of input contains an integer $T$ denoting the number of test cases.
+The first line of each test case is $N$ and $K$, where $N$ is the size of array and $K$ is the largest elements to be returned.
+The second line of each test case contains $N$ input $C[i]$.
+
+\textbf{Output:}
+Print the $K$ largest elements in \textbf{descending order}.
+
+\textbf{Constraints:}
+\begin{multline}\\
+10 \leq T \leq 50\\
+1 \leq N \leq 100\\
+K \leq N \\
+1 \leq C[i] \leq 1000\\
+\end{multline}
+
+\textbf{Example:}
+\begin{verbatim}
+Input:
+2
+5 2
+12 5 787 1 23
+7 3
+1 23 12 9 30 2 50
+
+Output:
+787 23
+50 30 23
+
+\end{verbatim}
+
+\end{problem}
+
+\begin{solution}
+\begin{lstlisting}[language=C++, caption="C++ Solution"]
+	int main(){
+		return 0;	
+	}
+\end{lstlisting}
+
+\end{solution}
+
+
+
+%---Problem------------
+\begin{problem}
+Given an array with n distinct elements, convert the given array to a reduced form where all elements are in range from $[0 ... n-1]$. The order of elements is same, i.e., 0 is placed in place of smallest element, 1 is placed for second smallest element,\ldots $n-1$ is placed as last element.
+
+\textbf{Input:}
+The first line of input contains an integer $T$ denoting the number of test cases.
+The first line of each test case is $N$, where $N$ is the size of array.
+The second line of each test case contains $N$ input $A[i]$.
+
+\textbf{Output:}
+Print the reduced form of the array.
+
+\textbf{Constraints:}
+\begin{multline}\\
+1 \leq T \leq 100\\
+1 \leq N \leq 200\\
+1 \leq A[i] \leq 500\\
+\end{multline}
+
+\textbf{Example:}
+\begin{verbatim}
+Input:
+2
+3
+10 40 20
+5
+5 10 40 30 20
+
+Output:
+0 2 1
+0 1 4 3 2
+
+\end{verbatim}
+
+\end{problem}
+
+
+%---Problem------------
+\begin{problem}
+Given two array $A1$ and $A2$, sort $A1$ in such a way that the relative order among the elements will be same as those are in $A2$. For the elements not present in $A2$. Append them at last in sorted order.
+
+\textbf{Input:}
+The first line of input contains an integer $T$ denoting the number of test cases.
+The first line of each test case is $M$ and $N,M$ are the number of elements in $A1$ and $A2$ respectively.
+The second line of each test case contains $M$ elements.
+The third line of each test case contains $N$ elements.
+\textbf{Output:}
+Print the sorted array according order defined by another array.
+
+\textbf{Constraints:}
+\begin{multline}\\
+1 \leq T \leq 50\\
+1 \leq N \leq M \leq 10\\
+1 \leq A1[i],A2[i] \leq 500\\
+\end{multline}
+
+\textbf{Example:}
+\begin{verbatim}
+Input:
+2
+3
+10 40 20
+5
+5 10 40 30 20
+
+Output:
+0 2 1
+0 1 4 3 2
+
+\end{verbatim}
+
+\end{problem}
+
+
+\begin{solution}
+\begin{lstlisting}[language=C++, caption="C++ Solution"]
+	int main(){
+		return 0;	
+	}
+\end{lstlisting}
+
+\end{solution}
+
+
+%---Problem------------
+\begin{problem}
+\textit{Given an array of integers, sort the array according to frequency of elements. For example, if the input array is $\{2, 3, 2, 4, 5, 12, 2, 3, 3, 3, 12\}$, then modify the array to $\{3, 3, 3, 3, 2, 2, 2, 12, 12, 4, 5\}$}. 
+
+If frequencies of two elements are same, print them in increasing order.
+
+\textbf{Input:}
+The first line of input contains an integer $T$ denoting the number of test cases. The description of $T$ test cases follows. The first line of each test case contains a single integer $N$ denoting the size of array. The second line contains $N$ space-separated integers $A1, A2, ..., AN$ denoting the elements of the array.
+
+\textbf{Output:}
+Print each sorted array on a newline. Each sorted array should be printed as space-separated.
+
+\textbf{Constraints:}
+\begin{multline}\\
+1 \leq T \leq 70\\
+1 \leq N \leq 130\\
+1 \leq A[i] \leq 60\\
+\end{multline}
+
+\textbf{Example:}
+\begin{verbatim}
+Input:
+1
+5
+5 5 4 6 4
+
+Output:
+4 4 5 5 6 
+
+\end{verbatim}
+
+\end{problem}
+
+\begin{solution}
+\begin{lstlisting}[language=C++, caption="C++ Solution"]
+	int main(){
+		return 0;	
+	}
+\end{lstlisting}
+
+\end{solution}
+
