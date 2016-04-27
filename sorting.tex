@@ -93,6 +93,25 @@ Selection sorting is conceptually the most simplest sorting algorithm. This algo
 
 The algorithm divides the input list into two parts: the sublist of items already sorted, which is built up from left to right at the front (left) of the list, and the sublist of items remaining to be sorted that occupy the rest of the list. Initially, the sorted sublist is empty and the unsorted sublist is the entire input list. The algorithm proceeds by finding the smallest (or largest, depending on sorting order) element in the unsorted sublist, exchanging (swapping) it with the leftmost unsorted element (putting it in sorted order), and moving the sublist boundaries one element to the right.
 
+\begin{lstlisting}[language=c++, caption="Selection Sort implementation in C++14"]
+// CMP_FN has type: D -> D -> bool
+template < typename Container, typename CMP_FN>
+void selectionsort(Container& v, const int s,const int e, CMP_FN cmp) {
+    for(int i=s ; i<=e ;i++){
+            int min = v[i];
+            int idxmin = i;
+            for(int j=i+1 ; j<=e ;j++)
+                if(v[j] < min){
+                    min = v[j];
+                    idxmin = j;
+                }
+            swap(v[i],v[idxmin]);
+    }
+}
+\end{lstlisting}
+
+
+
 \begin{verbatim}
 64 25 12 22 11 // this is the initial, starting state of the array
 
@@ -214,6 +233,63 @@ Stable: Yes
 
 \section{Quick-Sort}
 
+\begin{lstlisting}[language=c++, caption="QuickSort Partition"]
+template<class Container, typename CMP_FN>
+inline int selectpivotidx(Container& v, const int s, const int e,CMP_FN cmp){
+    return e-1;
+}
+
+template<class Container, typename CMP_FN>
+ int partition(Container& v, const int s, const int e,CMP_FN cmp){
+//Lomuto partition scheme
+    int pivotidx = selectpivotidx(v,s,e,cmp);
+    swap(v[pivotidx],v[e-1]);//put pivot in the last position
+    pivotidx = e-1;
+    const auto pivot = v[pivotidx];//last element
+    int i = s;
+    for(int j=s ; j<e ;j++)
+        if(cmp(v[j],pivot) )
+            swap(v[i++],v[j]);
+    swap(v[i],v[pivotidx]);
+    return i;
+}
+\end{lstlisting}
+
+
+
+\begin{lstlisting}[language=c++, caption="QuickSort Recursive"]
+#define TRIGGER_INSERTION (7)
+// CMP_FN has type: D -> D -> bool
+template < typename Container, typename CMP_FN>
+inline void quicksort(Container& v, const int s,const int e, CMP_FN cmp) {
+    if(e - s <= TRIGGER_INSERTION)
+        DS::insertionsort(v,s,e,cmp);
+    else{
+        const int p = partition(v,s,e,cmp);
+        quicksort(v,s,p,cmp);
+        quicksort(v,p+1,e,cmp);
+    }
+}
+\end{lstlisting}
+
+
+\begin{lstlisting}[language=c++, caption="QuickSort Tail Recursive"]
+//tail recursive version
+// CMP_FN has type: D -> D -> bool
+template < typename Container, typename CMP_FN>
+inline void quicksort_tr(Container& v,  int s,const int e, CMP_FN cmp) {
+    if(e - s <= TRIGGER_INSERTION)
+        DS::insertionsort(v,s,e,cmp);
+    else
+        while(s < e){
+        const int p = partition(v,s,e,cmp);
+        quicksort(v,s,p,cmp);
+        s = p+1;
+        }
+}
+\end{lstlisting}
+
+
 \subsection{Complexity Analysis}
 
 \section{Heap-Sort}
@@ -230,6 +306,18 @@ Stable: Yes
 \section{Substitution method}
 \label{sec:substitutionmethod}
 Despite the name, this is not a method that gives us a solution for the recurrence. It serves only to prove that an initial solution guess is right. It basically use induction to prove that the guess holds and is an actual solution of the recurrence equation.
+So let's say we have the following recurrence equation ( we will see later on that we can use the master method for this):
+\[T(n) = 2T(\frac{n}{2}) + n\]
+Our guess is that $T(n) \leq c(nlog(n))$ (so basically that $T(n) \in O(nlog(n))$), and we will use mathematical induction to prove it.
+
+\begin{itemize}
+\item Base Case: $n=0$, $T(n) = n \leq nlog(n)$
+\item Assume that it hold for values lower than a certain $n$
+\item Inductive Step: 
+\[T(n) = 2T(\frac{n}{2}) + n \leq \frac{n}{2} log(\frac{n}{2}) + n \leq nlog(n) - nlog(2) +n \leq nlog(n) - n +n \leq nlog(n)\]
+\end{itemize}
+
+
 
 
 \section{Recursion Tree method}
@@ -267,7 +355,71 @@ Each level sums up to $n$, the height of this tree is $log_{\frac{3}{2}}(n)$. So
 Using the substitution method let's check if our guess is right.
 
 \section{Master method}
+The master method is a cookbook method for solving recurrences. Although it cannot solve all recurrences, it is nevertheless very handy for dealing with many recurrences seen in practice. It can only cope with recurrences of the following form:
 
+\[T(n) = aT(\frac{n}{b}) +f(n)\]
+where a and b are arbitrary constants and f is some function of n. This recurrence would arise in the analysis of a recursive algorithm that for large inputs of size n breaks the input up into a subproblems each of size n/b, recursively solves the subproblems, then recombines the results. \textbf{The work to split the problem into subproblems and recombine the results is $f(n)$}.
+
+We can visualize this as a recurrence tree, where the nodes in the tree have a branching factor of $a$. The root node has work $f(n)$ associated with it, the next level has work $f(\frac{n}{b})$ associated with each of a nodes, the next level has work  $f(\frac{n}{b^2})$ associated with each of $a^2$ nodes, and so on. At the leaves are the base case corresponding to some $1 \leq n < b$. The tree has $log_b(n)$ levels, so the total number of leaves is $a^{log_b(n)} = n^{log_b(a)}$ (see footonate 
+\footnote{Since $b^{log_b(x)} = x$ Exponentiation is the inverse operation of logarithm so is like writing $f^{-1}(f(x))$ which is clearly $x$) then:
+\[a^{log_b(n)} = b^{log_b(a) \times log_b(n) } = (b^{log_b(n)})^{log_b(a)} = n^{log_b(a)}\]}).
+
+The total number of operation is the sum of the operation performed at each of the $a^{log_b(n)}$ levels.
+The number of operation performed at level $i$ is the sum of the time taken by a single node at level $i$ multiplied by the number of nodes at level $i$ plus the constant amount of work done at the leaves.
+The number of nodes at level $i$ is $a^{i}$ while the number of operation per node is $f(\frac{n}{b^i})$ .
+
+The total work is then:
+\[
+(\sum_{i=0}^{log_b(n)} a^i f(\frac{n}{b^i})) + O(n^{log_b(a)}
+\]
+
+The asymptotic bound of this sum depends the asymptotic growth of $f(n)$. we can then distinguish three cases:
+
+\begin{enumerate}
+\item Case 1: $f(n)$ is $O(n^{log_b(a)-\epsilon})$ i.e. it grows slower than the number of leaves, meaning that all the work is done at leaves. $T(N)$ is then bounded on the number of leaves i.e. $T(N) = \Omega(n^{log_b(a)})$
+	
+\item Case 2: $f(n)$ is $O(n^{log_b(a)})$ i.e. it grows at the same rate as the number of leaves, meaning that all the work is distributed evenly across all the nodes of all levels of the tree. The tree has $\Omega(log_b(n)$ levels and so $T(N)= \Omega(n^{log_b(a)} log_b(n))$
+	
+\item Case 3: The easiest one. $f(n)$ is $O(n^{log_b(a) +\epsilon})$ i.e. at limit it grows faster then the number of leaves, meaning that all the work is dominated by the work done at the root of the tree. In this case then  $T(N)= \Omega(f(n))$ ($f$ for large $n$ should also satisfy that $a(f(\frac{n}{b}) \leq cf(n)$ for some constant $c<1$).
+	
+\end{enumerate} 
+
+\begin{example}
+\[
+T(n) = 4T(\frac{n}{2}) + n
+\]
+This recurrence describes a problem for which at each level of recursion $4$ new problems each of size $\frac{n}{2}$ and performing a \textbf{linear} work ($f(n) =n$) at each call.
+The number of leaves is then $n^{log_b(a) = n^{log_2(4)} = n^2} $ which grows faster than $f(n)$. \textbf{Case 1} applies giving rise to $T(N) = \Omega(n^2)$.
+\end{example}
+
+
+\begin{example}
+\[
+T(n) = 4T(\frac{n}{2}) + n^2
+\]
+This recurrence describes a problem for which at each level of recursion $4$ new problems each of size $\frac{n}{2}$ and performing a \textbf{quadratic} work ($f(n) =n$) at each call.
+The number of leaves is again $n^{log_b(a)} = n^{log_2(4)} = n^2 $ which grows as fast as faster $f(n)$. \textbf{Case 2} applies giving rise to $T(N) = \Omega(log_2^{n} n^2)$. Note here that an increase from linear to quadratic in the work perofmed at each call give rise only to a $log$ increase in the overall complexity.
+
+\end{example}
+
+\begin{example}
+\[
+T(n) = 4T(\frac{n}{2}) + n^3
+\]
+This recurrence describes a problem for which at each level of recursion $4$ new problems each of size $\frac{n}{2}$ and performing a \textbf{cubic} work ($f(n) =n$) at each call.
+The number of leaves is again $n^{log_b(a)} = n^{log_2(4)} = n^2 $ which grows slower than $f(n)$. \textbf{Case 3} applies giving rise to $T(N) = \Omega(n^3)$ ($4(\frac{n}{2})^3 \leq kn^3$ for $k=\frac{1}{2}$). 
+
+\end{example}
+
+
+\begin{example}
+
+\[T(n) = 2T(\frac{n}{2}) + n\]
+
+This recurrence describes a problem for which at each level of recursion $2$ new problems each of size $\frac{n}{2}$ and performing a \textbf{linear} work ($f(n) =n$) at each call.
+The number of leaves is again $n^{log_b(a)} = n^{log_2(2)} = n $ which grows as fast as $f(n)$. \textbf{Case 2} applies giving rise to $T(N) = \Omega(n log(n))$ (as proved by induction in section \ref{sec:substitutionmethod})
+
+\end{example}
 
 
 
