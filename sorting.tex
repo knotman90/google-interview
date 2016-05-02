@@ -294,7 +294,7 @@ inline void quicksort_tr(Container& v,  int s,const int e, CMP_FN cmp) {
 
 \section{Heap-Sort}
 \subsection{Heap}
-Recall that a heap is a data structure that supports the main priority queue operations (\textit{insert} and \textit{extract max}) in $\mathcal{\Theta}(log n)$ time each. It consists of a left-complete binary tree (meaning that all levels of the tree except possibly the bottommost) are full, and the bottommost level is filled from left to right. As a consequence, it follows that the depth of the tree is Θ(log n) where n is the number of elements stored in the tree. The keys of the heap are stored in the tree in what is called heap order. This means that for each (\textbf{nonroot}) node its parent’s key is at least as large as its key. From this it follows that the largest key in the heap appears at the root.
+Recall that a heap is a data structure that supports the main priority queue operations (\textit{insert} and \textit{extract max}) in $\mathcal{\Theta}(log n)$ time each. It consists of a left-complete binary tree (meaning that all levels of the tree except possibly the bottommost) are full, and the bottommost level is filled from left to right. As a consequence, it follows that the depth of the tree is $\mathcal{\Theta}(log n)$ where n is the number of elements stored in the tree. The keys of the heap are stored in the tree in what is called heap order. This means that for each (\textbf{nonroot}) node its parent’s key is at least as large as its key. From this it follows that the largest key in the heap appears at the root.
 \subsection{Heap as Array}
 Last time we mentioned that one of the clever aspects of heaps is that they can be stored in
 arrays, without the need for using pointers (as would normally be needed for storing binary trees). The
@@ -324,6 +324,35 @@ In particular it is easy to see the following:
 
 So is a heap a binary tree or an array? The answer is that from a conceptual standpoint, it is a binary
 tree. However, it is implemented (typically) as an array for space efficiency
+
+\begin{problem}
+What are the minimum and maximum numbers of elements in a heap of height h?
+\end{problem}
+
+\begin{problem}
+Show that an n-element heap has height lg n.
+\end{problem}
+
+\begin{problem}
+
+Show that the largest element in a subtree of a heap is at the root of the subtree.
+\end{problem}
+
+\begin{problem}
+
+Where in a heap might the smallest element reside?
+\end{problem}
+
+\begin{problem}
+
+Is an array that is in reverse sorted order a heap?
+
+\end{problem}
+
+\begin{problem}
+
+Is the sequence 23, 17, 14, 6, 13, 10, 1, 5, 7, 12 a heap?
+\end{problem}
 
 \subsection{Maintaining the Heap Property}
 There is one principal operation for maintaining the heap property. It is
@@ -361,6 +390,32 @@ void buildheap(Container& c,const int s, const int e, CMP_FN cmp_fn){
 }
 \end{lstlisting}
  Since each call to heapify takes $\mathcal{O}(log n)$ time, and we make roughly $\frac{n}{2}$ calls to it, the total running time is $\mathcal{O}(\frac{n}{2} log n)$ = $\mathcal{O}(nlog n)$. Next time we will show that this actually runs faster, and in fact it runs in $\mathcal{\Theta}(n)$ time.
+ 
+\begin{problem}
+
+What is the effect of calling HEAPIFY(A, i) when the element A[i] is larger than its children?
+\end{problem}
+
+\begin{problem}
+
+What is the effect of calling HEAPIFY (A, i) for i > heap-size [A]/2?
+\end{problem}
+
+\begin{problem}
+
+The code for HEAPIFY is quite efficient in terms of constant factors, except possibly for the recursive call in line 10, which might cause some compilers to produce inefficient code. Write an efficient HEAPIFY that uses an iterative control construct (a loop) instead of recursion.
+\end{problem}
+
+\begin{problem}
+
+Show that the worst-case running time of HEAPIFY on a heap of size n is (lg n). (Hint: For a heap with n nodes, give node values that cause HEAPIFY to be called recursively at every node on a path from the root down to a leaf.)
+\end{problem}
+
+
+
+ 
+ 
+ 
 \subsection{Sorting using a Heap}
 The heap gives us easy and fast $\mathcal{O}(log n)$ access to the max/min element of an unordered set.
 The algorithm repeatedly extracts the max/min (which will be at first position). This will leave the array with an hole. What we can do to avoid this is to swap this element with last. This can cause heap property to fail, but our heapify procedure can take can of this since the root is the only node that can violate the property and its left and right subtree are correct heaps.
@@ -403,8 +458,14 @@ The $\frac{n}{8}$ nodes at the upper level faces at most two bubble-up operation
 \sum_{i=2}^{log(n)} \frac{n}{2^{i}}[(i-1)c] = n \sum_{i=2}^{log(n)} \frac{1}{2^{i}}[(i-1)c]
 \]
 The term inside the summation is bounded by a constant so the overall work is $\mathcal{O}(n)$!
-\end{framed}
 
+
+\end{framed}
+\begin{figure}
+\label{fig:heaplinear}
+\caption{"Building an heap in linear time example"}
+		\includegraphics[width=12cm]{heaplinear.png}
+\end{figure}
 
 
 \section{Smoot-Sort}

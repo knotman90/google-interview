@@ -1,6 +1,4 @@
 
-\part{Data Structure}
-
 \chapter{Primitive Data Types}
 
 \section{Boolean}
@@ -248,7 +246,92 @@ int main() {
 
 \chapter{Queue}
 \section{Double-ended queue - Dequeue}
+
 \section{Priority Queue}
+Nevertheless, the heap data structure itself has enormous utility. In this section, we present one of the most popular applications of a heap: its use as an efficient priority queue.
+A priority queue is a data structure for maintaining a set S of elements, each with an associated value called a key. A priority queue supports the following operations.
+\begin{description}
+\item [\texttt{INSERT(S,x)}] inserts an element $x$ into the set S
+\item [\texttt{\{MAX,MIN\}(S,x)}] return the element of S with largest/smallest key 
+\item [\texttt{EXTRACT-\{MAX,MIN\}(S,x)}] return and removes the element of S with largest/smallest key 
+\end{description}
+One application of priority queues is to schedule jobs on a shared computer. The priority queue keeps track of the jobs to be performed and their relative priorities. When a job is finished or interrupted, the highest-priority job is selected from those pending using EXTRACT-MAX. A new job can be added to the queue at any time using INSERT.
+
+A priority queue can also be used in an event-driven simulator. The items in the queue are events to be simulated, each with an associated time of occurrence that serves as its key. The events must be simulated in order of their time of occurrence, because the simulation of an event can cause other events to be simulated in the future. For this application, it is natural to reverse the linear order of the priority queue and support the operations MINIMUM and EXTRACT-MIN instead of MAXIMUM and EXTRACT-MAX. The simulation program uses EXTRACT-MIN at each step to choose the next event to simulate. As new events are produced, they are inserted into the priority queue using INSERT.
+
+Not surprisingly, we can use a heap to implement a priority queue. The operation HEAP-MAXIMUM returns the maximum heap element in (1) time by simply returning the value A[1] in the heap. The HEAP-EXTRACT-MAX procedure is similar to the for loop body (lines 3-5) of the HEAPSORT procedure:
+
+\begin{algorithm}[H]
+ \KwData{Heap H}
+ \KwResult{Extract Max - Max element of H}
+\uIf{heap-size(H) $<$ 1}{
+	 underflow error
+   }
+
+$max \gets H[1]$\;
+$H[1] \gets H[heap-size(H)]$\;
+$heap-size(H) \gets heap-size(H) -1$\;
+\Return{max}\;
+
+\caption{Priority Queue Extract-max pseudocode}
+\end{algorithm}
+
+The running time of HEAP-EXTRACT-MAX is $\mathcal{O}(log n)$, since it performs only a constant amount of work on top of the $\mathcal{O}(log n)$ time for HEAPIFY.
+
+The HEAP-INSERT procedure inserts a node into heap A. To do so, it first expands the heap by adding a new leaf to the tree. Then, in a manner reminiscent of the insertion loop of INSERTION-SORT (see section \ref{sec:insertionsort} at page \pageref{sec:insertionsort}), it traverses a path from this leaf toward the root to find a proper place for the new element.
+
+\begin{algorithm}[H]
+ \KwData{Heap H, Key key}
+ \KwResult{Insert an element in the Heap H}
+	$heap-size(H) \gets heap-size(H)+1$\;
+	$i \gets heap-size(H)$\;
+	\While{$i > 1 and H[parent(i)] < key$}{
+		$H[i] \gets H[parent(i)]$\;
+		$i \gets parent(i)$\;
+	}
+	$H[i] \gets key$
+\caption{Priority Queue insert pseudocode}
+\end{algorithm}
+
+\begin{problem}
+Show how to implement a first-in, first-out queue with a priority queue. Show how to implement a stack with a priority queue.
+\end{problem}
+
+
+\begin{problem}
+
+Give an O(lg n)-time implementation of the procedure HEAP-INCREASE-KEY(A, i, k), which sets A[i]  max(A[i],k) and updates the heap structure appropriately.
+\end{problem}
+
+\begin{problem}
+
+The operation HEAP-DELETE(A, i) deletes the item in node i from heap A. Give an implementation of HEAP-DELETE that runs in O(lg n) time for an n-element heap.
+\end{problem}
+
+\begin{problem}
+
+Give an O(n lg k)-time algorithm to merge k sorted lists into one sorted list, where n is the total number of elements in all the input lists. (Hint: Use a heap for k-way merging.)
+\end{problem}
+
+
+\begin{problem}
+
+A d-ary heap is like a binary heap, but instead of 2 children, nodes have d children.
+\begin{enumerate}
+\item How would you represent a d-ary heap in an array?
+\item What is the height of a d-ary heap of n elements in terms of n and d?
+\item Give an efficient implementation of EXTRACT-MAX. Analyze its running time in terms of d and n.
+\item Give an efficient implementation of INSERT. Analyze its running time in terms of d and n.
+\item Give an efficient implementation of HEAP-INCREASE-KEY(A, i, k), which sets A[i]  max(A[i], k) and updates the heap structure appropriately. Analyze its running time in terms of d and n.
+\end{enumerate}
+\end{problem}
+
+
+
+
+
+
+
 
 \chapter{Heap}
 

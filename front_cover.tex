@@ -1,47 +1,15 @@
+\begingroup
 \thispagestyle{empty}
+\begin{tikzpicture}[remember picture,overlay]
+\coordinate [below=12cm] (midpoint) at (current page.north);
+\node at (current page.north west)
+{\begin{tikzpicture}[remember picture,overlay]
+\node[anchor=north west,inner sep=0pt] at (0,0) {\includegraphics[width=\paperwidth]{background}}; % Background image
+\draw[anchor=north] (midpoint) node [fill=ocre!30!white,fill opacity=0.6,text opacity=1,inner sep=1cm]{\Huge\centering\bfseries\sffamily\parbox[c][][t]{\paperwidth}{\centering Google Interview preparation Material\\[15pt] % Book title
+{\Large The karate guide}\\[20pt] % Subtitle
+{\huge Davide Spataro}}}; % Author name
+\end{tikzpicture}};
+\end{tikzpicture}
+\vfill
+\endgroup
 
-\newcommand{\HS}[1][1.]{\hspace{\stretch{#1}}}
-\begin{center}
-
-%\begin{figure}
-%\centerline{\psfig{figure=logouni.eps}}
-%\end{figure}
-
-\huge{UNIVERSITY OF CALABRIA}\\
-\vspace*{0.25cm}
-\large{Department of Mathematics and Computer Science}\\
-\normalsize{Via P. Bucci\\
-I-87036 Rende, Italy\\
-\vspace*{0.25cm} \HS \hrulefill \HS}
-
-%\large{Internal Report 02/2009}\\
-
-
-\vspace*{3.5cm}
-
-\Huge{\textbf{Google Interview Preparation Guide}}\\
-\vspace*{0.2cm}
-\large{\textbf{}}\\
-\vspace*{0.7cm}
-\Large{\textit{www.davidespataro.it}}
-\vspace*{1cm}
-
-%\normalsize{by}
-
-\vspace*{1cm}
-
-\normalsize{\textit{Davide Spataro}}
-
-\vspace*{3.5cm}
-
-\normalsize{May, 2016}
-
-\vspace*{2.0cm}
-
-%\footnotesize{This work was supported by the Department of Mathematics of
-% University of Calabria. Parallel computer machineries were provided by the High Performance Computing Center of the same University.}
-
-%\HS[.1] \hrulefill \hspace*{1.5cm} \\
-%\quad \normalsize A.A. 2002-2003 \quad
-
-\end{center}

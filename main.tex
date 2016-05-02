@@ -1,160 +1,61 @@
-\documentclass[9pt]{book}
-\usepackage{extsizes}
-\usepackage{amsmath}
-\usepackage{amsthm}
-\usepackage{courier}
-\usepackage{stmaryrd}
-\usepackage{lscape}
-\usepackage{nameref}
-\usepackage{tabularx}
-\usepackage[pdftex]{graphicx}
-\usepackage{hyperref}
-\usepackage{framed}
-\usepackage{xcolor}
-\usepackage{mdframed}
-\usepackage{mathtools}
-\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
-\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
-
-\hypersetup{
-    bookmarks=true,         % show bookmarks bar?
-    unicode=false,          % non-Latin characters in Acrobat�s bookmarks
-    pdftoolbar=true,        % show Acrobats toolbar?
-    pdfmenubar=true,        % show Acrobats menu?
-    pdffitwindow=true,      % page fit to window when opened
-%   pdftitle={My title},    % title
-%   pdfauthor={Author},     % author
-%   pdfsubject={Subject},   % subject of the document
-    pdfnewwindow=true,      % links in new window
-%   pdfkeywords={keywords}, % list of keywords
-    colorlinks=true,        % false: boxed links; true: colored links
-    linkcolor=blue,         % color of internal links
-    citecolor=blue,         % color of links to bibliography
-    filecolor=blue,         % color of file links
-    urlcolor=blue           % color of external links
-}
-\usepackage{pdfpages}
-\usepackage{xcolor}
-\usepackage{pxfonts}
-\usepackage{fancyhdr}
-\usepackage{verbatim}
-\pagestyle{fancy}
-\fancyhf{}
-%\pagestyle{plain}
-%\pagestyle{fancy}
-%\pagestyle{headings}
-%\lhead{} \chead{} \rhead{\thepage}
-%\lfoot{} \cfoot{\thepage} \rfoot{}
-\fancyhead[LE,RO]{\bfseries\thepage}
-\fancyhead[LO]{\bfseries\rightmark}
-\fancyhead[RE]{\bfseries\leftmark}
-\renewcommand{\headrulewidth}{0.3pt}
-\renewcommand{\footrulewidth}{0pt}
-\addtolength{\headheight}{0.3pt} % riserva spazio per la linea
-\fancypagestyle{plain}{
-  \fancyhead{}                        % ignora, nello stile plain, le intestazioni
-  \renewcommand{\headrulewidth}{0pt}  % e la linea
-}
-
-\fancyhf{}
-%\pagestyle{plain}
-\pagestyle{fancy}
-%\pagestyle{headings}
-%\lhead{} \chead{} \rhead{\thepage}
-%\lfoot{} \cfoot{\thepage} \rfoot{}
-\fancyhead[LE,RO]{\bfseries\thepage}
-\fancyhead[LO]{\bfseries\rightmark}
-\fancyhead[RE]{\bfseries\leftmark}
-\renewcommand{\headrulewidth}{0.3pt}
-\renewcommand{\footrulewidth}{0pt}
-\addtolength{\headheight}{0.3pt} % riserva spazio per la linea
-\fancypagestyle{plain}{
-  \fancyhead{}                        % ignora, nello stile plain, le intestazioni
-  \renewcommand{\headrulewidth}{0pt}  % e la linea
-}
-
-\usepackage{color}
-\definecolor{bgcolor}{rgb}{0.98,0.98,0.98}
-
-\usepackage{listings}
-\lstset{language=C}
-\lstset{
-  basicstyle=\footnotesize\ttfamily,
-  breaklines=true,
-  showstringspaces=false,
-  numbers=left,
-  backgroundcolor=\color{bgcolor},
-  commentstyle=\color{gray},
-  keywordstyle=\color{blue},
-  keywordstyle=[2]\color{teal},   % cyan or teal can also be a good choice, use \bfseries for bold
-  frame=none,                     % adds a frame around the code
-  tabsize=2,                      % sets default tabsize to 2 spaces
-  captionpos=b,                   % sets the caption-position to bottom
-  morekeywords=[2]{}              % if you want to add more keywords to the set
-    __
-}
+\documentclass[11pt,fleqn]{book} % Default font size and left-justified equations
 
 
-\oddsidemargin80pt      %commentare se si stampa solo fronte
-\evensidemargin40pt     %commentare se si stampa solo fronte
-
-\graphicspath{{./images/}}
-
-
-\usepackage{amsmath,amssymb}
-\usepackage{amsthm}
-\usepackage{thmtools}
-
-\declaretheoremstyle[
-spaceabove=6pt, spacebelow=6pt,
-headfont=\normalfont\bfseries,
-notefont=\mdseries, notebraces={(}{)},
-bodyfont=\normalfont,
-postheadspace=1em,
-headindent = \parindent,
-postheadhook = {\hspace*{\parindent}},
-postheadspace = \newline, 
-numberwithin=section
-]{exstyle}
-\declaretheoremstyle[
-spaceabove=6pt, spacebelow=6pt,
-headfont=\normalfont\bfseries,
-notefont=\mdseries, notebraces={(}{)},
-bodyfont=\normalfont,
-postheadspace=1em,
-headindent = \parindent,
-postheadhook = {\hspace*{\parindent}},
-postheadspace = \newline, 
-headpunct={},
-qed=$\blacktriangleleft$,
-numbered=no
-]{solstyle}
-\declaretheorem[style=exstyle]{example}
-\declaretheorem[style=solstyle]{solution}
-\declaretheorem[style=solstyle]{problem}
-
-
-\usepackage{graphicx}
-\usepackage{fancyvrb}
-\usepackage{color}
+\input{structure.tex}
 
 \begin{document}
 
 %\frontmatter
 
 \input{front_cover.tex}
-\input{ack.tex}
+
+%----------------------------------------------------------------------------------------
+%	TABLE OF CONTENTS
+%----------------------------------------------------------------------------------------
+
+%\usechapterimagefalse % If you don't want to include a chapter image, use this to toggle images off - it can be enabled later with \usechapterimagetrue
+
+\chapterimage{ch4} % Table of contents heading image
+
+\pagestyle{empty} % No headers
+
+\tableofcontents % Print the table of contents itself
+
+\cleardoublepage % Forces the first chapter to start on an odd page so it's on the right
+
+\pagestyle{fancy} % Print headers again
+
+
+
 \input{data_structure.tex}
-\input{project_euler.tex}
+%\input{project_euler.tex}
 \input{sorting.tex}
+\input{competitiveproblems.tex}
 
-\newpage
+%----------------------------------------------------------------------------------------
+%	BIBLIOGRAPHY
+%----------------------------------------------------------------------------------------
 
-\pagenumbering{roman}
+\chapter*{Bibliography}
+\addcontentsline{toc}{chapter}{\textcolor{ocre}{Bibliography}}
+\section*{Books}
+\addcontentsline{toc}{section}{Books}
+\printbibliography[heading=bibempty,type=book]
+\section*{Articles}
+\addcontentsline{toc}{section}{Articles}
+\printbibliography[heading=bibempty,type=article]
 
-\tableofcontents
+%----------------------------------------------------------------------------------------
+%	INDEX
+%----------------------------------------------------------------------------------------
 
-\pagenumbering{arabic}
+\cleardoublepage
+\phantomsection
+\setlength{\columnsep}{0.75cm}
+\addcontentsline{toc}{chapter}{\textcolor{ocre}{Index}}
+\printindex
+
+%----------------------------------------------------------------------------------------
 
 
 
