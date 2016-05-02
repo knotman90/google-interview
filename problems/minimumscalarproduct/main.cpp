@@ -1,10 +1,14 @@
 #include<common.h>
 
+//long long was superimportant to avoid overflow!
+
+
 using namespace std;
 
 int main(){
     int N; cin>>N;
     cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
+
     LOOPUP(i,1,N+1){
         int size; cin>>size;
         vector<long long> v1;
@@ -24,8 +28,6 @@ int main(){
             sp += v1[j]*v2[j];
 
         }
-
-
         printf("Case #%d: %lld\n",i,sp);
         //DS::print(ALL(v1));
         //DS::print(ALL(v2));

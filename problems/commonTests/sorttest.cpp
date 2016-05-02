@@ -29,7 +29,8 @@ void SetUp(){
 INSTANTIATE_TEST_CASE_P(
     size_list,
     SortVector,
-    Values(1 , 2 , 3 , 5 , 10 , 100,1000,10000 ,50000  )
+//    Values(1 , 2 , 3 , 5 , 10 , 100,1000,10000 ,50000  )
+    Values(2 , 4 , 8 , 16 , 32,64,128,256,512,1024,2048,2048*4, 155,13,25    )
 //Values( 0 , 1 , 2, 3, 6 )
     );
 
@@ -46,6 +47,23 @@ bool checksorting(Container& v, bool incremental){
     }
     return true;
 }
+
+TEST_P(SortVector, heapsort){
+
+    ASSERT_EQ(v.size(),SIZE);
+
+    DS::heapsort(v,0,v.size(),DS::lt<TYPE>);
+
+    ASSERT_EQ(checksorting(v,true),true);
+}
+
+TEST_P(SortVector, heapsort_decremental){
+    ASSERT_EQ(v.size(),SIZE);
+    DS::heapsort(v,0,v.size(),DS::gt<TYPE>);
+    ASSERT_EQ(checksorting(v,false),true);
+}
+
+
 
 TEST_P(SortVector, quicksort){
     ASSERT_EQ(v.size(),SIZE);

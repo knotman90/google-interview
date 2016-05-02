@@ -293,8 +293,119 @@ inline void quicksort_tr(Container& v,  int s,const int e, CMP_FN cmp) {
 \subsection{Complexity Analysis}
 
 \section{Heap-Sort}
+\subsection{Heap}
+Recall that a heap is a data structure that supports the main priority queue operations (\textit{insert} and \textit{extract max}) in $\mathcal{\Theta}(log n)$ time each. It consists of a left-complete binary tree (meaning that all levels of the tree except possibly the bottommost) are full, and the bottommost level is filled from left to right. As a consequence, it follows that the depth of the tree is Θ(log n) where n is the number of elements stored in the tree. The keys of the heap are stored in the tree in what is called heap order. This means that for each (\textbf{nonroot}) node its parent’s key is at least as large as its key. From this it follows that the largest key in the heap appears at the root.
+\subsection{Heap as Array}
+Last time we mentioned that one of the clever aspects of heaps is that they can be stored in
+arrays, without the need for using pointers (as would normally be needed for storing binary trees). The
+reason for this is the left-complete nature of the tree.
+This is done by storing the heap in an array $A[1..n]$. Generally we will not be using all of the array,
+since only a portion of the keys may be part of the current heap. For this reason, we maintain a variable
+$m \leq n$ which keeps track of the current number of elements that are actually stored actively in the
+heap. Thus the heap will consist of the elements stored in elements $A[1..m]$.
+We store the heap in the array by simply unraveling it level by level. Because the binary tree is leftcomplete, we know exactly how many elements each level will supply. The root level supplies 1 node,
+the next level 2, then 4, then 8, and so on. Only the bottommost level may supply fewer than the
+appropriate power of 2, but then we can use the value of m to determine where the last element is. This
+is illustrated below. We should emphasize that this only works because the tree is left-complete. This cannot be used for
+general trees.
+
+\begin{figure}
+\label{fig:heapasarray}
+		\includegraphics[width=12cm]{heapasarray.png}
+\end{figure}
+We claim that to access elements of the heap involves simple arithmetic operations on the array indices.
+In particular it is easy to see the following:
+\begin{description}
+\item[\textit{left(i)}]: $2i$
+\item[\textit{right(i)}]: $2i+1$
+\item[\textit{parent(i)}]: $\floor{\frac{i}{2}}$
+\item[\textit{isRoot(i)}]: $i \neq 0$
+\end{description}
+
+So is a heap a binary tree or an array? The answer is that from a conceptual standpoint, it is a binary
+tree. However, it is implemented (typically) as an array for space efficiency
+
+\subsection{Maintaining the Heap Property}
+There is one principal operation for maintaining the heap property. It is
+called \textit{Heapify}. (In other books it is sometimes called sifting down.) The idea is that we are given an element of the heap which we suspect may not be in valid heap order, but we assume that all of other the elements in the subtree rooted at this element are in heap order. In particular this root element may be too small(or too big in a min-heap). To fix this we “shift” or "bubble" it down the tree by swapping it with one of its children. Which child? We should take the larger (or smaller in a min-heap) of the two children to satisfy the heap ordering property. This continues recursively until the element is either larger than both its children or until its falls all the way to the leaf level. Here is the pseudocode. It is given the heap in the array A, and the index $i$ of the suspected element, and $m$ the current active size of the heap. The element $A[max]$ is set to the maximum of $A[i]$ and it two children. If $max \neq i$ then we swap $A[i]$ and $A[max]$ and then recurse on $A[max]$.
+
+
+\begin{lstlisting}[language=c++, caption="Heapify procedure in heapsort"]
+template<class Container,typename CMP_FN>
+inline void heapify(Container& h, const int i, const int m, CMP_FN cmp_fn){
+    int l,r,max=i;
+    l = left_child(i);
+    r = right_child(i);
+    if(l < m && cmp_fn(h[max],h[l]) )  max = l;
+    if(r < m && cmp_fn(h[max],h[r]) )  max = r;
+    if(max != i){ //the heap property was violated
+        swap(h[i],h[max]);
+        heapify(h,max,m,cmp_fn);
+    }
+}
+\end{lstlisting}
+This will requires at most as many steps as the height of the tree which is $\mathcal{\Theta}(log n)$.
+\subsection{Creating a Heap}
+We can use Heapify to build a heap as follows. First we start with a heap in which the elements are not in heap order. They are just in the same order that they were given to us in the array A. We build the heap by starting at the leaf level and then invoke Heapify on each node. (Note: We cannot start at the top of the tree. Why not? Because the precondition which Heapify assumes is that the entire tree rooted at node i is already in heap order, except for i.) Actually, we can be a bit more efficient. Since we know that each leaf is already in heap order, we may as well skip the leaves and start with the first nonleaf node. This will be in position $\floor{\frac{m}{2}}$. (Can you see why?)
+Here is the code. Since we will work with the entire array, the parameter m for Heapify, which indicates
+the current heap size will be equal to n, the size of array A, in all the calls.
+
+\begin{lstlisting}[language=c++, caption="Create an heap from an unordered collection. cmp\_fn determines if it will be a min or max heap"]
+template < typename Container, typename CMP_FN>
+void buildheap(Container& c,const int s, const int e, CMP_FN cmp_fn){
+    int m = e-s; //e not taken in consideration
+    //note that we could start at n/2 since the last n/2 element are leafs
+    //and  for those elements the heap property trivially hold
+    for(int i= s+(m/2) ; i >= s ; i--)
+        heapify(c , i ,m, cmp_fn);
+}
+\end{lstlisting}
+ Since each call to heapify takes $\mathcal{O}(log n)$ time, and we make roughly $\frac{n}{2}$ calls to it, the total running time is $\mathcal{O}(\frac{n}{2} log n)$ = $\mathcal{O}(nlog n)$. Next time we will show that this actually runs faster, and in fact it runs in $\mathcal{\Theta}(n)$ time.
+\subsection{Sorting using a Heap}
+The heap gives us easy and fast $\mathcal{O}(log n)$ access to the max/min element of an unordered set.
+The algorithm repeatedly extracts the max/min (which will be at first position). This will leave the array with an hole. What we can do to avoid this is to swap this element with last. This can cause heap property to fail, but our heapify procedure can take can of this since the root is the only node that can violate the property and its left and right subtree are correct heaps.
+Each extraction cost at most $\mathcal{O}(log n)$. We extract $m-1$ minimum element so the overall complxity is $\mathcal{O}((n-1)log n)$ = $\mathcal{O}(nlog n)$
+
+\begin{lstlisting}[language=c++, caption="Create an heap from an unordered collection. cmp\_fn determines if it will be a min or max heap"]
+template < typename Container, typename CMP_FN>
+void heapsort(Container& v, const int s,const int e, CMP_FN cmp_fn) {
+    int size = e-s;
+    buildheap(v,s,e,cmp_fn);
+    int m = size;
+    while( m > 1){ //last element is in proper order
+        swap(v[s],v[-1+s+m--]); //swap(v[s],v[s+m-1]); m--;more readable 
+        heapify(v,s,m,cmp_fn); //heap order could not hold at root.
+    }
+}
+\end{lstlisting}
 
 \subsection{Complexity Analysis}
+We argued that the basic heap operation of \textit{heapify} runs in $\mathcal{O}(log n)$ time, because the heap has $\mathcal{\Theta}(log n)$ levels, and the element being shifted moves down one level of the tree after a constant amount of work.
+Based on this we can see that:
+\begin{enumerate}
+\item that it takes $\mathcal{O}(nlog n)$ time to build a heap, because we need to apply \texttt{heapify} roughly $\frac{n}{2}$ times (for each of the non-leaf nodes)
+\item it takes $\mathcal{O}(nlog n)$ time to extract each of the maximum elements, since we need to extract roughly n elements and each extraction involves a constant amount of work and one Heapify
+\end{enumerate}
+ Therefore the total running time of \textbf{HeapSort} is $\mathcal{O}(nlog n)$.
+Is this tight? That is, is the running time $\mathcal{\Theta}(nlog n)$? The answer is yes. In fact, later we will see that it is not possible to sort faster than $\mathcal{\Omega}(nlog n)$ time, assuming that you use comparisons, which \textbf{HeapSort} does. 
+
+However, it turns out that the first part of the analysis is not tight. In particular, the \textit{BuildHeap} procedure that we presented actually runs in linear time!. Although in the wider context of the \textit{HeapSort} algorithm this is not significant (because the running time is dominated by the $\mathcal{\Theta}(nlog n)$ extraction phase.
+
+\begin{framed}
+\textbf{Nonetheless there are situations where you might not need to sort all of the elements. For example, it is common to extract some unknown number of the smallest elements until some criterion (depending
+on the particular application) is met ( the first k-smallest for instance). For this reason it is very important to know  that it can be done in linear time.}
+
+Constructing the heap requires to perform a certain amount of work depending on the level of the node. In particular at the last level no work has to be done (nodes  that level do not have any subtree and so they don't need to be \textit{heapified}).
+The $\frac{n}{4}$ nodes at the before-last level faces at most one bubble-up operation.
+The $\frac{n}{8}$ nodes at the upper level faces at most two bubble-up operations. The pattern is clear and can be summarized using the folliwing:
+
+\[
+\sum_{i=2}^{log(n)} \frac{n}{2^{i}}[(i-1)c] = n \sum_{i=2}^{log(n)} \frac{1}{2^{i}}[(i-1)c]
+\]
+The term inside the summation is bounded by a constant so the overall work is $\mathcal{O}(n)$!
+\end{framed}
+
+
 
 \section{Smoot-Sort}
 
