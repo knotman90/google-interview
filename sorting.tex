@@ -3,7 +3,7 @@
 \section{Introduction}
 Why sorting is important
 
-Give an example of sortin
+Give an example of sorting
 \begin{description}
 \item[Stable] When sorting some kinds of data, only part of the data is examined when determining the sort order. For example a deck of card can be orderd by means of the rank ignoring the seed yelding to multiple different valid sorting. A stable sorting algorithm ensure that the order of equal element will be preserved. 
 \item[Adaptive]	A sorting algorithm falls into the adaptive sort family if it takes advantage of existing order in its input.  It benefits from the presortedness in the input sequence (or limited disorder) to sort faster. Time complexity is function of input size and entropy.
@@ -964,4 +964,128 @@ Output:
 \end{lstlisting}
 
 \end{solution}
+
+
+
+%SKIENA EXERCICES!
+\subsection{Skiens's Problems}
+
+%---Problem------------
+\begin{problem}
+The Grinch is given the job of partitioning $2n$ players into two teams of $n$
+players each. Each player has a numerical rating that measures how good he/she is
+at the game. He seeks to divide the players as unfairly as possible, so as to create
+the biggest possible talent imbalance between team A and team B. Show how the
+Grinch can do the job in $O(n log n)$ time
+
+
+\begin{solution}
+Sort the array, so the first n elements are the the one with the best rating.
+\hfill \\ \hfill \\
+\begin{algorithm}[H]
+ \KwData{Unsorted array A of 2n players}
+ \KwResult{Two n-arrays of players (B,C)}
+ $A \gets sort(A)$\;
+ \For{$i\leftarrow 0$ \KwTo $n-1$}{
+ 	$B[i] \gets A[i]$\;
+ 	$C[i] \gets A[2n -1 - i]$\;
+ }
+\Return{(B,C)}\;
+
+\caption{Priority Queue Extract-max pseudocode}
+\end{algorithm}
+
+
+
+\end{solution}
+\end{problem}
+
+%---Problem------------
+\begin{problem}
+\textit{The mode of a set of numbers is the number that occurs most frequently in the
+set. The set $(4, 6, 2, 4, 3, 1)$ has a mode of $4$. Give an efficient and correct algorithm
+to compute the mode of a set of $n$ number.}
+
+\begin{solution}
+Sort the array, so the equal element will be one right after the other. Start counting the occurrences of an element until the current element is different from the previous one. Now if the counter is greater than the current max, set max as the current counter.
+\hfill \\ \hfill \\
+\begin{algorithm}[H]
+ \KwData{Unsorted array A of n elments}
+ \KwResult{Element A[i], mode of A}
+ $A \gets sort(A)$\;
+ $nmax \gets 1 $\;
+ $mode \gets A[i] $\;
+ $prev \gets A[i] $\;
+ $count \gets 1 $\;
+ \For{$i\leftarrow 1$ \KwTo $n-1$}{
+ 	 \If{$number \neq A[i]$}{
+ 	 		  \If{$count > nmax$}{
+					$nmax \gets count  $\;
+					$mode \gets number  $\;
+					
+					
+		 	 }
+	 	 $number \gets A[i]  $\;
+		$count \gets 0  $\;
+ 	 }
+	$count \gets count +1 $\;
+ }
+\Return{mode}\;
+\caption{}
+\end{algorithm}
+
+
+\end{solution}
+\end{problem}
+
+%---Problem------------
+\begin{problem}
+\textit{Given two sets $S_1$ and $S_2$ (each of size $n$), and a number $x$, describe an $O(n log n)$
+algorithm for finding whether there exists a pair of elements, one from $S_1$ and one
+from $S_2$ , that add up to $x$. (For partial credit, give a $\Theta(n^2 )$ algorithm for this
+problem.)}
+
+\begin{solution}
+Naive quadratic solution work checking $\forall \;A[i] \; \exists \; A[j],\; i \neq j$ s.t. $A[i]+A[j] =x$, $j \in [i,n[$.
+$O(nlog(n))$ solution is obtained by sorting the longest between $S_1$ and $S_2$. Then for each element of the shortest list find (using binary search) out if the element $x-S_{shortest}[i]$ is present in the longest. This will ensure a complexity of $O(nlog(n))$.
+\hfill \\ \hfill \\
+\begin{algorithm}[H]
+ \KwData{Unsorted arrays $S_1$ and $S_2$}
+ \KwResult{True iff a pair $(a\: \in S_1, b\: \in S_2)$ s.t. $a+b=x$ exists.}
+ $S_1 \gets sort(S-1)$\;
+ \For{$i\leftarrow 0$ \KwTo $sizeof(S_2)$}{
+		 $idx \gets binarySearch(S_1,x-S_2[i])$\;
+ 	 \If{$isValid(idx)$}{
+ 	 		  \Return{$(S_1[i],S_2[idx])$}\;
+ 	 }
+ }
+\Return{NONE}\;
+\caption{Priority Queue Extract-max pseudocode}
+\end{algorithm}
+
+
+
+\end{solution}
+\end{problem}
+
+
+%---Problem------------
+\begin{problem}{Majority Element}
+\textit{A majority element in an array $A$ of size $n$ is an element that appears more than $\frac{n}{2}$ times (and hence there is at most one such element). Find a solution that runs in $O(n)$}
+Solution is the well known \textit{Boyers-Moore's majority vote algorithm}.
+\begin{solution}
+Basic idea around this algorithm is that majority element will appear more the sum of all other's element occurrences. In other word let $C_i$ be the  occurrences count 
+for the majority element at position $i$. Let $C_{all} = \sum_{j=0,j\neq i}^n C_j$ then $ C_i - C_{all} > 0$.
+
+It work in two distinc phases
+
+\begin{enumerate}
+\item Eliminate all element except one (the majority element candidate)
+\item Check if the element is the majority element (simply count its occurrences and check that are more than $\frac{n}{2}$.
+
+\end{enumerate}
+
+
+\end{solution}
+\end{problem}
 
