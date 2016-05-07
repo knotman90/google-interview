@@ -375,6 +375,7 @@ inline void heapify(Container& h, const int i, const int m, CMP_FN cmp_fn){
 \end{lstlisting}
 This will requires at most as many steps as the height of the tree which is $\mathcal{\Theta}(log n)$.
 \subsection{Creating a Heap}
+\label{sect:createheap}
 We can use Heapify to build a heap as follows. First we start with a heap in which the elements are not in heap order. They are just in the same order that they were given to us in the array A. We build the heap by starting at the leaf level and then invoke Heapify on each node. (Note: We cannot start at the top of the tree. Why not? Because the precondition which Heapify assumes is that the entire tree rooted at node i is already in heap order, except for i.) Actually, we can be a bit more efficient. Since we know that each leaf is already in heap order, we may as well skip the leaves and start with the first nonleaf node. This will be in position $\floor{\frac{m}{2}}$. (Can you see why?)
 Here is the code. Since we will work with the entire array, the parameter m for Heapify, which indicates
 the current heap size will be equal to n, the size of array A, in all the calls.
@@ -1077,15 +1078,164 @@ Solution is the well known \textit{Boyers-Moore's majority vote algorithm}.
 Basic idea around this algorithm is that majority element will appear more the sum of all other's element occurrences. In other word let $C_i$ be the  occurrences count 
 for the majority element at position $i$. Let $C_{all} = \sum_{j=0,j\neq i}^n C_j$ then $ C_i - C_{all} > 0$.
 
-It work in two distinc phases
-
+It work in two distinc phases:
 \begin{enumerate}
-\item Eliminate all element except one (the majority element candidate)
+\item Eliminate all element except one (the majority element candidate). It works mantaining a current candidate and a counter initialized to $0$. Whenever the current examined element is equal to the candidate we increase the counter, decrease otherwise. If the counter reaches zero than the candidate became the current element. 
 \item Check if the element is the majority element (simply count its occurrences and check that are more than $\frac{n}{2}$.
 
 \end{enumerate}
+
+The following paragraph will outline the main idea behind the step one \cite{pap:hesselink}.
+We will develop the first step starting from its postcondition:
+
+Let $p$ be the majority candidate then,
+\[
+Q = (\forall \: q \neq p \Rightarrow \#\{i \; | \; a[i] = q \}\leq \frac{1}{2}n)
+\]
+We aim to validate this condition in linear time, inspecting each element one by one. This means that at each time this phase runs a variable,$k$, keeps track of the current  element under examination. 
+If define $ votes(k,q) = \#\{i \; | \; i \leq k  \wedge a[i] = q \} $ then 
+\[
+Q = (\forall \: q \neq p \Rightarrow 2\cdot votes(n,q) \leq n)
+\]
+which can be generalized in $P = (\forall \: q \neq p \Rightarrow 2\cdot votes(k,q) \leq k)$. Clearly $Q \equiv P \wedge k=n$.
+$P$ holds trivially for $k=0$ since $\forall q \; \rightarrow votes(0,q)=0$. Moreover when $ a[k] =p $ then we can improve our estimation for the majority since $\forall \; q\neq p \; votes(k,q)$ remains unchanged.
+The improving factor  can be expressed using a integer variable $s$ and is defined with the following loop invariant:
+\[
+J_0 = s \geq 0 \wedge k\leq n \wedge (\forall \: q \neq p \Rightarrow s+2\cdot votes(k,q) \leq k)
+\]
+Let's now prove that the invariant holds.
+\begin{itemize}
+	\item If $J_0 \wedge k < n \wedge a[k]=p$, $J_0$ is preserved if $k,s$ are both incremented.
+	\item If $J_0 \wedge k < n \wedge a[k] \neq p \; s > 0$, $J_0$ is preserved if $k$ is incremented and $s$ decremented. If $s=0$ we have to switch to another candidate (modify $p$)
+\end{itemize}
+
+\end{solution}
+\end{problem}
+
+
+
+
+%---Problem------------
+\begin{problem}
+\textit{Devise an algorithm for finding the k smallest elements of an unsorted set of n
+integers in $O(n + k log (n))$}
+
+\begin{solution}
+We create an min-heap $H$ using the procedure discussed in section \ref{sect:createheap}. This has a linear time cost. We then iteratively pop the root of the heap and call heapify to fix the heap property ($O(log(n)$). Since we build the heap once, and call heapify $k$ times the overall complexity is $O(n + k + log(n))$.\hfill \\
+\begin{algorithm}
+ \KwData{Unsorted arrays $A$}
+ \KwResult{Return a list $R$ containing the first $k$ smaller elements}
+ $H = buildHeap(A)$\;
+ $s \gets H.size()$\;
+ \For{$i\leftarrow 0$ \KwTo $k-1$}{
+		 $R[i] \gets H[0]$\;
+		 $swap(H[0] H[s])$\;
+ 		 $s \gets s-1$\;
+		 $heapify(H , 0 , s)$\;
+  }
+ 
+\Return{R}\;
+\end{algorithm}
+
 
 
 \end{solution}
 \end{problem}
 
+
+
+
+%---Problem------------
+\begin{problem}
+\textit{You wish to store a set of n numbers in either a max-heap or a sorted array.
+For each application below, state which data structure is better, or if it does not
+matter. Explain your answers.}
+
+\begin{solution}
+
+\begin{description}
+\item [Want to find the maximum/minimum element quickly] \hfill \\ Sorted array is the best solution because it gives access to maximum element in $O(1)$. Maximum/minimum element is either the first or the last element depending on the order used.
+\item [Want to be able to delete an element quickly] Heap can do this in $O(log(n))$. Swap the to be deleted element with the last element of the heap, then descrease the heap size and call heapify.
+\end{description}
+
+\end{solution}
+\end{problem}
+
+
+%---Problem------------
+\begin{problem}
+\textit{Give an $O(n log(k))$-time algorithm that merges $k$ sorted lists with a total of $n$
+elements into one sorted list. (Hint: use a heap to speed up the elementary $O(kn)$-
+time algorithm).}
+
+\begin{solution}
+Super naive solution is to copy all the $k$ lists in a output list of size $n$ and then sort it. This has complexity $O(nlog(n))$.
+We can do much better using an heap. We first create an heap with the first values of each of the k list (yelding an heap of size k). Then we iteratively extract the minimum/maximum from the root and substitute it with a new element from the list the extracted element belongs. If the corresponding list is empty we insert $\infty$. We call heapify to fix the heap property.
+This work in $O(nlog(k))$ because we do $n$ insertions and each insertion costs a call to heapify which work in $log(k)$.
+
+\end{solution}
+\end{problem}
+
+
+
+%---Problem------------
+\begin{problem}
+\textit{Give an efficient algorithm to find the second-largest key among n keys.
+You can do better than $2n-3$ comparisons.Then, give an efficient algorithm to find the third-largest key among n keys.
+How many key comparisons does your algorithm do in the worst case? Must your
+algorithm determine which key is largest and second-largest in the process?}
+
+\begin{solution}
+Naive algorithm keep tracks of largest $l$ and second largest $sl$ element up to position $k$. 
+The element $k+1$ is processed as follows
+
+\begin{algorithm}[H]
+ \If{$A[k+1] > l $}{
+		 $swap(A[l],A[sl])$\;
+		 $A[l] = A[k+1]$\;
+  }\ElseIf{$A[k+1] > sl$}{
+  	 $A[sl] = A[k+1]$\;
+  }
+\Return{sl}
+\end{algorithm}
+
+In the worst case this solution costs $2n-3$ comparisons.
+We can do much better using the tournament method. The method find the second largest by starting comparing pair of elements (for a total of $\frac{n}{2}$ comparison. The maximum of each comparison proceed to the next step where $\frac{n}{4}$ comparison are performed and the process continues until only one element remains. How can we find the second largest? It is not always the minimum element at the before last stage of the process. We can using $O(n)$ additional space build a $n$ linked lists $L_i$. Each containing the keys that loses the comparison with it.
+We can then check the largest element's list and take the largest element in it. This will be the second element. Note that this list will contain $log(n)$ elements because the largest element went through $log(n)$ comparison. Note also that in order to find the largest element using the tournament algorithm we make $log(n)-1$ steps each made up of $frac{n}{2^1}$ comparison. So in total we have  $\sum_{i=1}^{log(n)-1} (\frac{n}{2^i}) = n \sum_{i=1}^{log(n)-1} (\frac{n}{2^i}) = n-1$
+
+
+So in total we spend $n-1 + log(n) -1 = n + log(n) -2$ comparison to find the  second largest element. This is actually also the lower bound for this problem.
+ 
+\end{solution}
+\end{problem}
+
+
+
+%---Problem------------
+\begin{problem}
+
+
+\begin{solution}
+
+
+\end{solution}
+\end{problem}
+
+
+%---Problem------------
+\begin{problem}
+Suppose an array A consists of n elements, each of which is red, white, or blue. We seek to sort the elements so that all the reds come before all the whites, which come before all the blues. The only operation permitted on the keys are
+\begin{description}
+\item [Examine] report the color of the ith element of A.
+\item [Swap(A,i,j)]  swap the ith element of A with the jth element.
+\end{description}
+
+Find a correct and efficient algorithm for red-white-blue sorting. There is a linear-time solution. This is also known as the Dutch national flag problem. The simplest linear time solution performs two passes of the partition operation from Quicksort. The first pass treats the red and white elements as indistinguishable, and separates them from the blue. The second pass is just separates the elements within the red/white sub-array.
+
+
+
+\begin{solution}
+
+
+\end{solution}
+\end{problem}
