@@ -354,7 +354,171 @@ A d-ary heap is like a binary heap, but instead of 2 children, nodes have d chil
 \subsection{Kd Tree}
 \subsection{R Tree}
 
+%-----CHAPTER GRAPH---------------------------
 \chapter{Graph}
+
+\section{Visiting Algorithm}
+
+
+\subsection{Depth-first}
+
+\subsection{Breadth-first}
+
+Given a graph $G = (V,E)$ and a distinguished source vertex $s$, breadth-first
+search systematically explores the edges of $G$ to “discover” every vertex that is
+reachable from $s$. It has the convenient property that in unweighted graph it computes the minimum distance from $s$ to all the node reachable from $s$ itself producing the so called breadth-first tree with root $s$. It takes its name from the fact that is first expand the frontier of the currently visited node. It first examine all the node at ditance $k$ from the root before to visit those at distance $k+1$.
+Each node is labeled as undiscovered, discovered or processed, reflecting the different states in which a node can be during the visit.
+
+The breadth tree is initially initialized with the root $s$. Then whenever the search encounter a undiscovered node $v$ it is inserted among those to be visited and labeled as discovered and the edge that lead from the examined node to $v$ is added to the breadth tree. Since we visit every node only once and for each node we examine its adjacency list in its full length the complexity is is $O(V+E)$
+
+
+
+
+\section{Exercices}
+
+%---Problem------------
+\begin{problem}
+\textit{Given an adjacency-list representation of a directed graph, how long does it take
+to compute the out-degree of every vertex? How long does it take to compute the
+in-degrees?}
+
+	\begin{solution}
+\begin{itemize}
+\item Out-degree is easy since each node stores the adjacency information as out edges. So out-degree is simply the length of the list which is usually stored as list's attribute hence accessible in $O(1)$. If it 
+is the case the time complexity is $O(|V|)$ otherwise we need to inspect all the edges yelding to a $O(|E|)$. 
+\item In-degree for node $i$ requires to collect adjacency information from all the other nodes $j \neq i$. Complexity is $O(|E|)$.
+\end{itemize}
+
+	\end{solution}
+\end{problem}
+
+
+
+
+%---Problem------------
+\begin{problem}
+\textit{Give an adjacency-list representation for a complete binary tree on 7 vertices. Give
+an equivalent adjacency-matrix representation. Assume that vertices are numbered
+from 1 to 7 as in a binary heap.}
+
+\begin{solution}
+
+\begin{description}
+
+\item [Adjancency Matrix]\hfill \\
+\begin{tabular}{|l|l|l|l|l|l|l|l|}
+\hline
+\textbf{}  & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5} & \textbf{6} & 7          \\ \hline
+\textbf{1} & \textit{0} & \textit{1} & \textit{1} & \textit{0} & \textit{0} & \textit{0} & \textit{0} \\ \hline
+\textbf{2} & \textit{0} & \textit{0} & \textit{0} & \textit{1} & \textit{1} & \textit{0} & \textit{0} \\ \hline
+\textbf{3} & \textit{0} & \textit{0} & \textit{0} & \textit{0} & \textit{0} & \textit{1} & \textit{1} \\ \hline
+\textbf{4} & \textit{0} & \textit{0} & \textit{0} & \textit{0} & \textit{0} & \textit{0} & \textit{0} \\ \hline
+\textbf{5} & \textit{0} & \textit{0} & \textit{0} & \textit{0} & \textit{0} & \textit{0} & \textit{0} \\ \hline
+\textbf{6} & \textit{0} & \textit{0} & \textit{0} & \textit{0} & \textit{0} & \textit{0} & \textit{0} \\ \hline
+\textbf{7} & \textit{0} & \textit{0} & \textit{0} & \textit{0} & \textit{0} & \textit{0} & \textit{0} \\ \hline
+\end{tabular}
+\hfill \\
+\item [Adjancency list] \hfill \\
+\begin{verbatim}
+1:  2 -> 3 -> NIL
+2:  3 -> 4 -> NIL
+3:  5 -> 6 -> NIL
+4: NIL
+5: NIL
+6: NIL
+7: NIL
+\end{verbatim}
+\end{description}
+\end{solution}
+\end{problem}
+
+%---Problem------------
+\begin{problem}
+The transpose of a directed graph $G = (V,E)$  is the graph $G = (V,E^T)$, where
+$ E^T = \{ (v,u) \in V \times V \: : \: (u,v) \in E \}$. Thus $G^T$ is $G$ with all edges reversed.
+Describe an efficient algorithm for computing $G^T$ for both  list-matrix adjacency  graph representation. What is the running time complexity of your solutions?
+
+\begin{solution}
+\begin{description}
+\item [Adjacency List] \hfill \\
+The previous algorithms runs in $O(|E|)$. Is thus linear in the number of edges.
+	\begin{algorithm}
+ \KwData{Graph  $G = (V,E)$}
+ \KwResult{graph $G^T = (V,E^T)$}
+ $E^T[v.size()] \gets $ initialize adjacency lists\;
+ 
+ \For{$u  \in V$}{
+ 	 \For{$(u,v) \in E[u] $}{
+		 $E^T[v] \gets  (v,u):E^T[v]$\;
+  }
+  }
+ 
+\Return{$(V,E^T)$}\;
+\end{algorithm}
+
+
+
+\item [Adjacency Matrix] \hfill \\	
+Adjacency matrix for $E^T$ is simply the transpose of $E$. It runs in linear time in the size of matrix which for dense graph is linear in the number of edges in $G$, but for sparse graph is quadratic (yelding so to a quadratic time algorithm).
+\end{description}
+
+\end{solution}
+\end{problem}
+
+%---Problem------------
+\begin{problem}
+Given an adjacency-list representation of a multigraph  $G = (V,E)$, describe an
+$O(V + E)$ time algorithm to compute the adjacency-list representation of the
+“equivalent” undirected graph  $G = (V,E')$, where $E'$ consists of the edges in $E$
+with all multiple edges between two vertices replaced by a single edge and with all
+self-loops removed.
+
+\begin{solution}
+Solution is easy if we use a visiting algorithm which takes care to avoid cycles and visit every nodes of each connected component exaclty once (this implies that whenever two nodes $(u,v)$ are connected by more than once edge we process only one of them, otherwise we would visit $v$ twice, which is contradicts with the the fact that we visit a node only once). This runs in $O(V+E)$.
+
+	\begin{algorithm}
+ \KwData{Graph  $G = (V,E)$}
+ \KwResult{graph $G^T = (V,E')$}
+ $E^T[v.size()] \gets $ initialize adjacency lists\;
+ $visited[v.size()] \gets FALSE$\;
+
+ \For{$n  \in V$}{
+ 	 \If{visited[n] == FALSE}{
+		%visit component that starts in n 	 	
+ 	 		$Q.queue(s)$\;
+ 	\While{$! Q.empty()$}{
+ 		$u \gets Q.dequeue()$\;
+ 		$visited[u] = TRUE$\;
+ 	  \For{$v  \in E[u]$}{
+ 	  	\If{visited[v] == FALSE}{
+			 $E'[u] \gets  v:E'[u]$\;
+		     $E'[v] \gets  u:E'[v]$\; 	  	
+ 	  	}
+ 	  }
+ 	 }
+  }
+ }
+\Return{$(V,E')$}\;
+\end{algorithm}
+
+
+\end{solution}
+\end{problem}
+
+%---Problem------------
+\begin{problem}
+Most graph algorithms that take an adjacency-matrix representation as input re-
+quire time $\Omega(V^2)$, but there are some exceptions. Show how to determine whether
+a directed graph G contains a universal sink a vertex with $|V|-1$ in-degree and out-degree $0$ in $O(V)$ using adjacency matrix.
+\begin{solution}
+We compute the sum of all the column of the matrix. Whenever we found a $1$ set the corrensponding row as a not suitable candidate as sink element because its out-degree is at least one.
+We then check is there is some column sum which sums up to $|V|-1$ and whose boolean flag is not set to false.
+
+\end{solution}
+\end{problem}
+
+
+%-----END OF CHAPTER GRAPH---------------------------
 
 \chapter{Set}
 \section{MultiSet}
