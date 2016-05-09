@@ -372,9 +372,137 @@ Each node is labeled as undiscovered, discovered or processed, reflecting the di
 The breadth tree is initially initialized with the root $s$. Then whenever the search encounter a undiscovered node $v$ it is inserted among those to be visited and labeled as discovered and the edge that lead from the examined node to $v$ is added to the breadth tree. Since we visit every node only once and for each node we examine its adjacency list in its full length the complexity is is $O(V+E)$
 
 
+\subsection{Why Breadth-First computes the shortest path}
+Let $\delta(s,u)$ be the shortest path (or minimum distance) between two vertices $s,v$\footnote{Note that for undirected graphs this distance is symmetric i.e. $\delta(s,u) = \delta(u,s)$}. If a path does not exists then $\delta(s,u) = \infty$. Note also that $\delta(s,s) = 0$. 
+\begin{theorem}{Tringular inequality}
+\label{theo:triangular_inequality}
+The triangular inqeuality can be expressed using the following formula:
+\[
+\forall x,y,w \; |\; \delta(x,w) \leq   \delta(x,y) + \delta(y,w)
+\]
+It says that the shortest path between $x,w$ cannot is always equal or shorter than the path from from $x$ leads to $w$ passing from an intermediate node $y$ (see image \ref{fig:triangularinequality})\footnote{Is called triangular because is can be easily pictured using a triangle. The distance between vertices on the hypotenuse cannot be longer than the length  of the sum of both catheti}.
+
+In other words given a vertex $s$ and an edge $(u,v)$ then the following holds:
+
+\[
+\delta(s,v) \leq \delta(s,u) + 1
+\]
+If $u$ is reachable from $s$ so is $v$ and in particular that $\delta(s,v)$ cannot be longer than going from $s$ to $u$ first and then traverse the edge $(u,v)$ leading to the following walk: 
+\[s \rightarrow v_1  \rightarrow  \ldots  v_{\delta(s,v)-1}  \rightarrow u  \rightarrow  v\]
+\end{theorem}
+
+	\begin{figure}
+	\label{fig:triangularinequality}
+	\centering
+		\includegraphics{triangularinequality}
+	\end{figure}
+
+We want to show that BFS computes the shortest path $\delta(s,v)$ correctly. We will do it showing first that the distance computed by the BFS procedure bound $\delta(s,v)$ from above.
+
+\begin{theorem}
+Suppose we run BFS on a graph $G$ from node $s$ then $v.d \geq \delta(s,v)$. The proof is by induction on the number of \texttt{ENQUEUE} operations. The base case is when only $s$ is in the queue so 
+$s.d = 0  = \delta(s,s)$ and $v.d = \infty \geq \delta(s,v)$. Suppose that the hypotesis holds for a number of enqueue operation and in particular that an undiscovered vertex is enqueue from a parent $u$. The inductive hypothesis implies that $u.d \geq \delta(s,u)$. BFS computes the path from $s$ to $v$ composing the path from $s$ to $u$ and adding an edge from $u$ to $v$. this means that: $v.d = u.d +1$
+From the theorem \ref{theo:triangular_inequality} follows that $v.d = u.d +1 \geq \delta(s,u) +1 \geq \delta(s,v)$.
+\end{theorem}
+
+We have bounded BFS path length from $s$ from above. BFS computes a path which is clearly always less or equal shorter than the shortest possible one. We move on proving that the path it computes are actually the shortest possible so $v.d = \delta(s,v)$.
+We now shows that BFS manage in its queue at most two distinct distance values.
+
+\begin{theorem}{\textbf{BFS computes the shortest path from $s$ to all reachable nodes}\hfill \\}
+Suppose that for some node (pick up the closest to $s$) $v.d \neq \delta(s,v)$,  then follows that $v.d \geq \delta(s,v)  \wedge \; v.d \neq \delta(s,v) \Rightarrow  v.d > \delta(s,v) $. Let $(u,v)$ an edge then it follows that $\delta(s,v) = \delta(s,u) + 1 = u.d +1$ since $v$ is the first node for which the inequality hold than the BFS path from $s$ to $u$ is the shortest possible\footnote{$\delta(s,u) = u.d$}.
+Putting all together we obtain\footnote{$\delta(s,v) = \delta(s,u) + 1 = u.d +1$} 
+\[
+v.d > u.d + 1 
+\]
+
+Consider now the status of $v$ at the time $u$ is explored by BFS procedure. It can be one of the following three cases:
+\begin{enumerate}
+\item $v$ is UNDISCOVERED: so its distance from $s$ will be $u.d +1 \Rightarrow$ (\textbf{CONTRADICTION)}
+\item $v$ was already processed (earlier): $v.d \leq u.d \Rightarrow$ \textbf{(CONTRADITION)}
+\item $v$ is DISCOVERED but not PROCESSED: This means that $v$ was discovered when processing a vertex $w$ before $u$ was examined. This also implies that $w$ was processed before $u$ and hence queued before $u$. This implies that $ w.d \leq u.d \Rightarrow w.d+1 \leq u.d +1$. Now, $v$ was discovered by $w$ so its distance from $s$ is $w.d+1$. This allows us to conclude that $v.d \leq u.d+1 \Rightarrow$\textbf{(CONTRADICTION)}.
+\end{enumerate}
+\end{theorem}
+
+BFS build the so called \textit{Breadth tree} which consist of all the simple (and shortest) paths from $s$ to any reachable (from $s$) vertices \footnote{Those vertices which have a not null parent}. Note that this tree is not unique, and depends on the order in which nodes in the adjacency lists are examined. Node can be discovered using different edges.
 
 
 \section{Exercices}
+%---Problem------------
+\begin{problem}
+There are two types of professional wrestlers:  babyfaces  ( good guys) and
+heels ( bad guys ). Between any pair of professional wrestlers, there may or
+may not be a rivalry. Suppose we have n professional wrestlers and we have a list
+of r pairs of wrestlers for which there are rivalries. Give an O.n C r/-time algo-
+rithm that determines whether it is possible to designate some of the wrestlers as
+babyfaces and the remainder as heels such that each rivalry is between a babyface
+and a heel. If it is possible to perform such a designation, your algorithm should
+produce it.
+\begin{solution}
+This is a two-color graph coloring problem which is easily solvable in linear time (we are also asking if the graph is bipartite).
+We create a node for each professional wrestler and connect them using the relation coded into the $r$ pairs. We then start coloring the graph from a random node and at each level we switch color. If we encounter a node which was previously colored with a different color\footnote{This means that two vertex on a edge that were preivously coloured with different colors are now of the same color.} the such graph is not bipartite and so is not possible to divide \textit{babyfaces} from \textit{heels}. If we consume all the nodes, then the output graph is a proper bipartition.
+\end{solution}
+
+
+\end{problem}
+
+
+
+%---Problem------------
+\begin{problem}
+\textit{Show the d and $\pi$ values that result from running breadth-first search on graph pictured in figure \ref{fig:graphex}, using vertex 3 as the source}.
+
+
+	\begin{figure}
+	\label{fig:graphex}
+	\centering
+		\includegraphics{graphEx}
+	\end{figure}
+\begin{solution}
+\[d(3) = 0 , d(1) = \infty , d(5) = d(6) = 1 , d(4) = 2 ,d(2) = 3\].
+\[d(3) = NIL , \pi(1) = NIL , \pi(5) = \pi(6) = 3 , \pi(4) = 5 ,\pi(2) = 4\].
+	\end{solution}
+\end{problem}
+
+
+%---Problem------------
+\begin{problem}
+\textit{Show the d and $\pi$ values that result from running breadth-first search on graph pictured in figure \ref{fig:graphex2}, using vertex 3 as the source}.
+
+
+	\begin{figure}
+	\label{fig:graphex2}
+	\centering
+		\includegraphics{graphEx2}
+	\end{figure}
+\begin{solution}
+\[d(3) = 0 , d(1) = \infty , d(5) = d(6) = 1 , d(4) = 2 ,d(2) = 3\].
+\[d(3) = NIL , \pi(1) = NIL , \pi(5) = \pi(6) = 3 , \pi(4) = 5 ,\pi(2) = 4\].
+	\end{solution}
+\end{problem}
+
+
+
+%---Problem------------
+\begin{problem}
+The incidence matrix of a directed graph $G=(V,E)$ with s.t. $E$ is a not reflexive relation  is a
+$V \times E$ matrix $B = b_{ij}$ such that:
+\[
+    b_{ij}=\left\{
+                \begin{array}{ll}
+                  -1 &\text{if j leaves i}\\
+                  1 &\text{if j enters i}\\
+                  0 &\text{otherwise}
+                \end{array}
+              \right.
+  \]
+What the entries of $BB^T$ represents?
+
+	\begin{solution}
+	
+	\end{solution}
+\end{problem}
+
+
 
 %---Problem------------
 \begin{problem}
