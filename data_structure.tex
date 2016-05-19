@@ -54,6 +54,8 @@ M = \sum_{i=1}^{\log(n)} \frac{ni}{2^i} = n\sum_{i=1}^{\log(n)} \frac{i}{2^i} = 
 So in average  each element is copied only two times.
 
  \section{Problems and Solution}
+ 
+
 
 %---Problem---------------------------------
 \begin{problem}
@@ -792,7 +794,6 @@ Note that there is a theorem that generalize this result. The Brooks's theorem w
 
 \end{problem}
 
-
 %---Problem------------
 \begin{problem}{\textit{In breadth-first and depth-first search, an undiscovered node is marked discov-
 ered when it is first encountered, and marked processed when it has been completely searched. At any given moment, several nodes might be simultaneously in the discovered state.}}
@@ -825,11 +826,61 @@ during a depth-first search starting from $v$. (Note, there may also be discover
 \item A graph with $n$ nodes s.t. two half of the nodes are organized as a list of nodes $\frac{n}{2}$, and each their heads share a node (which is used as starting point). DFS will eventually process one branch leaving the other one undiscovered. Since each branch has $\frac{n}{2} = \Theta(n)$ nodes the constraints are satisfied.
 \end{itemize}
 
+\end{solution}
+\end{problem}
+
+%---Problem------------
+\begin{problem}
+Suppose an arithmetic expression is given as a DAG (directed acyclic graph)
+with common subexpressions removed. Each leaf is an integer and each internal node is one of the standard arithmetical operations $(+, -, \times, \div )$.
+For example the expression $2+3 \times 4 + (3 \times 4) \div 5$ is represented by the DAG in Figure \ref{fig:datExpression}. Give an algorithm that work in $O(n+m)$ where $n$ and $m$ are the number of vertices and edges respectively.
+
+	\begin{figure}
+\centering
+		\label{fig:datExpression}
+		\includegraphics[width=5cm]{datExpression.png}
+		\caption{DAG representing an expression}
+	\end{figure}
+
+\begin{solution}
+This problem is solvable using a DFS and dynamic programming.
+
+\begin{algorithm}
+  \If{$isleaf(n)$}{
+	\Return $n.value$
+  }
+   \If{$cache(n)$}{
+	\Return $cache(n)$
+  }
+  $res \gets neutralElement(n.operation)$\;
+ \For{$v  \in n.adj$}{
+ 	 $res = n.operator(eval(v))$\;
+  }
+  $cache(n) \gets res$\;
+  \Return $res$\;
+ 
+\caption{DAG Expression evaluation}
+\end{algorithm}
+
+
+\end{solution}
+
+\end{problem}
+
+
+%---Problem------------
+\begin{problem}
+Skiena 5-12	
+
+\begin{solution}
 
 
 
 \end{solution}
+
 \end{problem}
+
+
 
 %-----END OF CHAPTER GRAPH---------------------------
 
