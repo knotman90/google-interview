@@ -835,12 +835,12 @@ Suppose an arithmetic expression is given as a DAG (directed acyclic graph)
 with common subexpressions removed. Each leaf is an integer and each internal node is one of the standard arithmetical operations $(+, -, \times, \div )$.
 For example the expression $2+3 \times 4 + (3 \times 4) \div 5$ is represented by the DAG in Figure \ref{fig:datExpression}. Give an algorithm that work in $O(n+m)$ where $n$ and $m$ are the number of vertices and edges respectively.
 
-	\begin{figure}
-\centering
-		\label{fig:datExpression}
-		\includegraphics[width=5cm]{datExpression.png}
-		\caption{DAG representing an expression}
-	\end{figure}
+%	\begin{figure}
+%\centering
+%		\label{fig:datExpression}
+%		\includegraphics[width=5cm]{datExpression}
+%		\caption{DAG representing an expression}
+%	\end{figure}
 
 \begin{solution}
 This problem is solvable using a DFS and dynamic programming.
@@ -891,6 +891,7 @@ Skiena 5-12
 \section{Map}
 \section{MultiMap}
 \section{Hash table - Hash Map}
+	\input{hashtable.tex}
 \iffalse
 http://www.tommyds.it/doc/benchmark.html
 \fi
