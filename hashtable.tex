@@ -134,15 +134,31 @@ d_a (x) = \left \lfloor{\frac{(ax) mod 2^w}{2^{w-l}}}\right \rfloor
 \]
 with $a \in \{1,2,\ldots m-1\}$
 
-\begin{lstlisting}[language=c++, caption="Store credit c++ solution"]
+\begin{lstlisting}[language=c++, caption="Multiplicative method hashing"]
+typedef unsigned int uint;
 #define INT_SIZE (32)
- int hash(const int m,const  int k, const int a, const int hash_size) {
+ int hash(const uint m,const  uint k, const uint a, const uint hash_size) {
  	return (a*k) >> (INT_SIZE-hash_size) 
  	//division by powers of 2 is equivalent to a right shift
  }
 
 \end{lstlisting}
-Note that the product $ak$ is already trimmed to the lower half
+Note that the product $ak$ may be a $2^{2 \times INT\_SIZE}$ number, but this would cause overflow, so only the lower \texttt{INT\_SIZE} of the resulting product will be kept. Right shifting by the right amount will do the job of isolate the inner $l$ portion of the number. 
+For instance consider the following listing:
+
+\begin{lstlisting}[language=c++]
+#include <iostream>
+using namespace std;
+typedef unsigned int uint;
+int main() {
+	uint a = 523456;
+	uint res= a*a; //overflow
+	cout<<(uint)res<<" "<<a<<endl;
+	return 0;
+}
+\end{lstlisting}
+\texttt{res} variable contains the number $3423244288$ which is the wrong answer since $523456^2=274006183936$. $3423244288$ correspond is a 32-bit integer which corresponds to the first 32-bits of the 64-bits number $274006183936$. $3423244288 = 274006183936 mod 2^{32}$.
+
 \subsubsection{Universal Hashing}
 
 Any possible scheme is vulnerable to the fact that is alway possible to choose $n$ objects whose keys maps to the same bucket, yelding as we know to the very bad $\Theta(n)$ lookup. The only approach that overcome this issue is for the hashing function to hash keys \textit{randomly} and \textit{indeentently}. In unversal hashing we select at the beginning of the the execution (at hash table  creation time if working in a object oriented programming environment) a suitable hash function from a set well designed class of functions. We will use randomizaion in the costruction of the hash function in ordder to ensure that for any sequence of element inserted in the table the expected performance will be good (i.e. the horrific $\Theta(n)$ lookup would occuper with a very little probability). This is the same kind of expectation quicksort assumes when choosing the pivot element.
