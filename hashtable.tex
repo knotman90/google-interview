@@ -165,13 +165,147 @@ Any possible scheme is vulnerable to the fact that is alway possible to choose $
 
 \textit{To summarise when the keys to be inserted are uniformly drawn from a universe of keys is not difficould to come up with an hash function that distribute them uniformly across all the buckets meaning that the probability of collisions between any of two keys is the $\frac{1}{m}$ (any bucket at any time is equally likely to be chosen by the hash function). The main caveau is that the any assumption on the distribution of the keys to be inserted is not realistic manily because in real life keys are not drawn randomly, then because there could alway be the case then an adversary would attack our system submitting a patological sequence of keys which will hash to the same bucket. So a much more approach is to  make no asumption on the distribution of the keys and let randomess come into play in the definition of the hash function itself which is not now fixed. Looking now at the average running time of all the hash table operations withouth, again any assumpion on the distribution of the keys. An adversary cannot find a \textbf{bad sequence of keys} since the hash function is not known \textbf{a priori}. Randomess, which willl ensure good average case behaviour is in the definition of the hash function!} 
 
-A family of function $\mathbb{H}$ is a  \textbf{universal hash function family} if each function the probability that two element collide is at most $\frac{1}{m}$ i.e. given two elements $x,y \in U$, $\forall h \in \mathbb{H}$ we have $Pr(h(x) = h(y)) \geq \frac{1}{m}$ (Sometimes this probability may be $O(\frac{1}{m})$ and the family is called $\epsilon$-almost universal). Not that universality does not implies uniformity\footnote{The propoerty such that all the possible hash values are equally likely to be returned. $Pr(h(x)=z) = \frac{1}{m}$}. Note also that uniformity is not terribly useful and is not a string enough condition to ensure good hash table performance on average. Take for instance the set $\mathbb{K} = \{ k_a(x) = a \: : 0\geq a<m\}$ of  constant function. This set is perfectly uniform in the sense that picking a random function $k_a$ at random each slot is equally likely to be choosen as destination slot. Probability that object $x$ hashes to slot $l$ is the probability that function $k_l$ is picked up at random from the set $\mathbb{K}$ which clearly is $\frac{1}{m}$. That is why minimizing the number of collision is much more important. The set $\mathbb{K}$ is uniform but is not unversal (according th the following definition) because the probability that picking up a random function $k_a$ and given two keys $x,y$ they hash to the same location is not less than $\frac{1}{m}$ but is $1$!
+A family of function $\mathbb{H}$ is a  \textbf{universal hash function family} if each function the probability that two element collide is at most $\frac{1}{m}$ i.e. given two elements $x,y \in U$, $\forall h \in \mathbb{H}$ we have $Pr(h(x) = h(y)) \geq \frac{1}{m}$ (Sometimes this probability may be $O(\frac{1}{m})$ and the family is called $\epsilon$-almost universal). Not that universality does not implies uniformity\footnote{The propoerty such that all the possible hash values are equally likely to be returned. $Pr(h(x)=z) = \frac{1}{m}$}. Note also that uniformity is not terribly useful and is not a string enough condition to ensure good hash table performance on average. Take for instance the set $\mathbb{K} = \{ k_a(x) = a \: : 0\geq a<m\}$ of  constant function. This set is perfectly uniform in the sense that picking a random function $k_a$ at random each slot is equally likely to be choosen as destination slot. Probability that object $x$ hashes to slot $l$ is the probability that function $k_l$ is picked up at random from the set $\mathbb{K}$ which clearly is $\frac{1}{m}$. That is why minimizing the number of collision is much more important. The set $\mathbb{K}$ is uniform but is not unversal (according th the following definition) because the probability that picking up a random function $k_a$ and given two keys $x,y$ they hash to the same location is not less than $\frac{1}{m}$ but is $1$.
 
 
 \begin{framed}
 \textbf{Lineary of expectation} \hfill \\
+By linearity of expectation we mean that the \textbf{expected value} of the sum of a random variable is equal to the sum of their individual expected values. It is essentially a weighted average of possible outcomes. Suppose we are interested in the expected value of the sum of $K$ dices. Calculating the the sum the usual way is tedious. We have to sum up all possible outcomes and divides by the total number of outcomes to get the expected values. 
+
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+\textbf{} & \textit{} &  & \textit{} & \textbf{SUM} \\ \hline
+\textbf{(1,1)} & \textit{(1,1)} & \ldots & \textit{(1,6)} & $2+3+4+5+6+7=27 $ \\ \hline
+\textbf{(2,1)} & \textit{(2,1)} & \ldots & \textit{(2,6)} & $3+4+5+6+7+8=33$ \\ \hline
+\textbf{(3,1)} & \textit{(3,1)} & \ldots & \textit{(3,6)} & $4+5+6+7+8+9=39$ \\ \hline
+\textbf{(4,1)} & \textit{(4,1)} & \ldots & \textit{(4,6)} & $5+6+7+8+9+10=45$ \\ \hline
+\textbf{(5,1)} & \textit{(5,1)} & \ldots & \textit{(5,6)} & $6+7+8+9+10+11=51$ \\ \hline
+\textbf{(6,1)} & \textit{(6,1)} & \ldots & \textit{(6,6)} & $7+8+9+10+11+12=57$ \\ \hline
+\end{tabular}\hfill \\ \hfill \\
+
+expected value is $\frac{57+51+45+39+33+27}{36}=\frac{252}{36}=7$. 
+Linearity of expectation says that  the expected value of that sum of two dices is  the sum of the expected value of the single dices which is $\frac{1+2+3+4+5+6}{6}=3.5$. The expected value of the two dices is then $3.5\times 2$.
+This also works if the dices have different expected values. Imagine a dice with number 3 substituted by number 99. The expected value of the sum of the two dices is then $3.5+19.5 = 23$.
+
+Surprisingly this also works when the variables to be summed are \textbf{not independent}.
+
+Suppose we want to find the expected value of the sum of two random variables $X$ and $Y$.
+\[
+E[X+Y] = \sum_x \sum_y (x+y) \times Pr(X=x,Y=y)  =
+\]
+then using associativity,
+\[\sum_x \sum_y x \times Pr(X=x,Y=y) + \sum_x \sum_y y \times Pr(X=x,Y=y) \: \Longrightarrow\]
+
+\[\sum_x x \sum_y  Pr(X=x,Y=y) + \sum_y y \sum_x   Pr(X=x,Y=y) \: \Longrightarrow \]
+
+\[\sum_x x \sum_y   Pr(X=x) + \sum_y y \sum_x   Pr(Y=y)  \: \Longleftrightarrow \: E[x] + E[Y]\]
+since $Pr(X=x,Y=y)= Pr(X=x)$ in the first part of the equation because summing up all the probabilities where X=x and Y can be whatever number gives the probability of $X=x$. Same logic applies to $Pr(X=x,Y=y)= Pr(Y=y)$ in the second part of the formula\footnote{What is the robability in a two dices drawning that $(X=1, Y=$whatever)? simply the probability that $X=1$.}.
+Using induction on the number of variables this resuolt can be extende to an arbitrary number of variables. Continuous variables can be handles substituting summations with integrals.
+
+\begin{example}
+\textbf{There is a group on $n$ men all with a single hat on. The hats are redistribuited atrandom to every man. What is the expected number of hats each man get?}
+This problems is easily solvable by means of linearity of expectation.  Let $N_i$ be the number of hats received by each man and $C_{ij}$ and indicator variables which is $1$ if and only of hat $i$ goes to man $j$.
+\[
+E[N_j] = E[ \sum_{i}^n C{ij}] = \sum_{i}^n E[C{ij}] = \sum_{i}^n Pr(C_{ij}=1)
+\]
+Since hats are uniformly distributed the probability that hat $i$ goes to man $j$ is $\frac{1}{n} \Rightarrow  \sum_{i}^n \frac{1}{n} = 1$ .
+
+\end{example}
+
+\begin{example}
+\textbf{If the sum of two numbers rolled on the dice is $A$ and their product id $B$, compute E[A+B]}
+
+We know that the expected value of the sum of two numbers rolled is $A=7$. In order to compute $B$ we apply linearity of expectation. What is the expected value of a single dice? $3.5$, so by linearity of expectation $3.5 \ times 3.5 = 12.25$. The soltuion is then: $E[A+B] = E[A]+E[B] = 7 +12.25$.
+\end{example}
+
+
+\begin{example}
+\textbf{The digits $1,2,3,4$ are randomly arranged to form two two-digit numbers $AB$, and $CD$. What is the expected value of the product $AB \times CD$?}
+
+We have to try to write the product as some kind of sum in order to apply the principle of linearity of expectation.
+We should note that $AB \times CD = (10A+B) \times (10C+D) = 100AC + 10AD +10BC + BD$
+This is an easier problem because by lineary of expecation we can sum up all the expected values for the product of the single digits $AC,AD,BC,BD$. What is then
+\[
+E[AC] =  E[AB] = E[BC]= E[BD] = \frac{1 \times 2 +  1 \times 3 + 1 \times 4 +2 \times 3 +2 \times 4 +4 \times 3 }{6} = \frac{35}{6}
+\]
+The final value is now easy to compute:
+\[
+100E[AC] + 10(E[AD] +E[BC]) + E[BD]) = 121 \times E[AC] = 705,8\overline{3} 
+\]
+This approach is much easier than computing the expected value listing explicitely$4!$ possible couple of two-digits numbers.
+\end{example}
+
+
+\begin{example}
+\textbf{Let's take another example. Suppose you have a bag with 4 balls, each  of different color. You have to select 4 balls from the bag (with replacement). What is the expected number of different colors that will be extracted? }
+in order to use the principle of linearity of expentancy, we should write the expected number of different colors as a simple sum of random variable for which is easy to compute their expected values.
+Suppose now for a moment the following set of balls has been  extracted: \textbf{Red, Blue, Blue, Yellow}. If we set a indicator variable $P_c =$\textit{<color c has been extracted>} then $C_{green} + C_{blue} +C_{red} +C_{yellow} =   0 +1+1+1=3$. We have reduced the problem as a sum of simple to compute Indicator variable which expected value corresponds to the probability that the condition for which the indicator takes value one is true.
+What is the probability that a color is selected? Is $1$ minus the probability is not selected.
+More specifically, $Pr(C_c=1) = 1 - (\frac{3}{4})^4 = \frac{175}{256}$
+
+Solution to the problem is then $E[C_{green}] + E[C_{blue}] +E[C_{red}] +E[C_{yellow}] = 4 \times \frac{175}{256}= 2,734375$
+
+What if we have a bag with $n$ balls of different colors and we have to extract $n$ of them? How many different colors we are expected to extract?
+Same principle : $Pr(C_c=1) = 1 - (\frac{n-1}{n})^4$
+Solution would be $n \times (1-\frac{n-1}{n})^n$
+\end{example}
+\begin{example}
+\textbf{25 independent, fair coins are tossed in a row. What is the expected number of consecutive HH pairs? If 6 coin tosses in a row give HHTHHH, the number of consecutive HH pairs is 3.}
+There are 24 consecutive pairs: $HHH\ldots H$
+Let use the indicator variable $C_i =1 $ if pair $i$ is $HH$. Probability that $C_i$ is $1$ is $\frac{1}{4}$.
+$E[\sum_{i=1}^24 C_i] = \sum_{i=1}^24 E[C_i]$  by linearity of expectation.
+\[
+\sum_{i=1}^{24} \frac{1}{4} = \frac{24}{4} = 6
+\]
+So the expected number of consecutive $HH$ is 6.
+
+Note that we could have solved the same problems noticing that:
+if we denote p(n) the number of pairs in $n$ extraction then, p(1) = 0;
+Successive extraction works as follows:
+
+\begin{itemize}
+	\item Extract H where previous coin was H (probability$ \frac{1}{4}$). This add one pair
+	\item Extract H where previous coin was T Or extract T with whatever previous coin leave the number of consecutive head pair unchanged (probability$ \frac{3}{4}$, three cases HT,TH,TT). 
+\end{itemize} 
+We can write this as recurrence formula:
+\[
+	p(1) = 0;
+	P(n) = \frac{3}{4}p(n) + \frac{1}{4} (p(n)+1) = p(n) + \frac{1}{4};
+\]
+Expanding $p(n)$ up to $n=25$ gives : $ \frac{1}{4} + \frac{1}{4} \ ldots + \frac{1}{4} $(24 times)
+\end{example}
+
+\begin{example}
+\textbf{Coupon Collector: Suppose there are $n$ types of coupons in a lottery and each of them is equally likely to get extracted. What is the expected number of lots that have to be bought until we have at least a copy of \textit{all} coupons?}
+Before to dive into the main problem is useful to stop and think to an easier version of this problem. Suppose the number of coupons is two. Let's think to the lottery as having three state:
+\begin{enumerate}
+	\item No coupons have been extracted.
+	\item One coupon has been extracted (This state is always reched after $1$ extraction).
+	\item Both coupons have been extracted. 
+\end{enumerate}
+State number $1$ only lasts for a trial while number $2$ is kept until we keep extraction the first coupon.
+Let's denote by $X_i$ the number of extraction in state $i$. What we are really interested is $E[X_0]$. Obviously $E[X_2]=0$ since once we reach that state we don't need to extract any other coupon. What is the probability of a coupon to be extracted? $p=\frac{1}{2}$
+$E[X_0] = 1 + E[X_1]$.  
+$E[X_1] = 1 + (1-p)E[X_1] + pE[X_2] = 1+E[X_1]-pE[X_1]+0$
+\[
+E[X_1] =  1+E[X_1]-pE[X_1]+0 \Rightarrow 1 = pE[X_1]
+\]
+Hence $E[X_1] = \frac{1}{p} = 2$
+This gives us an important insight.  Whenever we switch from state $i$ to $j$ and and the switching probability is $p$ the expected number of trials is $\frac{1}{p}$.
+Going back to the original problem. The number of state is $n$ corrensponding to having $1,2,3 	\ldots, n$ different coupons. The idea is that if we know what is the expected number of trials for going from states $1 \rightarrow 2$ and then from states $2 \rightarrow 3$ and so on up to the last transition $n-1 \rightarrow n$ then $E[X_0] = 1 +  E[X_1] + E[X_2] +E[X_3] \ldots +E[X_{n-1}]$ What is then the probability of going from state $i$ to $j$? If we are in state $i$ we have collected $i$ coupons and we extract a \textit{new} one with probability $1 - \frac{i}{n}$ (Certainity minus the probability of extraction one of the already extracted coupons). We have already seen that given this probability $E[X_i] = \frac{1}{1 - \frac{i}{n}} = \frac{n}{n-i}$
+\[
+E[X_0] = 1+ \sum_{i=1}^{n-1} \frac{n}{n-i} = 1+ \Big(\frac{n}{n-1}+\frac{n}{n-2}+\frac{n}{n-3}+ \ldots \frac{n}{n-(n-1)}\Big)
+\]
+\[
+= 1+n \Big(\frac{1}{n-1}+\frac{1}{n-2}+\frac{1}{n-3}+ \ldots 1 \Big) = 1 + nH_n
+\]
+Let's for instance fix $n=12$. The expected number of trials is then $1+12 \times (\frac{1}{1}+\frac{1}{2}+\frac{1}{3}+\ldots \frac{1}{11}) = 1+ 36.2358\overline{281385} =  37.2358\overline{281385}$ 
+\end{example}
+
 
 \end{framed}
+%%linearity of expectation ------------------------------------------
+
 Given a subset of $S \subseteq U$ of size $n$, $\forall x \in U$ the \textbf{expected} number of collisions between x and other element in S is at most $\alpha = \frac{n}{m}$. The total number of collision between $x$ and any other element from $S$ is $\sum_{y\neq x} Pr_{xy} < \frac{n}{m}$ by lineary of expectation. The expected value of the number of collision between $x$ and other elements of $S$ is the sum of the expected value for the collision between $x$ and the other elements.  This means that the expected number of elements in each slot is $\alpha$!
 
 The proof to the above statement can be outlined as follows:
@@ -192,3 +326,5 @@ There are $n-1$ element in $S \setminus x$,
 \[
 E[C_x] = \frac{n-1}{m} < \frac{n}{m}=\alpha
 \]
+
+\section{Direct Addressing}
