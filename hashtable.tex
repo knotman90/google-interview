@@ -284,7 +284,8 @@ Before to dive into the main problem is useful to stop and think to an easier ve
 	\item Both coupons have been extracted. 
 \end{enumerate}
 State number $1$ only lasts for a trial while number $2$ is kept until we keep extraction the first coupon.
-Let's denote by $X_i$ the number of extraction in state $i$. What we are really interested is $E[X_0]$. Obviously $E[X_2]=0$ since once we reach that state we don't need to extract any other coupon. What is the probability of a coupon to be extracted? $p=\frac{1}{2}$
+Let's denote by $X_i$ the number of extraction in state $i$. What we are really interested is $E[X_0]$. Obviously $E[X_2]=0$ since once we reach that state we don't need to extract any other coupon. What is the probability of a coupon to be extracted? $p=\frac{1}{2}$. 
+
 $E[X_0] = 1 + E[X_1]$.  
 $E[X_1] = 1 + (1-p)E[X_1] + pE[X_2] = 1+E[X_1]-pE[X_1]+0$
 \[
@@ -327,4 +328,161 @@ There are $n-1$ element in $S \setminus x$,
 E[C_x] = \frac{n-1}{m} < \frac{n}{m}=\alpha
 \]
 
-\section{Direct Addressing}
+\section{Open Addressing}
+In open addressing each element is stored directly into the table itself. This mean that the load factor can't be greater than one cause at some point the entire table may be filled completly. Each slot of table contains either a valid entry or a a special value \texttt{NIL} which indicases whether the slot is empty or not. 
+It may also contains other flags, one of which is worth to mention now, \texttt{DELETED} which identifies slots which have been cleared and may lay in the middle of two valid stored objects. 
+One of the main advantages of open addressing versus chaining is that the memory footprint is less important cause there are no pointers at all to be managed since the object are stored into the table itself. 
+
+The key idea behind open addressing is that a the hash function is extended to take an additional parameters, the probe number. 
+Changing the probe number cause the hash function to return a different slot index with the property that eventually all the slots are returned. This is an essential property that such function need to have in order to be suitable for open addressing use.
+The hash function need to return a permutation of all the slot indices as the probe number changes.
+\[
+\{h(k,1,s),h(k,2,s), \ldots ,h(k,m,s)\} \Rightarrow \{a_i \:| a_i \in \{1,2,\ldots m\}\}
+\]
+where h is the hash function the second parameter is the probe  number and $s$ is the size of the table.
+\[
+h : U \times \{1,2,\ldots,m\} \rightarrow \{1,2,\ldots,m\}
+\]
+This condition is required because of the way dectionary operation are implemente in open addressing.
+
+\textbf{Insertion} $I(k)$ is performed as follows: starting with probe $p=1$ we iteratively try to insert the element with key $k$ into the slot $h(k,p=1,m)= v_p$. If it is empty i.e. it contains NIL or DELETED flag we can proceed to store the element in slot $v_p$. If it is already used to hold another object we keep increasing the probe number (which produces a new slot index) and try the insertion again. Eventually all the slots are probed cause the way the hash function is designed (produces a permutation of all the indices).
+If $h(k,m,m)$ fails than this means that the table is \textbf{full} and a \textit{enlarge} operation need to be performed.
+
+\begin{algorithm}
+ \Fn{INSERT (T,x)}{
+	$p \gets 1$\;
+	\While{$h(k,p,m) \neq NIL \wedge h(k,p,m) \neq DELETED$}{
+		$p \gets p+1$\;
+	}
+	\If{$p==m$}{
+		\Return \textbf{TABLE OVERFLOW ERROR}\;
+	}
+	$T[h(k,p,m)] = k$\;
+ }
+ 
+\caption{OPEN ADDRESSING INSERT}
+\end{algorithm}
+
+\textbf{Search} works as follows: since probes number are unrolled sequentially during insertion it is clear that whenever we found an empty slot on our searching process this means that the element is not present in the table at all, cause if it was it would have been inserted into the first empty slot probed by the same function we are quering during search.
+
+\begin{algorithm}
+ \Fn{SEARCH(T,x)}{
+	$p \gets 1$\;
+	\While{$T[h(k,p,m)] \neq k \wedge T[h(k,p,m)] \neq DELETED \wedge p\leq m$}{
+		$p \gets p+1$;
+	}
+	\If{$T[h(k,p,m)] == k $}{
+			\Return $h(k,p,m)$\;
+	}
+	\Return NIL\;
+ }
+ 
+\caption{OPEN ADDRESSING SEARCH}
+\end{algorithm}
+
+\textbf{Deletion} is very similar to search, infact it uses it as subroutine. key $k$ is first searched, and if it does not exists into the table then nothing else happens (you can't delete something that does not exist). If a valid slot is returned by the seach routine then the slot cannot be marked as $NIL$ cause this would cause search to fail. Imagine the element $k_1$ has been inserted at location $l_1=h(k_1,3,m)$ at time $t_1$. Imagine that another element at time $t_2 > t_1$ is inserted. It happens that is  inserted at location $h(k_2,2,m)=l_2 \neq l_1$  at the second probe cause it happens that at the first probe the slot was busy, $h(k_2,1,m)= h(k_1,3,m)$. When element $k_1$ is deleted and the corresponding slot marked as NIL then element $k_2$ becomes inaccessible since search operation would return NIL when it first probes to search for it at location $h(k_2,1,m)$ which has been nulled by delete routine when probing $h(k_1,3,m)$. Here the reason why we need another flag to be used when deleting an element.
+During search DELETED slots are treated as not empty and the search is not stopped. Insert operation treat them as empty slots so they are reused to hold new values.
+Note that because of how deletion procedure works, search times may not depend on the load factor $\alpha$ anymore so when deletion is required \textbf{chaining} is usually prefereable since it gives more predictable performance. Infact even at low load factors is still possible to have bad search performance due to \textbf{clustering}. 
+
+So the question that raise naturally is the following: \textbf{how can we generate probing sequences that perform well?}
+There are various strategies such as \textbf{linear,quadratic or double} hashing.
+\subsubsection{Linear Probing}
+Let's start saying that this strategy is all way bad and should never be used. It is showed here only for learning purposes. It creates long clustered sequence that raise the searching time even at very low load factors. 
+
+Linear probing uses an additional function $h':U \rightarrow \{	1,2,\ldots, m\} $ that select the starting point of the linear sequence defined as follows:
+\[
+h(k,p,m) = [h'(k) + p]\bmod m
+\]
+The generated sequence is a linear sequence wrapped around the value $m$ and starts at $h'(k)$. Since there are only $m$ starting points (and it is the only thing that differentiate a sequence from another) the possible sequences are $m$ only. Despite it is very easy to implement it suffers from what is called \textbf{primary clustering}. Clusters arise because the probability of a slot preceeded by $i$ filled slots is proportional to $i$ itself! This means that long sequences of full slots are more likely to become even longer. Assuming uniform hashing, infact, a slot $l$ can be filled during insertion for two reasons:
+
+\begin{enumerate}[font={\color{red!50!black}\bfseries}]
+\item the probing sequence starts at $l$ i.e. $h(k,1,m) = l$ with probability $\frac{1}{m}$ since key $k$ has uniform probability of being mapped to any of the slots (uniform hashing hyphotesis).
+\item the insertion procedure starts in one of the preceeding and already filled slots. It will return the first empty slots it encounters in the probing sequence which is $l$. So all the elements which maps into one of the preceeding filled slots will end up in being inserted into slot $l$. How many of them? $i$. Since are all independent events proibability sum up. 
+
+\end{enumerate}
+What does that mean?  It means that a slot has probability $\frac{1}{m} + \frac{i}{m} = \frac{i+1}{m}$ to be choosen as inserting index. 
+\begin{remark}\textbf{Linear probing is bad.
+It suffers from primarry clustering problem. Long clusters are more likely to become even longer.}
+\end{remark}
+
+\subsubsection{Quadratic Probing}
+This probing strategies uses a quadratic formula to compute the probing sequence. It is supported by a function $h'$ defined as in linear probing and two more parameters $c_1,c_2$.
+The quadratic function hash function family is defined as follows:
+
+\[
+h(k,p,m) = [c_1p^2 + c_2p + h'(x)] \mod m
+\]
+Thi approach works much better in practice than linear probing but it also suffer from clustering. Its form of clustring is called secondary clustering. Since the initial probaing value $h'(x)$ defines the entire sequence only $m$ probing sequences are possible\footnote{$h(k_1,0,m) = h(k_2,0,m) \Longrightarrow h(k_1,i,m) = h(k_2,i,m) \Longleftrightarrow h'(k_1) = h'(k_2)$ since $c_1i^2 + c_2i$ is always the same.}. 
+This strategy is aslighty more challenging to be implemented since parameters have to be selected s.t. the hash function make full use of all table slots. 
+How $c_1,c_2$  have to be choosen s.t. $h$ will return the permutation of $\{1,2,\ldots,m\}$ as the probing number changes?
+
+\begin{problem}
+Suppose we have to search for a key $k$ in a hash table of size $m$ (indices start from $0$) and we are provided with an hash function$h: U \times \{0,1,\ldots,m-1\}$. The search scheme works as follows:
+\begin{algorithm}
+ \Fn{SEARCH(T,k)}{
+	$i \gets 1$\;
+	$j \gets h(k)$\;
+	\Do{$i<m$}{
+		\If{$T[j] == k $}{
+			\Return $j$\;
+		}
+		\If{$T[j] == NIL $}{
+			\Return $NIL$\;
+		}
+		$i \gets i+1$\;
+		$j \gets (j+i) \bmod m$\;
+	}
+} 
+\end{algorithm}
+Shows that 
+\begin{itemize}
+\item This scheme is infact an instance of the more general \textit{quadratic probing} and exibith the appropriate parameters $c_1,c_2$
+\item It is a legal hash function s.t. it examines all the slots eventually.
+\end{itemize}
+
+\begin{solution}
+	Let's first notice that given a starting point for the sequence $j_0=h(x)$ the subsequent slots indices are computed as using the following recurrence function
+	\[
+		j_{i+1} = (j_i + i) \bmod m
+	\]
+The $k^{th}$ index is then $j_k = (((j_0 +1 \mod m) + 2 \mod m) + 3 \bmod m) \ldots +k) \bmod m$
+which is equivalent to 
+\[(j_0 +1 +2 +3 +\ldots +k) \bmod m\]
+
+In order to prove that let's show that 
+\[
+((j_0+i) \mod m) +i+1 \mod m) = (j_0 + i +i+1) \mod m
+\]
+Now, $((j_0+i) \mod m) +i+1 \mod m) \neq (j_0 + i +i+1) \mod m \Longleftrightarrow (j_0+i) \mod m) \neq j_0+i$
+This can only be true if and only if $j_0+i \geq m$. This implies $ \Rightarrow i\geq m-j_0$
+So assuming $i\geq m-j_0$ then $((j_0+i) \mod m) = i-m+j_0$.
+The original equation becomes then:
+\[
+(i-m+j_0 +i+1 \mod m) = (j_0 + i +i+1) \mod m
+\]
+which is true since adding or subtracting $m$ in any operation modulo $m$ does not change the result at all.
+Now let's rewrite $(j_0 +1 +2 +3 +\ldots +k) \bmod m$ as $j_0 + \frac{k(k+1)}{2} \bmod m \Rightarrow j_0 + \frac{1}{2}k\frac{1}{2}k^2 \bmod m $
+This is an instance of the quadratic probing formula with $c_1=c_2 =\frac{1}{2}$.
+
+Let'a now prove that all the slot indices are actually probed.
+In order to do that let's first notice that each probing sequence is at maximum of length $m$ and $m$ values should be probed. This means that no two different probes can output the same number. This is equivalent of proving the following:
+\[
+	(j_0 +1) \bmod m \neq j _0 +1 +2 \bmod m \neq j _0 +1 +2 +3 \bmod m \ldots \neq j _0 +1 +2+\ldots +m-1 \bmod m
+\]
+\[
+j_0 + \frac{l(l+1)}{2} \mod m= j_0 + \frac{k(k+1)}{2} \mod m  \Rightarrow \frac{l(l+1)}{2} - \frac{k(k+1)}{2} \mod m =0 \Rightarrow \frac{l^2}{2}+\frac{l}{2} - \frac{k^2}{2}-\frac{k}{2} \mod m=0\]
+\end{solution}
+
+\end{problem}
+
+\subsection{Double Hashing}
+Doble hasing is one of the best methods available for \textbf{open addressing} since it produces much more random-like probing sequences. it uses an hash function of the following type:
+\[
+h(k,i) =(h_1(k)+ih_2(x)) mod m
+\]
+where $h_1$ and $h_2$ are auxilary functions. The reason why double hashing performs better than linear and quadratic probing is that the final hash values depends twice from $k$, since both the first number of the sequence and the offset depends on $k$.
+It is important to note  that the value of $h_2(x)$ need to be relatively prime with $m$ and it usually force to be like so by choosing $m=2^l$ and $h(x)$ to return always an odd number.
+The number of possible functions is $\Theta(m^2)$ since each pair of $(h_1,h_2)$ yeald to a different probing sequence.
+Although in principle other number than $m$ prime or $m$ baing a power of two can be used, in practice it is quite hard to wensure the co-primality of $m$ and $h_2$ since the ratio $\frac{\phi(m)}{m}$ can be small\footnote{$\phi$ is called totient function and counts the number of number which are relatively prime to $m$ and $h_2$ can only map $x$ into one of these numbers}.
+
+\subsection{Analysis of Open addressing Performance}
