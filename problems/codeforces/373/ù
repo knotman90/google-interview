@@ -1,0 +1,13 @@
+#include <iostream>
+
+using namespace std;
+
+#define if((A)) if(!A)
+
+int main(){
+    if(3==5)
+        cout<<"hello"<<endl;
+    else
+        cout<<"bau"<<endl;
+    return 0;
+}
