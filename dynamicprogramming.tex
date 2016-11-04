@@ -303,4 +303,21 @@ int solveCuttingRod(int N, int* price,int* memo) {
 	\end{lstlisting}
 Since each problem is solved exactly once (because subseauent calls are handled by the memoization table) and each call does a linear work this mean that this approach has complexity $\Theta(n^2)$ which is a very good improvement from the exponential naive solution!
 
+The following is the bottom up version of the cutting rod problem solution.
+\begin{lstlisting}[language=c++, caption="Binary knapsack problem -Memoized solution",label=list:knapqudratic]
+int solveBottomUp(int N, int* prices){
+    int best[N+1];
+    best[0]=0;
+    for(int i=1;i<=N;i++){
+        int m=0;
+        for(int j=1;j<=i;j++){
+            m = max(m, prices[j-1]+best[i-j]);
+        }
+        best[i] = m;
+    }
+return best[N];
+}
+	\end{lstlisting}
+
+Note how here is much easier to see what the complexity of this approach is, and how each solution to subproblems depends on smaller subproblems.
 
