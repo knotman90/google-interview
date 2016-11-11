@@ -1,7 +1,8 @@
 module Exercices where
 
 import Data.List
-
+import Data.Char
+import Data.Tuple (swap)
 --  RECURSION AND LIST I
 factN 0 = 1
 factN n = factN (n-1) *n
@@ -247,3 +248,89 @@ h _ = False
 --set difference
 (\\\) :: (Eq a ) => [a] -> [a] ->[a]
 (\\\) xs ys = foldr (\x acc -> delete x acc) xs ys
+
+
+--More on High Order Functions
+descending :: (Ord a) =>a -> a -> Ordering
+descending x y = compare y x
+
+--more elengant using flip
+descendingflip :: (Ord a) => a -> a -> Ordering
+descendingflip = flip compare
+
+casainsensitive :: String -> String -> Ordering
+casainsensitive s t = compare ls lt
+    where 
+        ls = map (toLower) s
+        lt = map (toLower) t
+
+quicksort :: (Ord a ) => (a -> a -> Ordering) -> [a] -> [a]
+quicksort _ [] = []
+quicksort f (x:xs) = (quicksort f less) ++ [x] ++ (quicksort f great)
+   where 
+       less = myfilter (\a -> (f a x) == LT) xs
+       great= myfilter (\a -> f a x /= LT) xs
+
+
+
+for :: a -> (a -> Bool) -> (a -> a) -> (a -> IO()) -> IO()
+for i p f job 
+    | p i       = do
+                    job i 
+                    for (f i) p f job
+    |otherwise  = return ()
+
+-- mapping print (which is an action) using map does only produces a list of action that cannot be executed by map directly. Those actions need to be dequenced
+sequenceIO :: [IO a] -> IO [a]
+sequenceIO []       = return []
+sequenceIO (a:as)   = do
+                        r <- a
+                        rest <-  sequenceIO as
+                        return (r:rest)
+
+mapIO :: (a -> IO b) -> [a] -> IO [b]
+mapIO f = sequenceIO . map f
+
+myflip :: (a -> b -> c) -> b -> a -> c
+myflip f a b = f b a
+
+composefunction :: (b -> c) -> (a -> b) -> a -> c
+composefunction f g a = f (g a)
+
+--uncurry transforms a function which takes two arguments into one that takes ONE argument which is a pair made from the original arguments
+addPair = myuncurry (+)
+
+myuncurry :: (a -> b -> c ) -> (a , b) -> c
+myuncurry f (a,b)  = f a b
+
+applyFstToSnd :: ((a->b),a) -> b
+applyFstToSnd  = myuncurry ($) 
+
+--curry is the oppoosite of uncurry. takes a function which only argument is a pair of elements and return a function which takes two arguments
+mycurry :: ((a,b)->c) -> a -> b -> c
+mycurry f x y = f (x,y)
+
+--id returns its argument
+myid :: a -> a
+myid a = a
+
+--const is a fucntion whcih takes two arguments and discards the second one
+myconst :: a -> b -> a
+myconst x _ = x
+
+--what uncurry const does: it return a function which takes a pair and discards its second element
+discardSnd :: (a,b) -> a
+discardSnd = uncurry const
+
+-- curry fst returns the first of the two arguments it takes
+discartSecondPar = curry fst
+
+--curry swap = flip returns a function which takes its argument and put it in a pair in reverse order
+myflipcurry = curry swap
+
+-- implement foldl using foldr
+afoldl :: (b -> b -> b) -> b -> [b] -> b
+afoldl f acc xs= foldr ff id  xs acc 
+      where 
+        ff b g x  = g (f x b)  
+    

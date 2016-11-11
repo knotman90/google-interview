@@ -1,5 +1,28 @@
 #include <bits/stdc++.h>
 
+
+// Lambda has type: D -> T -> D
+template <typename D, typename Iterator, typename Lambda>
+D fold_idx(Iterator s, Iterator e,  D& acc, Lambda l) {
+    int idx=0;
+    while (s != e) {
+        acc = l(acc, *s,idx);
+        s++;
+        idx++;
+    }
+    return acc;
+}
+template <typename D, typename Iterator, typename Lambda>
+D fold(Iterator s, Iterator e, const D& a, Lambda l) {
+    D acc = a;
+    while (s != e) {
+        acc = l(acc, *s);
+        s++;
+    }
+    return acc;
+}
+
+
 // Useful constants
 #define INF (int)1e9
 #define EPS 1e-9
@@ -56,6 +79,23 @@ template<typename T>
 inline T clamp(const T& n, const T& lo, const T& hi){
     return std::max(lo,std::min(n,hi));
 }
+
+template<class T>
+class reader {
+public:
+    void operator()(T& t) const {
+        cin>>t;
+    }
+};
+
+template<class CONTAINER, class READ_Fn>
+void read(CONTAINER& v, const unsigned int size, const READ_Fn& rfn) {
+    using T=typename std::remove_reference<decltype(v[0])>::type;
+    loop0n(i, size) {
+        rfn(v[i]);
+    }
+}
+
 
 typedef unsigned long ul;
 typedef unsigned long long ull;
