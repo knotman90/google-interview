@@ -75,7 +75,26 @@ mainsprialprimes = do
 --n/phi(n) minimize phi to get this ratio high. phi(n) is small when the number of 
 --non-coprime number is high. The #that shared divisors with more numbers small then itself
 --is the one which factorization includes the most primes less then it and which product is less tha 10^6
-main = putStrLn $ show $ product  [n | n<-[1..18], isPrime n] 
+mainDontRemember = putStrLn $ show $ product  [n | n<-[1..18], isPrime n] 
+
+
+
+solve80 = sum [(nhun 1 n) | n<-[2..99],  not (is_square n)]
+    where
+     nhun c n = sum $ map digitToInt $ take 100  $ reverse (intToList (mysqrt (5*n) 5 1 2000))
+
+is_square n = sq * sq == n
+    where sq = floor $ sqrt $ (fromIntegral n::Double)
+
+mysqrt :: Integer -> Integer -> Integer -> Integer-> Integer 
+mysqrt a b i limit
+    | i == limit = b 
+    | a >= b    =  (mysqrt (a-b) (b+10) (i+1) limit)
+    | otherwise =  (mysqrt(a*100) ((100*(div b 10)) +5) (i+1) limit)
+
+
+main = putStrLn $ show $ solve80
+
 
 main40 = do
     let a=( concat [reverse .intToList $ n | n<-[1..]]) 

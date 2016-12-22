@@ -427,55 +427,153 @@ void solve74() {
 
 
 
-void solve77(){
+void solve77() {
     //how many way you can write 100 as a sum of at leat two numbers?
     vector<ll> primes;
     getPrimes(primes,10000);
     vector<int> w(10000,0);
     w[0]=1;
     int sum=0;
-    
+
     int j=0;
-    for(int i=0; i<primes.size();i++){//using only the first i primes (i included)
-        for(j=primes[i]; j<=primes[primes.size()-1];j++){
+    for(int i=0; i<primes.size(); i++) { //using only the first i primes (i included)
+        for(j=primes[i]; j<=primes[primes.size()-1]; j++) {
             w[j] += w[j-primes[i]];
             if(w[j]>5000)
                 break;
         }
 
     }
-    for(int i=0;i<=100;i++)
-        if(w[i]>5000){
-        cout<<i<<" "<<w[i]<<endl;
-        break;
+    for(int i=0; i<=100; i++)
+        if(w[i]>5000) {
+            cout<<i<<" "<<w[i]<<endl;
+            break;
 
-    }
+        }
 }
 
-void solve76(){
+void solve76() {
     //how many way you can write 100 as a sum of at leat two numbers?
     int w[101] = {0};
     w[0]=1;
-    for(int i=1; i<100;i++){//using only number <= 99
-        for(int j=i;j<=100;j++){
+    for(int i=1; i<100; i++) { //using only number <= 99
+        for(int j=i; j<=100; j++) {
             w[j] += w[j-i];
         }
 
     }
-    for(int i=0;i<=100;i++)
-    cout<<i<<" "<<w[i]<<endl;
+    for(int i=0; i<=100; i++)
+        cout<<i<<" "<<w[i]<<endl;
+
+}
+
+
+constexpr const int S=80;
+ll E[S][S];
+ll M[S][S];
+
+ll dagMinimum(const int r, const int c) {
+    if(E[r][c] != -1)
+        return E[r][c];
+
+    ll right = r+1 < S ? dagMinimum(r+1,c) : LLONG_MAX;
+    ll left  = c+1 < S ? dagMinimum(r,c+1) : LLONG_MAX;
+    ll ans =   M[r][c] + min(left,right);
+    E[r][c] = ans;
+    return ans;
+}
+
+
+void solve81() {
+    loop0n(i,S) {
+        loop0n(j,S) {
+            ll a;
+            scanf("%lld,",&a);
+            M[i][j]=a;
+            E[i][j] =-1;
+        }
+    }
+    E[S-1][S-1]=M[S-1][S-1];
+    ll ans=dagMinimum(0,0);
+    cout<<ans<<endl;
+
+}
+
+
+
+void solve82() {
+    loop0n(i,S) {
+        loop0n(j,S) {
+            ll a;
+            scanf("%lld,",&a);
+            M[i][j]=a;
+            E[i][j] =-1;
+        }
+    }
+
+    ll min=LLONG_MAX;
+    ll W[S][S];
+    bool V[S][S];
+    typedef pair<ll,pii> pllii;
+    priority_queue<pllii> Q;
+    for(int i=0; i<S; i++) {
+        //init dijkstra
+        loop0n(k,S) {
+            loop0n(l,0) {
+                W[k][l]=LLONG_MAX;
+                V[l][k]=false;
+            }
+        }
+        W[i][0]=0;
+
+        auto getMin = [&](auto& x, auto&y) {
+            x=-1;
+            y=-1;
+            ll m = LLONG_MAX;
+            loop0n(i,S) {
+                loop0n(j,0) {
+                    if(!V[i][j] && W[i][j] < m)
+                    {
+                        m = W[i][j];
+                        x=i;
+                        y=j;
+                    }
+                }
+            }
+        };
+
+        int x,y;
+        getMin( x,y );
+        while(x!=-1 && y!=-1) {
+            V[x][y] = true;
+            if(x>0 && !V[x-1][y] && W[x][y] + M[x-1][y] < W[x-1][y]) {
+                W[x-1][y] = W[x][y]+M[x-1][y];
+            }
+            if(x<S-1 && !V[x+1][y] && W[x][y] + M[x+1][y] < W[x+1][y]) {
+                W[x+1][y] = W[x][y]+M[x+1][y];
+            }
+            if(y<S-1 && !V[x][y+1] && W[x][y] + M[x][y+1] < W[x][y+1]) {
+                W[x][y+1] = W[x][y]+M[x][y+1];
+            }
+            getMin(x,y);
+        
+        }
+
+        loop0n(j)
+
+    }
 
 }
 
 int main() {
     ios_base::sync_with_stdio(false);
-    ll a,b;
-    //solve72_real();
-    solve77();
+    solve82();
 
 
     return 0;
 }
+
+
 
 
 
