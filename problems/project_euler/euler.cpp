@@ -500,7 +500,8 @@ void solve81() {
 }
 
 
-
+//required dijkstra. min is implemented naively. use a priority queue instead.
+//yet works.
 void solve82() {
     loop0n(i,S) {
         loop0n(j,S) {
@@ -519,7 +520,7 @@ void solve82() {
     for(int i=0; i<S; i++) {
         //init dijkstra
         loop0n(k,S) {
-            loop0n(l,0) {
+            loop0n(l,S) {
                 W[k][l]=LLONG_MAX;
                 V[l][k]=false;
             }
@@ -531,7 +532,7 @@ void solve82() {
             y=-1;
             ll m = LLONG_MAX;
             loop0n(i,S) {
-                loop0n(j,0) {
+                loop0n(j,S) {
                     if(!V[i][j] && W[i][j] < m)
                     {
                         m = W[i][j];
@@ -558,16 +559,121 @@ void solve82() {
             getMin(x,y);
         
         }
+        
 
-        loop0n(j)
+        loop0n(j,S){
+            if(W[j][S-1]< min){
+                min = W[j][S-1];
+                cout<<"min is "<<W[j][S-1]+ M[i][0]<<" "<<i<<"->"<<j<<endl;
 
+            }
+
+        }
+    
     }
+}
+
+//required dijkstra. min is implemented naively. use a priority queue instead.
+//yet works.
+void solve83() {
+    loop0n(i,S) {
+        loop0n(j,S) {
+            ll a;
+            scanf("%lld,",&a);
+            M[i][j]=a;
+            E[i][j] =-1;
+        }
+    }
+
+    int i=0;
+    ll min=LLONG_MAX;
+    ll W[S][S];
+    pii P[S][S];
+    bool V[S][S];
+    typedef pair<ll,pii> pllii;
+    priority_queue<pllii> Q;
+        //init dijkstra
+        loop0n(k,S) {
+            loop0n(l,S) {
+                W[k][l]=LLONG_MAX;
+                V[l][k]=false;
+                P[k][l]=mp(-1,-1);
+            }
+        }
+        W[i][0]=M[i][0];
+
+        auto getMin = [&](auto& x, auto&y) {
+            x=-1;
+            y=-1;
+            ll m = LLONG_MAX;
+            loop0n(i,S) {
+                loop0n(j,S) {
+                    if(!V[i][j] && W[i][j] <= m)
+                    {
+                        m = W[i][j];
+                        x=i;
+                        y=j;
+                    }
+                }
+            }
+        };
+
+        int x,y;
+        getMin( x,y );
+        while(x!=-1 && y!=-1) {
+            V[x][y] = true;
+            if(x>0 && !V[x-1][y] && W[x][y] + M[x-1][y] < W[x-1][y]) {
+                W[x-1][y] = W[x][y]+M[x-1][y];
+                P[x-1][y] = mp(x,y);
+            }
+            if(x<S-1 && !V[x+1][y] && W[x][y] + M[x+1][y] < W[x+1][y]) {
+                W[x+1][y] = W[x][y]+M[x+1][y];
+                P[x+1][y] = mp(x,y);
+            }
+            if(y<S-1 && !V[x][y+1] && W[x][y] + M[x][y+1] < W[x][y+1]) {
+                W[x][y+1] = W[x][y]+M[x][y+1];
+                P[x][y+1] = mp(x,y);
+            }
+            if(y>0 && !V[x][y-1] && W[x][y] + M[x][y-1] < W[x][y-1]) {
+                W[x][y-1] = W[x][y]+M[x][y-1];
+                P[x][y-1] = mp(x,y);
+            }
+
+            getMin(x,y);
+        
+        }
+        
+
+        if(W[S-1][S-1]< min){
+              min = W[S-1][S-1];
+              cout<<"min is "<<min<<" "<<i<<"->"<<endl;
+         /*   pii s = mp(S-1,S-1);
+            while(s.first != -1 && s.second!=-1){
+                cout<<"("<<s.first<<" "<<s.second<<") -> ";
+                s=P[s.first][s.second];
+            }
+            cout<<endl;*/
+
+         }
+    
+
+}
+
+ll numRec(const int r, const int c){
+    ll ans = 0;
+    loop0n(i,r){
+        loop0n(j,c){
+            ans+=(r-i)*(c-j);
+        }
+    }
+}
+void solve85(){
 
 }
 
 int main() {
     ios_base::sync_with_stdio(false);
-    solve82();
+    solve83();
 
 
     return 0;
