@@ -557,19 +557,19 @@ void solve82() {
                 W[x][y+1] = W[x][y]+M[x][y+1];
             }
             getMin(x,y);
-        
-        }
-        
 
-        loop0n(j,S){
-            if(W[j][S-1]< min){
+        }
+
+
+        loop0n(j,S) {
+            if(W[j][S-1]< min) {
                 min = W[j][S-1];
                 cout<<"min is "<<W[j][S-1]+ M[i][0]<<" "<<i<<"->"<<j<<endl;
 
             }
 
         }
-    
+
     }
 }
 
@@ -592,92 +592,312 @@ void solve83() {
     bool V[S][S];
     typedef pair<ll,pii> pllii;
     priority_queue<pllii> Q;
-        //init dijkstra
-        loop0n(k,S) {
-            loop0n(l,S) {
-                W[k][l]=LLONG_MAX;
-                V[l][k]=false;
-                P[k][l]=mp(-1,-1);
-            }
+    //init dijkstra
+    loop0n(k,S) {
+        loop0n(l,S) {
+            W[k][l]=LLONG_MAX;
+            V[l][k]=false;
+            P[k][l]=mp(-1,-1);
         }
-        W[i][0]=M[i][0];
+    }
+    W[i][0]=M[i][0];
 
-        auto getMin = [&](auto& x, auto&y) {
-            x=-1;
-            y=-1;
-            ll m = LLONG_MAX;
-            loop0n(i,S) {
-                loop0n(j,S) {
-                    if(!V[i][j] && W[i][j] <= m)
-                    {
-                        m = W[i][j];
-                        x=i;
-                        y=j;
-                    }
+    auto getMin = [&](auto& x, auto&y) {
+        x=-1;
+        y=-1;
+        ll m = LLONG_MAX;
+        loop0n(i,S) {
+            loop0n(j,S) {
+                if(!V[i][j] && W[i][j] <= m)
+                {
+                    m = W[i][j];
+                    x=i;
+                    y=j;
                 }
             }
-        };
-
-        int x,y;
-        getMin( x,y );
-        while(x!=-1 && y!=-1) {
-            V[x][y] = true;
-            if(x>0 && !V[x-1][y] && W[x][y] + M[x-1][y] < W[x-1][y]) {
-                W[x-1][y] = W[x][y]+M[x-1][y];
-                P[x-1][y] = mp(x,y);
-            }
-            if(x<S-1 && !V[x+1][y] && W[x][y] + M[x+1][y] < W[x+1][y]) {
-                W[x+1][y] = W[x][y]+M[x+1][y];
-                P[x+1][y] = mp(x,y);
-            }
-            if(y<S-1 && !V[x][y+1] && W[x][y] + M[x][y+1] < W[x][y+1]) {
-                W[x][y+1] = W[x][y]+M[x][y+1];
-                P[x][y+1] = mp(x,y);
-            }
-            if(y>0 && !V[x][y-1] && W[x][y] + M[x][y-1] < W[x][y-1]) {
-                W[x][y-1] = W[x][y]+M[x][y-1];
-                P[x][y-1] = mp(x,y);
-            }
-
-            getMin(x,y);
-        
         }
-        
+    };
 
-        if(W[S-1][S-1]< min){
-              min = W[S-1][S-1];
-              cout<<"min is "<<min<<" "<<i<<"->"<<endl;
-         /*   pii s = mp(S-1,S-1);
-            while(s.first != -1 && s.second!=-1){
-                cout<<"("<<s.first<<" "<<s.second<<") -> ";
-                s=P[s.first][s.second];
-            }
-            cout<<endl;*/
+    int x,y;
+    getMin( x,y );
+    while(x!=-1 && y!=-1) {
+        V[x][y] = true;
+        if(x>0 && !V[x-1][y] && W[x][y] + M[x-1][y] < W[x-1][y]) {
+            W[x-1][y] = W[x][y]+M[x-1][y];
+            P[x-1][y] = mp(x,y);
+        }
+        if(x<S-1 && !V[x+1][y] && W[x][y] + M[x+1][y] < W[x+1][y]) {
+            W[x+1][y] = W[x][y]+M[x+1][y];
+            P[x+1][y] = mp(x,y);
+        }
+        if(y<S-1 && !V[x][y+1] && W[x][y] + M[x][y+1] < W[x][y+1]) {
+            W[x][y+1] = W[x][y]+M[x][y+1];
+            P[x][y+1] = mp(x,y);
+        }
+        if(y>0 && !V[x][y-1] && W[x][y] + M[x][y-1] < W[x][y-1]) {
+            W[x][y-1] = W[x][y]+M[x][y-1];
+            P[x][y-1] = mp(x,y);
+        }
 
-         }
-    
+        getMin(x,y);
 
+    }
+
+
+    if(W[S-1][S-1]< min) {
+        min = W[S-1][S-1];
+        cout<<"min is "<<min<<" "<<i<<"->"<<endl;
+        /*   pii s = mp(S-1,S-1);
+           while(s.first != -1 && s.second!=-1){
+               cout<<"("<<s.first<<" "<<s.second<<") -> ";
+               s=P[s.first][s.second];
+           }
+           cout<<endl;*/
+
+    }
 }
 
-ll numRec(const int r, const int c){
-    ll ans = 0;
-    loop0n(i,r){
-        loop0n(j,c){
-            ans+=(r-i)*(c-j);
+
+//problem 61
+bool found=false;
+array<bool,6> type= {false};
+
+class node {
+public:
+    node(const int nn, const int tt) {
+        n=nn;
+        t=tt;
+    }
+    int n;
+    int t;
+    vector<node*> neigh;
+};
+
+vector<node> G;
+vector<node> c;
+
+auto last = [](const int n) {
+    return n%100;
+};
+auto first = [](const int n) {
+    return n/100;
+};
+inline bool canVisit(node n) {
+    return !type[n.t];
+}
+void visit(node n, int l) {
+    for( auto nn : n.neigh ) {
+        if(l>=5 && canVisit(*nn) && last((*nn).n)==first(c[0].n )) {
+            found=true;
+            c.push_back(*(nn));
+            return;
+        }
+        if(canVisit(*nn)) {
+            c.push_back(*nn);
+            type[(*nn).t]=true;
+            visit(*nn,l+1);
+            if( found )
+            {
+                return;
+            } else {
+                c.pop_back();
+                type[(*nn).t]=false;
+            }
+
         }
     }
 }
-void solve85(){
 
+void solve61() {
+
+    auto addNode= [&](const int n, const int t) {
+        if(n>=1000 && n<=10000) {
+            node nn(n,t);
+            G.push_back(nn);
+        }
+    };
+    auto tri = [](const int i) {
+        return (i*(i+1))/2;
+    };
+    auto oct = [](const int i) {
+        return (i*(3*i-2));
+    };
+    auto pent = [](const int i) {
+        return (i*(3*i-1))/2;
+    };
+    auto hex = [](const int i) {
+        return (i*(2*i-1));
+    };
+    auto hep = [](const int i) {
+        return (i*(5*i-3))/2;
+    };
+    auto square = [](const int i) {
+        return (i*(i));
+    };
+
+    int n = 0;
+    int i = 0;
+    while(n<=10000) {
+        n=square(i);
+        addNode(n,0);
+        n=oct(i);
+        addNode(n,1);
+        n=pent(i);
+        addNode(n,2);
+        n=hex(i);
+        addNode(n,3);
+        n=hep(i);
+        addNode(n,4);
+        n=tri(i);
+        addNode(n,5);
+        i++;
+    }
+
+    for(auto& v : G) {
+        for(auto& q : G) {
+            if(v.t != q.t && last(v.n)>9 && last(v.n)==first(q.n))
+                v.neigh.push_back(&q);
+        }
+    }
+
+    for(auto &v : G) {
+        c.push_back(v);
+        type[v.t]=true;
+        visit(v,1);
+        if(found)
+            break;
+        c.pop_back();
+        type[v.t]=false;
+    }
+    int sum=0;
+    if(found) {
+        for(int i=0; i<c.size(); i++)
+            sum+=c[i].n;
+        cout<<"found sol "<< sum<<endl;
+
+
+    }
 }
+
+int periodic2(vector<int>& v) {
+    if( v.size() < 2 || v.size()%2 != 0)
+        return -1;
+    int h = v.size()/2;
+    for(int i=0; i < h ; i++) {
+        //if( (i <(h-1 ) && v[i] != v[i+h]) || ( i==(h-1) && abs(v[i]-v[i+h]) > 1))
+        if(v[i] != v[i+h])
+            return -1;
+    }
+    return h;
+}
+
+void solve64() {
+    typedef float  FLOAT;
+    constexpr const int LIM = 10000;
+    constexpr const FLOAT EPS2 = 0.00001;
+    int ans=0;
+    for(int i=2 ; i<=LIM; i++) {
+        int a0, a1,den,denold;
+        a0=0;
+        den=1;
+        denold=1;
+        FLOAT intpart;
+        FLOAT tgt = -1;
+        FLOAT fracpart=modf(sqrt(i),&intpart);
+        a0=intpart;
+        int sign=1;
+        int it=0;
+        if(fracpart >= EPS2)
+            do {
+                den=(i-a0*a0);
+                FLOAT R1 = (denold*(sqrt((FLOAT)i)+sign*(FLOAT)a0)) / den;
+                modf(R1,&intpart);
+                den/=denold;
+                denold=1;
+                a1=intpart;
+                int na = (-a1*den)+abs(a0);
+                a0=na;
+                fracpart=den/(sqrt(i)+a0);
+                denold=den;
+                sign=-1;
+                if(it==0)
+                    tgt=fracpart;
+                it++;
+            } while(fabs(fracpart-tgt)>=EPS2  || it <=1 ) ;
+            if(it > 1 && ((it-1)%2)!=0){
+                ans++;    
+            }
+    }
+    cout<<"sol: "<<ans<<endl;
+}
+
+template<class T>
+bool isPerfectSquare(const T d){
+    long double intpart, fractpart;
+    fractpart = modf(sqrtl(d), &intpart);
+    return fractpart <= 0.000001;
+}
+
+template <class T>
+int magnitude(T n){
+    int m=0;
+    while(n){
+        m++;
+        n/=10;
+    }
+    return m;
+}
+
+void solve66(){
+    typedef ll T;
+    InfInt max=-1;
+    for(T d=62; d<=1000; d++){
+        if(!isPerfectSquare<T>(d)){
+            bool go=true;
+            for(T x=1; go ; x++){
+                 long double y2 = ((long double)x)/sqrtl((long double)d);
+                 long double intp,floatp;
+                 floatp=modf(y2,&intp);
+                 long double p = 0.0001;//1.0/(long double)pow10(magnitude<T>(x)); 
+                // cout<<setprecision(10)<<d<<" "<<x<<" "<<y2<<" "<<p<<endl;;
+                 long double diff = fabs(1.0-floatp);
+                 if(intp>0 && (floatp <=p || diff <= p )){
+                    long double candintp;
+                    if(diff <=p){
+                        intp=intp+1;
+                    }
+                    InfInt xi = x;
+                    InfInt di=d;
+                    InfInt intpi =(ll)intp;
+                    InfInt res = xi*xi -di*intpi*intpi;
+                         //printf("CANDIDATE-> %lld^2 - %lld*%lld^2 = 1\n",x,d,(T)intp);
+                    //cout<<res<<endl;
+                  
+                    InfInt one =1;
+                    if( one== res ){
+                        printf("GOOD-> %lld^2 - %lld*%lld^2 = 1\n",x,d,(T)intp);
+                    cout<<res<<endl;
+                    if(xi>max)
+                        max=xi;
+                        go = false;
+
+                }
+            }
+        }
+    }
+}
+cout<<max<<endl;
+}
+
 
 int main() {
     ios_base::sync_with_stdio(false);
-    solve83();
+    solve66();
 
 
     return 0;
 }
+
 
 
 
