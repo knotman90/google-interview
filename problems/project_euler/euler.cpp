@@ -349,23 +349,25 @@ void solve43() {
                                     int d68 = 100*i6 +10*i7+i8;
                                     go = go && (d68%11==0);
 
-                                    for(int i9=0;go && i9<=9;  dn[i9]--, go=true,i9++) {
+                                    for(int i9=0; go && i9<=9;  dn[i9]--, go=true,i9++) {
                                         dn[i9]++;
                                         go=goodDigits(dn,0,10);
                                         int d79 = 100*i7 +10*i8+i9;
                                         go = go && (d79%13==0);
 
-                                        for(int i10=0;go && i10<=9;  dn[i10]--, go=true,i10++) {
+                                        for(int i10=0; go && i10<=9;  dn[i10]--, go=true,i10++) {
 
                                             dn[i10]++;
                                             go=goodDigits(dn,0,10);
                                             int d810 = 100*i8 +10*i9+i10;
                                             go = go && (d810%17==0);
 
-                                            if(go && isPandigital(dn,0,10)){
+                                            if(go && isPandigital(dn,0,10)) {
                                                 int nn=0;
                                                 //printf("-------%d%d%d%d%d%d%d%d%d%d --- %d,%d,%d,%d\n",i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,d24,d35,d46,d57);
-                                                auto multsum = [](const ll& a,  ll& n){ n=n*10+a; };
+                                                auto multsum = [](const ll& a,  ll& n) {
+                                                    n=n*10+a;
+                                                };
                                                 ll n =0;
                                                 multsum(i1,n);
                                                 multsum(i2,n);
@@ -1074,49 +1076,177 @@ void solve96() {
 }
 
 template<class T>
-void print(const vector<T>& V){
-  for(const auto& a : V){
-    cout<<a<< " ";
-  }
-  cout<<endl<<endl;
-}
-void solve61(){
-  auto triangle = [](const int n) { return (n*(n+1))/2;};
-  auto square = [](const int n) { return n*n;};
-  auto pentagonal = [](const int n) { return (n*(3*n-1))/2;};
-  auto hexagonal = [](const int n) { return (n*(2*n-1));};
-  auto heptagonal = [](const int n) { return (n*(5*n-3)/2);};
-  auto octagonal = [](const int n) { return (n*(3*n-2));};
-
-
-  vector<int> T,S,P,HEX,HEP,OCT;
-  bool go =true;
-  int n=1;
-  int nn=1;
-  while(true){
-      int nn ;
-      nn=square(n);     if(nn>=1000 && nn<=9999) S.push_back(nn);
-      nn=pentagonal(n); if(nn>=1000 && nn<=9999) P.push_back(nn);
-      nn=hexagonal(n);  if(nn>=1000 && nn<=9999) HEX.push_back(nn);
-      nn=heptagonal(n);  if(nn>=1000 && nn<=9999) HEP.push_back(nn);
-      nn=octagonal(n); if(nn>=1000 && nn<=9999) OCT.push_back(nn);
-      nn=triangle(n);   if(nn>=1000 && nn<=9999) T.push_back(nn);
-      ++n;
-      if(nn>9999)
-        break;
-  }
-print(T);
-print(S);
-print(P);
-print(HEX);
-print(HEP);
-print(OCT);
+void print(const vector<T>& V) {
+    for(const auto& a : V) {
+        cout<<a<< " ";
+    }
+    cout<<endl<<endl;
 }
 
-//problem 96 --------------------------
+
+//problem 93---------------------------------
+typedef vector<double> vi;
+vi two[10][10]= {{}};
+vi three[10][10][10]= {{}};
+vi four[10][10][10][10]= {{}};
+int s=1;
+void filltwo() {
+    for(int i=s; i<=9; i++) {
+        for(int j=s; j<=9; j++) {
+            if(i!=j) {
+                int l=i;
+                int m=j;
+                if(l>m) swap(l,m);
+                two[l][m].push_back(i+j);
+                two[l][m].push_back(i-j);
+                two[l][m].push_back(j-i);
+                two[l][m].push_back(i*j);
+                two[l][m].push_back(j*i);
+                 if(j!=0)
+                    two[l][m].push_back((double)i/(double)j);
+                 if(i!=0)
+                    two[l][m].push_back((double)j/(double)i);
+            }
+        }
+    }
+    cout<<endl;
+}
+
+void fillthree() {
+    for(int i=s; i<10; i++) {
+        for(int j=s; j<10; j++) {
+            if(i!=j)
+                for(int k=s; k<10; k++) {
+                    if(i!=k && j!=k) {
+                        array<int,3> coord= {i,j,k};
+                        sort(coord.begin(),coord.end());
+                        int jj=j;
+                        int kk=k;
+                        if(jj>kk)
+                            swap(jj,kk);
+                        vi ns = two[jj][kk];
+                        for(auto n: ns) {
+                            double op = (double)i;
+                            three[coord[0]][coord[1]][coord[2]].push_back(op+n);
+                            three[coord[0]][coord[1]][coord[2]].push_back(op-n);
+                            three[coord[0]][coord[1]][coord[2]].push_back(n-op);
+                            three[coord[0]][coord[1]][coord[2]].push_back(op*n);
+                            three[coord[0]][coord[1]][coord[2]].push_back(n*op);
+                            if(n!=0)
+                                three[coord[0]][coord[1]][coord[2]].push_back(op/n);
+                            if(op!=0)
+                                three[coord[0]][coord[1]][coord[2]].push_back(n/op);
+
+
+                        }
+                    }
+                }
+        }
+    }
+}
+
+bool isGood(const double n) {
+    double intp, fracp;
+    if(n>=1) {
+        fracp=modf(n,&intp);
+        if(fracp<=0.0001)
+            return true;
+    }
+    return false;
+}
+
+
+void fillfour() {
+    for(int i=s; i<10; i++) {
+        if(i==4)
+            cout<<endl;
+        for(int j=s; j<10; j++) {
+            if(i!=j)
+                for(int k=s; k<10; k++) {
+                    if(j!=k && k!=i)
+                        for(int l=s; l<10; l++) {
+                            if(l!=k && l!=j && l!=i) {
+                                array<int,3> cc= {j,k,l};
+                                sort(cc.begin(),cc.end());
+                                auto ns= three[cc[0]][cc[1]][cc[2]];
+                                array<int,4> coord= {i,j,k,l};
+                                sort(coord.begin(),coord.end());
+                                for(auto n: ns) {
+                                    //metti anche l DIVISIONE AL CONTRATIO. tutte le operazioni non commutative vanno doppi
+                                    ////metti anche l DIVISIONE AL CONTRATIO. tutte le operazioni non commutative vanno doppiee
+                                    double op=(double)i;
+                                    if(isGood(op+n))
+                                        four[coord[0]][coord[1]][coord[2]][coord[3]].push_back(op+n);
+                                    if(isGood(op-n))
+                                        four[coord[0]][coord[1]][coord[2]][coord[3]].push_back(op-n);
+                                    if(isGood(n-op))
+                                        four[coord[0]][coord[1]][coord[2]][coord[3]].push_back(n-op);
+
+                                    if(isGood(n*op))
+                                        four[coord[0]][coord[1]][coord[2]][coord[3]].push_back(n*op);
+
+                                    if(op!=0)
+                                        if(isGood((double)n/(double)op))
+                                            four[coord[0]][coord[1]][coord[2]][coord[3]].push_back(n/op);
+
+
+                                    if(isGood(op*n))
+                                        four[coord[0]][coord[1]][coord[2]][coord[3]].push_back(op*n);
+
+                                    if(n!=0)
+                                        if(isGood((double)op/(double)n))
+                                            four[coord[0]][coord[1]][coord[2]][coord[3]].push_back(op/n);
+
+                                }
+                            }
+                        }
+                }
+        }
+    }
+
+}
+void solve93() {
+
+    filltwo();
+    fillthree();
+    fillfour();
+    int max=0;
+    int c=0;
+    for(int i=0; i<10; i++) {
+        for(int j=i+1; j<10; j++) {
+            for(int k=j+1; k<10; k++) {
+                for(int l=k+1; l<10; l++) {
+                    auto ns=four[i][j][k][l];
+                    vector<int> nss;
+                    for(int m=0;m<ns.size();m++){
+                      if(isGood(ns[m]))
+                          nss.push_back(ns[m]);
+                    }
+                    set<int> s(nss.begin(),nss.end());
+                    nss.assign(s.begin(),s.end());
+                    if(ns.size()>0) {
+                        int start=1;
+                        int c=0;
+                        for(int m=0; m<nss.size(); m++,c++,start++) {
+                            if( nss[m]!=start)
+                                break;
+                        }
+                        if(c>max){
+                          max=c;
+                          printf("\n%d %d %d %d: %d",i,j,k,l,c);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+//end of problem 93
+
 int main() {
     ios_base::sync_with_stdio(false);
-    solve61();
+    solve93();
 
     return 0;
 }
