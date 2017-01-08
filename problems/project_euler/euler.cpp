@@ -162,16 +162,30 @@ void intToDigits( ll n, digits& ds) {
 
 }
 
-bool sameDigits(const digits& ds, const digits& dk) {
-    for(int i=0; i<10; i++)
+bool sameDigits(const digits& ds, const digits& dk, const int s=0, const int e=10) {
+    for(int i=s; i<e; i++)
         if(ds[i]!=dk[i])
             return false;
     return true;
 }
 
-void getPrimes(vector<long long>& primes, const int n) {
-    primes.push_back(2);
-    for(int i=3; i<=n; i+=2) {
+
+void getPrimesSieve(vector<long long>&primes, const ll n) {
+    vector<bool> nums(n+1,true);
+    for(ll i=2; i<n+1; i++) {
+        if(nums[i]) {
+            primes.push_back(i);
+            for(ll j=i+i; j<n+1; j+=i) {
+                nums[j]=false;
+            }
+        }
+    }
+}
+
+void getPrimes(vector<long long>& primes, const ll n, const ll s=2) {
+    if(s<=2)
+        primes.push_back(2);
+    for(int i=s; i<=n; i+=2) {
         bool p = true;
         for(int j=2; p && j<=sqrt(i); j++) {
             if(i%j==0)
@@ -181,6 +195,220 @@ void getPrimes(vector<long long>& primes, const int n) {
             primes.push_back(i);
     }
 }
+
+inline bool goodDigits(const digits& d, const int s , const int e) {
+    for(int i=s; i<e; i++)
+        if(d[i]>1)
+            return false;
+    return true;
+}
+
+
+void solve38() {
+    ll LIM = 987654321;
+    digits target= {0};
+    intToDigits(LIM,target);
+    for(ll i=1; i<10000 ; i++) {
+        ll n=0;
+        ll k=0;
+        digits dn = {0};
+        intToDigits(n,dn);
+        while(!sameDigits(target,dn,1,10) && dn[0]==0) {
+            k++;
+            n=i*k;
+            intToDigits(n,dn);
+            if(!goodDigits(dn,1,10))
+                break;
+        }
+        if(k>1 && sameDigits(target,dn,1,10) && dn[0]==0) {
+            cout<<i <<"->";
+            for(int j=1; j<=k; j++)
+                cout<<i*j<<"";
+            cout<<endl;
+        }
+    }
+
+}
+
+void solve17() {
+    unordered_map<int,int> map;
+    ll ans=4;//zero
+    map[1] = 3;
+    map[2]=3;
+    map[3]=5;
+    map[4] = 4;
+    map[5]=5;
+    map[6]=3;
+    map[7]=5;
+    map[8]=5;
+    map[9]=4;
+    map[10]=3;
+    map[11]=6;
+    map[12]=6;
+    map[13]=8;
+    map[20]=6;
+    map[30]=7;
+    map[40]=6;
+    map[50]=5;
+    map[60]=5;
+    map[70]=7;
+    map[80]=6;
+    map[90]=6;
+    map[100]=7;
+    for(int i=1; i<13; i++) {
+        ans+=map[i];
+    }
+    for(int i=14; i<20; i++) {
+        int d = i%10;
+        ans+=map[d] + 4;
+    }
+
+    for(int i=21; i<=99; i++) {
+
+        int d=i%10;
+        if(d!=0)
+            ans+=map[d]+3+map[i-d];
+    }
+
+    for(int i=100; i<1000; i++) {
+        int n=i;
+        int d0=n%10;
+        n/=10;
+        int d1=n%10;
+        n/=10;
+        int d2=n%10;
+        ans+= map[d2] + map[100];
+        if(d1) {
+            ans+=map[d1*10];
+            if(d2)
+                ans+=1+map[d1];
+        }
+
+    }
+
+}
+
+bool isPandigital(const digits& dn, const int s, const int e) {
+    int i=s;
+    for(; i<e; i++) {
+        if(dn[i]>1)
+            return false;
+        if(!dn[i])
+            break;
+    }
+    for(; i<e; i++)
+        if(dn[i])
+            return false;
+
+    return true;
+}
+
+void solve43() {
+    bool go=true;
+    digits dn= {0};
+    ll ans=0;
+    for(int i1=1; i1<=9; dn[i1]--, go=true,i1++) {
+        dn[i1]++;
+        go=goodDigits(dn,0,10);
+
+        for(int i2=0; go && i2<=9; dn[i2]--, go=true, i2++) {
+            dn[i2]++;
+            go=goodDigits(dn,0,10);
+
+            for(int i3=0; go &&  i3<=9; dn[i3]--, go=true, i3++) {
+                dn[i3]++;
+                go=goodDigits(dn,0,10);
+
+                for(int i4=0; go &&  i4<=9;  dn[i4]--, go=true,i4++) {
+                    dn[i4]++;
+                    go=goodDigits(dn,0,10);
+                    int d24=100*i2 + 10*i3 +i4;
+                    go= go&& (d24%2==0);
+
+                    for(int i5=0; go && i5<=9;  dn[i5]--, go=true,i5++) {
+                        dn[i5]++;
+                        go=goodDigits(dn,0,10);
+                        int d35 = 100*i3 +10*i4+i5;
+                        go = go && (d35%3==0);
+
+                        for(int i6=0; go && i6<=9;  dn[i6]--, go=true,i6++) {
+                            dn[i6]++;
+                            go=goodDigits(dn,0,10);
+                            int d46 = 100*i4 +10*i5+i6;
+                            go = go && (d46%5==0);
+
+                            for(int i7=0; go && i7<=9;  dn[i7]--, go=true,i7++) {
+                                dn[i7]++;
+                                go=goodDigits(dn,0,10);
+                                int d57 = 100*i5 +10*i6+i7;
+                                go = go && (d57%7==0);
+
+                                for(int i8=0; go && i8<=9;  dn[i8]--, go=true,i8++) {
+                                    dn[i8]++;
+                                    go=goodDigits(dn,0,10);
+                                    int d68 = 100*i6 +10*i7+i8;
+                                    go = go && (d68%11==0);
+
+                                    for(int i9=0;go && i9<=9;  dn[i9]--, go=true,i9++) {
+                                        dn[i9]++;
+                                        go=goodDigits(dn,0,10);
+                                        int d79 = 100*i7 +10*i8+i9;
+                                        go = go && (d79%13==0);
+
+                                        for(int i10=0;go && i10<=9;  dn[i10]--, go=true,i10++) {
+
+                                            dn[i10]++;
+                                            go=goodDigits(dn,0,10);
+                                            int d810 = 100*i8 +10*i9+i10;
+                                            go = go && (d810%17==0);
+
+                                            if(go && isPandigital(dn,0,10)){
+                                                int nn=0;
+                                                //printf("-------%d%d%d%d%d%d%d%d%d%d --- %d,%d,%d,%d\n",i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,d24,d35,d46,d57);
+                                                auto multsum = [](const ll& a,  ll& n){ n=n*10+a; };
+                                                ll n =0;
+                                                multsum(i1,n);
+                                                multsum(i2,n);
+                                                multsum(i3,n);
+                                                multsum(i4,n);
+                                                multsum(i5,n);
+                                                multsum(i6,n);
+                                                multsum(i7,n);
+                                                multsum(i8,n);
+                                                multsum(i9,n);
+                                                multsum(i10,n);
+                                                ans+=n;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    cout<<ans<<endl;
+
+}
+void solve41() {
+    vector<long long> primes;
+    //getPrimesSieve(primes,987654321);
+    //no prime can be made by using once all 9 digits because 1+2+3+4+5+6+7+8+9=45
+    //which is divisible by 3. Any number which digits are divisible by 3 is divisible by 3!
+    //same reasoning for 8. we can limit our search to 7654321
+    getPrimesSieve(primes,7654321);
+    for(int i=primes.size()-1; i>=0 ; i--) {
+        digits dn = {0};
+        intToDigits(primes[i],dn);
+        if(isPandigital(dn,1,10) && dn[0]==0) { //0 digit has not to be present in 1-n pandigital
+            cout<<primes[i]<<endl;
+            break;
+        }
+    }
+}
+
 void solve70(const int size) {
     vector<long long> primes;
     getPrimes(primes,1000000);
@@ -388,6 +616,27 @@ void solve72_real() {
     ll ans=0;
     for(ll i=2; i <= limit ; i++) {
         ans+=phi<ll>(i);
+    }
+    cout<<ans<<endl;
+}
+
+void solve92() {
+    array<ll,10> squares = {0,1,4,9,16,25,36,49,64,81};
+    ll LIM= 10000000;
+    ll ans = 0;
+    for(ll i = 1 ; i<LIM ; i++) {
+        ll n = i;
+        while(n!=89 && n!=1) {
+            ll n1=n;
+            ll newn=0;
+            while(n1) {
+                newn+=squares[n1%10];
+                n1/=10;
+            }
+            n=newn;
+        }
+        if(n==89)
+            ans++;
     }
     cout<<ans<<endl;
 }
@@ -638,9 +887,7 @@ void solve83() {
             W[x][y-1] = W[x][y]+M[x][y-1];
             P[x][y-1] = mp(x,y);
         }
-
         getMin(x,y);
-
     }
 
 
@@ -706,6 +953,171 @@ void visit(node n, int l) {
 
         }
     }
+}
+
+ll numRec(const ll r, const ll m) {
+    return (r*m*(r+1)*(m+1))/4;
+}
+void solve85() {
+    ll m;
+    ll n ;
+    m=n=4;
+    constexpr const ll LIM =2000000;
+    bool go =true;
+    int i=1;
+    ll k=-1;;
+    ll min = LLONG_MAX;
+    ll mm=10000,nn=10000;
+    ll ans=0;
+
+    int L =2000;
+    for(m=1; m<L; m++) {
+        for(n=m; n<L; n++) {
+            ans = numRec(n,m);
+            if(abs(ans-LIM) < abs(min-LIM) ) {
+                min=ans;
+                mm=m;
+                nn=n;
+
+            }
+            if(ans > LIM)
+                break;
+        }
+    }
+    cout<<min<<" at "<<mm<<"* "<<nn<<"= "<<nn*mm<<endl;
+
+}
+
+//problem 96 -----------------------------------------
+constexpr int size = 9;
+constexpr int bsize = 3;
+//sudoku
+bool checkBlock(int S[size][size], const int x, const int y) {
+    array<int,size> f= {0};
+    for(int i=bsize*x ; i < (bsize)*x+bsize ; i++)
+        for(int j=bsize*y ; j < (bsize)*y+bsize ; j++) {
+            int d = S[i][j];
+            if(d>0) {
+                f[d-1]++;
+                if(f[d-1] > 1)
+                    return false;
+
+            }
+        }
+    return true;
+}
+
+bool checkCol(int S[size][size] ,  const int col) {
+    array<int,size> f= {0};
+    loop0n(i,size) {
+        if(S[i][col] > 0) {
+            int d = S[i][col];
+            f[d-1]++;
+            if(f[d-1] > 1)
+                return false;
+        }
+    }
+    return true;
+}
+
+bool checkRow(int S[size][size],  const int row) {
+    array<int,size> f= {0};
+    loop0n(i,size) {
+        if(S[row][i] > 0) {
+            int d = S[row][i];
+            f[d-1]++;
+            if(f[d-1] > 1)
+                return false;
+        }
+    }
+    return true;
+}
+
+void printGrid(int S[size][size]) {
+    loop0n(i,size) {
+        cout<<"---";
+    }
+    cout<<endl;
+    loop0n(i,size) {
+        loop0n(j,size) {
+            if(S[i][j])
+                cout<<S[i][j]<<" ";
+            else
+                cout<<"  ";
+            if(j%bsize==2)
+                cout<<" ";
+        }
+        cout<<endl;
+        if(i%bsize==2)
+            cout<<endl;
+
+    }
+}
+
+
+
+bool solveSudoku(int S[size][size], int L[size][size], vector<pii> guessable ) {
+    int i=0;
+    while(i<guessable.size()) {
+        pii p = guessable[i];
+        if(i==0 && L[p.first][p.second]>9)
+            return false;
+        //  cout<<i<<" "<<p.first<<" "<<p.second << "-> "<<L[p.first][p.second]<<endl;
+        S[p.first][p.second]=L[p.first][p.second];
+        if(L[p.first][p.second]>9) {
+            L[p.first][p.second]=1;
+            S[p.first][p.second]=0;
+            i--;
+            continue;
+        }
+        if(!(checkRow(S,p.first) && checkCol(S,p.second) &&
+                checkBlock(S,p.first/bsize, p.second/bsize))) {
+            //choice not good. backtrack
+            S[p.first][p.second]=0;
+            L[p.first][p.second]++;
+        } else {
+            //good choice
+            i++;
+            L[p.first][p.second]++;
+        }
+        // printGrid(S);
+    }
+
+    return true;
+}
+void solve96() {
+    int S[size][size];
+    int L[size][size];
+    vector<pii> Q;
+    ll ans=0;
+    for(int i=0; i<50; i++) {
+        string s;
+        cin>>s;
+        cin>>s;//first row useless
+        for(int r=0; r<size; r++) {
+            //parse row
+            cin>>s;
+            for(int c=0; c<size; c++) {
+                int d = s[c]-'0';
+                S[r][c] = d;
+                d ? L[r][c]=-1 : L[r][c] = 1;
+                if(!d)
+                    Q.push_back(mp(r,c));
+            }
+        }
+        //  printGrid(S);
+        bool solved = solveSudoku(S,L,Q);
+        if(solved) {
+            //printGrid(S);
+
+            ans+=S[0][0]*100 + 10*S[0][1] + S[0][2];
+        }
+        else
+            cout<<"NO SOLUTION!"<<endl;
+        Q.clear();
+
+    }
+    cout<<ans<<endl;
 }
 
 void solve61() {
@@ -890,9 +1302,19 @@ cout<<max<<endl;
 }
 
 
+template<class T>
+void print(const vector<T>& V){
+  for(const auto& a : V){
+    cout<<a<< " ";
+  }
+  cout<<endl<<endl;
+}
+
+
+//problem 96 --------------------------
 int main() {
     ios_base::sync_with_stdio(false);
-    solve66();
+    solve61();
 
 
     return 0;
