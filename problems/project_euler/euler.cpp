@@ -1312,7 +1312,7 @@ void print(const vector<T>& V) {
     cout<<endl<<endl;
 }
 
-<<<<<<< HEAD
+
 
 //problem 93---------------------------------
 typedef vector<double> vi;
@@ -1341,8 +1341,7 @@ void filltwo() {
     }
     cout<<endl;
 }
-=======
->>>>>>> 553c66c1d5e8f912d1cd6894968ff01a56405186
+
 
 void fillthree() {
     for(int i=s; i<10; i++) {
