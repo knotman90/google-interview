@@ -889,9 +889,7 @@ void solve83() {
             W[x][y-1] = W[x][y]+M[x][y-1];
             P[x][y-1] = mp(x,y);
         }
-
         getMin(x,y);
-
     }
 
 
@@ -906,8 +904,57 @@ void solve83() {
            cout<<endl;*/
 
     }
+}
 
 
+//problem 61
+bool found=false;
+array<bool,6> type= {false};
+
+class node {
+public:
+    node(const int nn, const int tt) {
+        n=nn;
+        t=tt;
+    }
+    int n;
+    int t;
+    vector<node*> neigh;
+};
+
+vector<node> G;
+vector<node> c;
+
+auto last = [](const int n) {
+    return n%100;
+};
+auto first = [](const int n) {
+    return n/100;
+};
+inline bool canVisit(node n) {
+    return !type[n.t];
+}
+void visit(node n, int l) {
+    for( auto nn : n.neigh ) {
+        if(l>=5 && canVisit(*nn) && last((*nn).n)==first(c[0].n )) {
+            found=true;
+            c.push_back(*(nn));
+            return;
+        }
+        if(canVisit(*nn)) {
+            c.push_back(*nn);
+            type[(*nn).t]=true;
+            visit(*nn,l+1);
+            if( found )
+            {
+                return;
+            } else {
+                c.pop_back();
+                type[(*nn).t]=false;
+            }
+
+        }
+    }
 }
 
 ll numRec(const ll r, const ll m) {
@@ -1075,6 +1122,188 @@ void solve96() {
     cout<<ans<<endl;
 }
 
+void solve61() {
+
+    auto addNode= [&](const int n, const int t) {
+        if(n>=1000 && n<=10000) {
+            node nn(n,t);
+            G.push_back(nn);
+        }
+    };
+    auto tri = [](const int i) {
+        return (i*(i+1))/2;
+    };
+    auto oct = [](const int i) {
+        return (i*(3*i-2));
+    };
+    auto pent = [](const int i) {
+        return (i*(3*i-1))/2;
+    };
+    auto hex = [](const int i) {
+        return (i*(2*i-1));
+    };
+    auto hep = [](const int i) {
+        return (i*(5*i-3))/2;
+    };
+    auto square = [](const int i) {
+        return (i*(i));
+    };
+
+    int n = 0;
+    int i = 0;
+    while(n<=10000) {
+        n=square(i);
+        addNode(n,0);
+        n=oct(i);
+        addNode(n,1);
+        n=pent(i);
+        addNode(n,2);
+        n=hex(i);
+        addNode(n,3);
+        n=hep(i);
+        addNode(n,4);
+        n=tri(i);
+        addNode(n,5);
+        i++;
+    }
+
+    for(auto& v : G) {
+        for(auto& q : G) {
+            if(v.t != q.t && last(v.n)>9 && last(v.n)==first(q.n))
+                v.neigh.push_back(&q);
+        }
+    }
+
+    for(auto &v : G) {
+        c.push_back(v);
+        type[v.t]=true;
+        visit(v,1);
+        if(found)
+            break;
+        c.pop_back();
+        type[v.t]=false;
+    }
+    int sum=0;
+    if(found) {
+        for(int i=0; i<c.size(); i++)
+            sum+=c[i].n;
+        cout<<"found sol "<< sum<<endl;
+
+
+    }
+}
+
+int periodic2(vector<int>& v) {
+    if( v.size() < 2 || v.size()%2 != 0)
+        return -1;
+    int h = v.size()/2;
+    for(int i=0; i < h ; i++) {
+        //if( (i <(h-1 ) && v[i] != v[i+h]) || ( i==(h-1) && abs(v[i]-v[i+h]) > 1))
+        if(v[i] != v[i+h])
+            return -1;
+    }
+    return h;
+}
+
+void solve64() {
+    typedef float  FLOAT;
+    constexpr const int LIM = 10000;
+    constexpr const FLOAT EPS2 = 0.00001;
+    int ans=0;
+    for(int i=2 ; i<=LIM; i++) {
+        int a0, a1,den,denold;
+        a0=0;
+        den=1;
+        denold=1;
+        FLOAT intpart;
+        FLOAT tgt = -1;
+        FLOAT fracpart=modf(sqrt(i),&intpart);
+        a0=intpart;
+        int sign=1;
+        int it=0;
+        if(fracpart >= EPS2)
+            do {
+                den=(i-a0*a0);
+                FLOAT R1 = (denold*(sqrt((FLOAT)i)+sign*(FLOAT)a0)) / den;
+                modf(R1,&intpart);
+                den/=denold;
+                denold=1;
+                a1=intpart;
+                int na = (-a1*den)+abs(a0);
+                a0=na;
+                fracpart=den/(sqrt(i)+a0);
+                denold=den;
+                sign=-1;
+                if(it==0)
+                    tgt=fracpart;
+                it++;
+            } while(fabs(fracpart-tgt)>=EPS2  || it <=1 ) ;
+            if(it > 1 && ((it-1)%2)!=0){
+                ans++;    
+            }
+    }
+    cout<<"sol: "<<ans<<endl;
+}
+
+template<class T>
+bool isPerfectSquare(const T d){
+    long double intpart, fractpart;
+    fractpart = modf(sqrtl(d), &intpart);
+    return fractpart <= 0.000001;
+}
+
+template <class T>
+int magnitude(T n){
+    int m=0;
+    while(n){
+        m++;
+        n/=10;
+    }
+    return m;
+}
+
+void solve66(){
+    typedef ll T;
+    InfInt max=-1;
+    for(T d=62; d<=1000; d++){
+        if(!isPerfectSquare<T>(d)){
+            bool go=true;
+            for(T x=1; go ; x++){
+                 long double y2 = ((long double)x)/sqrtl((long double)d);
+                 long double intp,floatp;
+                 floatp=modf(y2,&intp);
+                 long double p = 0.0001;//1.0/(long double)pow10(magnitude<T>(x)); 
+                // cout<<setprecision(10)<<d<<" "<<x<<" "<<y2<<" "<<p<<endl;;
+                 long double diff = fabs(1.0-floatp);
+                 if(intp>0 && (floatp <=p || diff <= p )){
+                    long double candintp;
+                    if(diff <=p){
+                        intp=intp+1;
+                    }
+                    InfInt xi = x;
+                    InfInt di=d;
+                    InfInt intpi =(ll)intp;
+                    InfInt res = xi*xi -di*intpi*intpi;
+                         //printf("CANDIDATE-> %lld^2 - %lld*%lld^2 = 1\n",x,d,(T)intp);
+                    //cout<<res<<endl;
+                  
+                    InfInt one =1;
+                    if( one== res ){
+                        printf("GOOD-> %lld^2 - %lld*%lld^2 = 1\n",x,d,(T)intp);
+                    cout<<res<<endl;
+                    if(xi>max)
+                        max=xi;
+                        go = false;
+
+                }
+            }
+        }
+    }
+}
+cout<<max<<endl;
+}
+
+
 template<class T>
 void print(const vector<T>& V) {
     for(const auto& a : V) {
@@ -1083,6 +1312,7 @@ void print(const vector<T>& V) {
     cout<<endl<<endl;
 }
 
+<<<<<<< HEAD
 
 //problem 93---------------------------------
 typedef vector<double> vi;
@@ -1111,6 +1341,8 @@ void filltwo() {
     }
     cout<<endl;
 }
+=======
+>>>>>>> 553c66c1d5e8f912d1cd6894968ff01a56405186
 
 void fillthree() {
     for(int i=s; i<10; i++) {
@@ -1248,8 +1480,10 @@ int main() {
     ios_base::sync_with_stdio(false);
     solve93();
 
+
     return 0;
 }
+
 
 
 
