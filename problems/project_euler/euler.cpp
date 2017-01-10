@@ -1238,69 +1238,69 @@ void solve64() {
                     tgt=fracpart;
                 it++;
             } while(fabs(fracpart-tgt)>=EPS2  || it <=1 ) ;
-            if(it > 1 && ((it-1)%2)!=0){
-                ans++;    
-            }
+        if(it > 1 && ((it-1)%2)!=0) {
+            ans++;
+        }
     }
     cout<<"sol: "<<ans<<endl;
 }
 
 template<class T>
-bool isPerfectSquare(const T d){
+bool isPerfectSquare(const T d) {
     long double intpart, fractpart;
     fractpart = modf(sqrtl(d), &intpart);
     return fractpart <= 0.000001;
 }
 
 template <class T>
-int magnitude(T n){
+int magnitude(T n) {
     int m=0;
-    while(n){
+    while(n) {
         m++;
         n/=10;
     }
     return m;
 }
 
-void solve66(){
+void solve66() {
     typedef ll T;
     InfInt max=-1;
-    for(T d=62; d<=1000; d++){
-        if(!isPerfectSquare<T>(d)){
+    for(T d=62; d<=1000; d++) {
+        if(!isPerfectSquare<T>(d)) {
             bool go=true;
-            for(T x=1; go ; x++){
-                 long double y2 = ((long double)x)/sqrtl((long double)d);
-                 long double intp,floatp;
-                 floatp=modf(y2,&intp);
-                 long double p = 0.0001;//1.0/(long double)pow10(magnitude<T>(x)); 
+            for(T x=1; go ; x++) {
+                long double y2 = ((long double)x)/sqrtl((long double)d);
+                long double intp,floatp;
+                floatp=modf(y2,&intp);
+                long double p = 0.0001;//1.0/(long double)pow10(magnitude<T>(x));
                 // cout<<setprecision(10)<<d<<" "<<x<<" "<<y2<<" "<<p<<endl;;
-                 long double diff = fabs(1.0-floatp);
-                 if(intp>0 && (floatp <=p || diff <= p )){
+                long double diff = fabs(1.0-floatp);
+                if(intp>0 && (floatp <=p || diff <= p )) {
                     long double candintp;
-                    if(diff <=p){
+                    if(diff <=p) {
                         intp=intp+1;
                     }
                     InfInt xi = x;
                     InfInt di=d;
                     InfInt intpi =(ll)intp;
                     InfInt res = xi*xi -di*intpi*intpi;
-                         //printf("CANDIDATE-> %lld^2 - %lld*%lld^2 = 1\n",x,d,(T)intp);
+                    //printf("CANDIDATE-> %lld^2 - %lld*%lld^2 = 1\n",x,d,(T)intp);
                     //cout<<res<<endl;
-                  
+
                     InfInt one =1;
-                    if( one== res ){
+                    if( one== res ) {
                         printf("GOOD-> %lld^2 - %lld*%lld^2 = 1\n",x,d,(T)intp);
-                    cout<<res<<endl;
-                    if(xi>max)
-                        max=xi;
+                        cout<<res<<endl;
+                        if(xi>max)
+                            max=xi;
                         go = false;
 
+                    }
                 }
             }
         }
     }
-}
-cout<<max<<endl;
+    cout<<max<<endl;
 }
 
 
@@ -1332,9 +1332,9 @@ void filltwo() {
                 two[l][m].push_back(j-i);
                 two[l][m].push_back(i*j);
                 two[l][m].push_back(j*i);
-                 if(j!=0)
+                if(j!=0)
                     two[l][m].push_back((double)i/(double)j);
-                 if(i!=0)
+                if(i!=0)
                     two[l][m].push_back((double)j/(double)i);
             }
         }
@@ -1449,9 +1449,9 @@ void solve93() {
                 for(int l=k+1; l<10; l++) {
                     auto ns=four[i][j][k][l];
                     vector<int> nss;
-                    for(int m=0;m<ns.size();m++){
-                      if(isGood(ns[m]))
-                          nss.push_back(ns[m]);
+                    for(int m=0; m<ns.size(); m++) {
+                        if(isGood(ns[m]))
+                            nss.push_back(ns[m]);
                     }
                     set<int> s(nss.begin(),nss.end());
                     nss.assign(s.begin(),s.end());
@@ -1462,9 +1462,9 @@ void solve93() {
                             if( nss[m]!=start)
                                 break;
                         }
-                        if(c>max){
-                          max=c;
-                          printf("\n%d %d %d %d: %d",i,j,k,l,c);
+                        if(c>max) {
+                            max=c;
+                            printf("\n%d %d %d %d: %d",i,j,k,l,c);
                         }
                     }
                 }
@@ -1475,13 +1475,120 @@ void solve93() {
 
 //end of problem 93
 
+
+//problem94
+inline pair<long double,long double> solveEq2(const long double a, const long double b, const long double c) {
+    pair<long double,long double> res = {-1,-1};
+    long double delta=b*b-4*a*c;
+    if(delta>0.0) {
+        res.first=(-b+sqrtl(delta))/(2*a);
+        res.second=(-b-sqrtl(delta))/(2*a);
+    }
+    return res;
+}
+
+bool isIntegral(const long double l) {
+    long double intp,fracp;
+    if(modfl(l,&intp)<= 0.000000000001)
+        return true;
+    return false;
+}
+
+
+//this works but consider using solution of the Pell's equation for getting speedup
+//
+void solve94_c() {
+    ll ans=0;
+    long double a=2;
+    
+#pragma omp parallel for reduction(+:ans) 
+    for(ll c =2; c<333333333;c++){    
+    long double a=(long double)c;
+    long double a23=3.0*a*a;
+    long double a12=0.5*a;
+    
+        long double res=(3.0*(a*a) -2.0*a -1.0)/4.0;
+        if(  isIntegral(sqrt(res)) ) {
+           // ll aa=a;
+           // printf("%ld %ld %ld\n", aa , aa , aa+1);
+            ans+=3*a+1;
+        }
+        long double res2=(3.0*(a*a) +2.0*a -1.0)/4.0;
+        if(  isIntegral(sqrt(res2)) ) {
+          //  ll aa=a;
+           // printf("%ld %ld %ld\n", aa , aa , aa+1);
+
+            ans+=3*a-1;
+        }
+        a++;
+    }
+    cout<<ans<<endl;
+}
+
+//end of problem 94
+
+//problem 95
+constexpr const int LIM = 15000000;
+array<ll,LIM +1> SD; //SD[i] contains the sum of proper divisor of i
+
+void initSD(){
+#pragma omp parallel for shared(SD)
+     for(int i=0;i<=LIM ;i++){
+        SD[i]=1;
+        //cout<<i<<" "<<SD[i]<<endl;
+    }
+#pragma omp parallel for 
+     for(int i=2;i<=LIM/2 ;i++){
+        int k=2; int p=k*i;
+#pragma parallel for schedule(guided) private(k,p)
+       for(; p<=LIM; k++, p=k*i ){
+#pragma omp atomic 
+           SD[p]+=i;
+        }
+
+    }
+}
+void solve95(){
+   initSD();
+    int L, M;
+    L=INT_MIN;
+    M=INT_MAX;
+#pragma omp parallel for shared(L,M)
+   for(int i=4 ; i<= LIM ; i++){
+     unordered_map<int,bool> map;
+       int l=1;
+       int m=i;
+       map[i]=true;
+       int c=SD[i];
+       bool go= c!=1 ;
+       while(!map[c] && c > 1&& c<=LIM){
+            map[c]=true;
+            ++l;
+            c=SD[c];
+            if(c<m)
+                m=c;
+           go=(c>1) && (c<=LIM);
+       }
+#pragma omp critical
+       {
+       if(go && c==i && l > L){
+              L=l;
+              M=m;
+        }
+      }
+   }
+   cout<<M<<endl;
+}
+
+//end of problem 95
+
+
 int main() {
     ios_base::sync_with_stdio(false);
-    solve93();
-
-
+    solve95();
     return 0;
 }
+
 
 
 
