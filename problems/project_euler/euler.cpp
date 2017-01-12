@@ -130,6 +130,16 @@ void read(CONTAINER& v, const unsigned int size, const READ_Fn& rfn = reader<typ
     }
 }
 
+template <class T>
+int magnitude(T n) {
+    int m=0;
+    while(n) {
+        m++;
+        n/=10;
+    }
+    return m;
+}
+
 //TYPEDEFS
 typedef unsigned long ul;
 typedef unsigned long long ull;
@@ -172,15 +182,29 @@ bool sameDigits(const digits& ds, const digits& dk, const int s=0, const int e=1
 
 void getPrimesSieve(vector<long long>&primes, const ll n) {
     vector<bool> nums(n+1,true);
-    for(ll i=2; i<n+1; i++) {
+    primes.push_back(2);
+    for(ll i=3; i*i<n+1; i+=2) {
         if(nums[i]) {
-            primes.push_back(i);
-            for(ll j=i+i; j<n+1; j+=i) {
+            for(ll j=i*i; j<n+1; j+=2*i) {
                 nums[j]=false;
             }
         }
     }
+
+    for(ll i =3 ; i <=n ; i+=2)
+        if(nums[i])
+            primes.push_back(i);
 }
+
+void parallelSieve( vector<ll>& primes , const ll n, const int slice ){
+
+    for(int l = 2 ; l <= n ;l+=slice){
+        int r = clamp<long long>(l+slice,-1,n);
+
+    }
+
+}
+
 
 void getPrimes(vector<long long>& primes, const ll n, const ll s=2) {
     if(s<=2)
@@ -392,8 +416,84 @@ void solve43() {
         }
     }
     cout<<ans<<endl;
-
 }
+
+
+//problem 60 ----------------------------------
+
+inline long long concat(const long long i, const long long j) {
+    return  i*pow10(magnitude(j))+j;
+}
+
+bool primalityTest(const long long n){
+
+    for(long i=2 ; i <= sqrt(n)+1 ;i++)
+        if(n%i==0)
+            return false;
+    return true;
+}
+
+void solve60() {
+    constexpr const long LIMP =30000;
+    constexpr const int LIM = 2000;
+    vector<ll> primes;
+    getPrimesSieve(primes,LIMP);
+
+    unordered_map<long long, bool> concatPrime;
+
+    auto isPrime = [&](const long long& n){
+        if( concatPrime.find(n) == concatPrime.end())
+            concatPrime[n]=primalityTest(n);
+
+         return concatPrime[n];
+
+    };
+    auto goodSet = [&](const array<long long ,5>& vec, const int p) {
+        for(int i=0; i < p ; i++) {
+            if(
+                !(isPrime( concat(vec[i],vec[p]) )  && isPrime(concat(vec[p],vec[i]) ) )
+            )
+                return false;
+        }
+        return true;
+    };
+    bool go=true;
+    array<long long ,5> pset = {0,0,0,0,0};
+    for(int i=1 ; i < LIM ; i++ ) {
+        pset[0]=primes[i];
+        for(int j=i+1 ; j<LIM ; j++) {
+            pset[1]=primes[j];
+            if( goodSet(pset,1) ) {
+
+                for(int l=j+1; l<LIM; l++) {
+                    pset[2] = primes[l];
+                    if(goodSet(pset,2) ) {
+
+                        for(int k=l+1; k<LIM; k++) {
+                            pset[3] = primes[k];
+                            if(goodSet(pset,3)) {
+
+                                       // printf("%d %d %d %d \n" , primes[i],primes[j],primes[l] , primes[k]);
+                                for(int m=k+1; m<LIM ; m++) {
+                                    pset[4]=primes[m];
+                                    if(goodSet(pset,4)){
+                                        printf("%d +%d +%d +%d +%d= %d\n" , primes[i],primes[j],primes[l] , primes[k], primes[m], primes[i]+primes[j]+primes[l] + primes[k]+ primes[m]);
+                                        return;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+}
+
+//end of problem 60
+
+
+
 void solve41() {
     vector<long long> primes;
     //getPrimesSieve(primes,987654321);
@@ -1252,16 +1352,6 @@ bool isPerfectSquare(const T d) {
     return fractpart <= 0.000001;
 }
 
-template <class T>
-int magnitude(T n) {
-    int m=0;
-    while(n) {
-        m++;
-        n/=10;
-    }
-    return m;
-}
-
 void solve66() {
     typedef ll T;
     InfInt max=-1;
@@ -1500,23 +1590,23 @@ bool isIntegral(const long double l) {
 void solve94_c() {
     ll ans=0;
     long double a=2;
-    
-#pragma omp parallel for reduction(+:ans) 
-    for(ll c =2; c<333333333;c++){    
-    long double a=(long double)c;
-    long double a23=3.0*a*a;
-    long double a12=0.5*a;
-    
+
+    #pragma omp parallel for reduction(+:ans)
+    for(ll c =2; c<333333333; c++) {
+        long double a=(long double)c;
+        long double a23=3.0*a*a;
+        long double a12=0.5*a;
+
         long double res=(3.0*(a*a) -2.0*a -1.0)/4.0;
         if(  isIntegral(sqrt(res)) ) {
-           // ll aa=a;
-           // printf("%ld %ld %ld\n", aa , aa , aa+1);
+            // ll aa=a;
+            // printf("%ld %ld %ld\n", aa , aa , aa+1);
             ans+=3*a+1;
         }
         long double res2=(3.0*(a*a) +2.0*a -1.0)/4.0;
         if(  isIntegral(sqrt(res2)) ) {
-          //  ll aa=a;
-           // printf("%ld %ld %ld\n", aa , aa , aa+1);
+            //  ll aa=a;
+            // printf("%ld %ld %ld\n", aa , aa , aa+1);
 
             ans+=3*a-1;
         }
@@ -1531,53 +1621,54 @@ void solve94_c() {
 constexpr const int LIM = 15000000;
 array<ll,LIM +1> SD; //SD[i] contains the sum of proper divisor of i
 
-void initSD(){
-#pragma omp parallel for shared(SD)
-     for(int i=0;i<=LIM ;i++){
+void initSD() {
+    #pragma omp parallel for shared(SD)
+    for(int i=0; i<=LIM ; i++) {
         SD[i]=1;
         //cout<<i<<" "<<SD[i]<<endl;
     }
-#pragma omp parallel for 
-     for(int i=2;i<=LIM/2 ;i++){
-        int k=2; int p=k*i;
+    #pragma omp parallel for
+    for(int i=2; i<=LIM/2 ; i++) {
+        int k=2;
+        int p=k*i;
 #pragma parallel for schedule(guided) private(k,p)
-       for(; p<=LIM; k++, p=k*i ){
-#pragma omp atomic 
-           SD[p]+=i;
+        for(; p<=LIM; k++, p=k*i ) {
+            #pragma omp atomic
+            SD[p]+=i;
         }
 
     }
 }
-void solve95(){
-   initSD();
+void solve95() {
+    initSD();
     int L, M;
     L=INT_MIN;
     M=INT_MAX;
-#pragma omp parallel for shared(L,M)
-   for(int i=4 ; i<= LIM ; i++){
-     unordered_map<int,bool> map;
-       int l=1;
-       int m=i;
-       map[i]=true;
-       int c=SD[i];
-       bool go= c!=1 ;
-       while(!map[c] && c > 1&& c<=LIM){
+    #pragma omp parallel for shared(L,M)
+    for(int i=4 ; i<= LIM ; i++) {
+        unordered_map<int,bool> map;
+        int l=1;
+        int m=i;
+        map[i]=true;
+        int c=SD[i];
+        bool go= c!=1 ;
+        while(!map[c] && c > 1&& c<=LIM) {
             map[c]=true;
             ++l;
             c=SD[c];
             if(c<m)
                 m=c;
-           go=(c>1) && (c<=LIM);
-       }
-#pragma omp critical
-       {
-       if(go && c==i && l > L){
-              L=l;
-              M=m;
+            go=(c>1) && (c<=LIM);
         }
-      }
-   }
-   cout<<M<<endl;
+        #pragma omp critical
+        {
+            if(go && c==i && l > L) {
+                L=l;
+                M=m;
+            }
+        }
+    }
+    cout<<M<<endl;
 }
 
 //end of problem 95
@@ -1585,9 +1676,12 @@ void solve95(){
 
 int main() {
     ios_base::sync_with_stdio(false);
-    solve95();
+    vector<long long> primes;
+    //getPrimesSieve(primes,100000000);
+    solve60();
     return 0;
 }
+
 
 
 

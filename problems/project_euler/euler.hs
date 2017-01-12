@@ -2,7 +2,7 @@ module Main where
 
 import Data.Char
 import Data.List
-
+import Data.Ord
 intToList 0 = []
 intToList a = ( intToDigit (fromIntegral l)) : intToList r
     where
@@ -93,7 +93,7 @@ mysqrt a b i limit
     | otherwise =  (mysqrt(a*100) ((100*(div b 10)) +5) (i+1) limit)
 
 
-main = putStrLn $ show $ solve80
+main80 = putStrLn $ show $ solve80
 
 
 main40 = do
@@ -101,3 +101,19 @@ main40 = do
     putStrLn $ show $ foldr (\x acc -> acc*(digitToInt x)) 1 [a!!(-1+10^n) | n<-[0,1,2,3,4,5,6]]
 main36 = putStrLn (show $ sum $ [n | n<-[0..10^6], goodN n])
 main32 = putStrLn (show $sum $ nub $  concat  [check i | i<-[0..3]])
+
+
+solve99BruteForce ls =fst $ maximumBy (comparing snd) $ zip [1..] (map (\(a,b)-> a^b) pi) 
+    where
+        ps = map (\a -> ( (words a)!!0,(words a)!!1 ) ) ls
+        pi = map (\p -> (read (fst p) :: Integer , read (snd p):: Integer) ) ps
+ 
+solve99 ls = fst $ maximumBy (comparing snd) $ zip [1..] (map (\(a,b)-> (fromIntegral b)*(log( fromIntegral(a)))) pi) 
+    where
+        ps = map (\a -> ( (words a)!!0,(words a)!!1 ) ) ls
+        pi = map (\p -> (read (fst p) :: Integer , read (snd p):: Integer) ) ps
+ 
+
+main = do
+        s<- readFile "p099_base_exp.txt"
+        putStrLn (show $solve99(lines s))
