@@ -419,6 +419,7 @@ void solve43() {
 }
 
 
+
 //problem 60 ----------------------------------
 
 inline long long concat(const long long i, const long long j) {
@@ -1673,12 +1674,163 @@ void solve95() {
 
 //end of problem 95
 
+void solve86NEEDTOBESOLVED(){
+    constexpr const int LIM=101;
+    double EPS2=0.00000000001;
+    int ans=0;
+    int l=0;
+    vector<int> Q (LIM,0);
+        for(int i= 1 ; i < LIM ; i++){
+            for(int j= i ; j < LIM ; j++){
+                for(int k= j ; k< LIM ; k++){
+                    int m= max(max(i,j),k);
+                    double intp;
+                    double a,b,c;
+
+                    a = modf( sqrt(i*i+(j+k)*(j+k) ) , &intp );
+                    b = modf( sqrt(j*j+(i+k)*(i+k) ) ,&intp);
+                    c = modf( sqrt(k*k+(i+j)*(i+j) ) ,&intp);
+                    if((a<EPS) || (b<EPS) || (c<EPS)){
+                        Q[m]++;
+                        ans++;
+                        printf("%d %d %d -> %d\n", i,j,k,Q[m] );
+
+                
+                        }
+
+
+
+            }
+        }
+        }
+        cout<<ans<<endl;
+}
+
+
+void solve91(){
+    #define PI 3.14159265
+    typedef array<int,2> vec2i;
+    auto dot = [](const vec2i& a, const vec2i& b){
+        return a[0]*b[0]+a[1]*b[1]; 
+    };
+    
+    auto magn = [] (const vec2i& a)-> double{
+        return sqrt(a[0]*a[0] + a[1]*a[1]);
+    };
+
+    auto angle = [&](const vec2i& a, const vec2i& b){
+        auto magna = magn(a);
+        auto magnb = magn(b);
+        auto dotab = dot(a,b);
+        return acos(( dotab )/magna*magnb);
+    };
+
+    vec2i a = {1,0};
+    vec2i b = {0,2};
+
+    auto minus = [](const vec2i a, const vec2i& b){
+        vec2i ret = {a[0]-b[0], a[1]-b[1]};
+        return ret;
+         };
+    auto negate = [](const  vec2i a){
+        vec2i b = {-a[0],-a[1]};
+        return b;
+    };
+    
+    auto equal = [](double a, double b, double _EPS){
+       return fabs(a - b) < _EPS;
+    };
+    auto isGood = [&] (const vec2i a, const vec2i b, double _EPS){
+        if(a[0]==b[0] && a[1]==b[1])
+            return false;
+        if(a[0]==0 && a[1]==0)
+            return false;
+        if(b[0]==0 && b[1]==0)
+            return false;
+        auto ang1 = angle(a,b);
+      auto ang2 = angle(negate(b),minus(a,b));
+      auto ang3 = angle(negate(a),minus(b,a));
+      const double PI2 =M_PI/2.0;
+return       (equal( ang1,PI2 , _EPS ) || equal(ang1,-PI2,_EPS)) ||
+       (equal( ang2,PI2 , _EPS ) || equal(ang2,-PI2,_EPS)) ||
+       (equal( ang3,PI2 , _EPS ) || equal(ang3,-PI2,_EPS)) ;
+
+
+    };
+int ans=0;
+    int LIM=50;
+    vec2i zero={0,0};
+#pragma omp parallel for collapse(2) reduction(+:ans)
+   for(int i=0;i<=LIM;i++){
+        for(int j=0;j<=LIM; j++){
+            vec2i one = {j,i};
+            if(i!=0 || j!=0)
+             for(int k=i;k<=LIM;k++){
+                for(int l=0;l<=LIM;l++){
+                        vec2i two = {l,k};
+                        if(l<=j && k<=i)
+                            continue;
+                    if(isGood(one,two, 0.000001)){
+                        //printf("(0,0) (%d,%d), (%d,%d)\n",j,i,l,k);
+                        ans++;
+                        
+                        }
+                    }
+                }
+            }
+    
+    }
+cout<<ans<<endl;
+}
+
+
+void solve87(){
+    vector<ll> primes;
+    getPrimesSieve(primes,7100);
+    constexpr const int LIM = 50000000;
+    vector<int> squares;
+    vector<int> cubes ;
+    vector<int> fourths;
+    loop0n(i,primes.size()){
+        if(primes[i]*primes[i] < LIM)
+            squares.push_back(primes[i]*primes[i]);
+        else
+            break;
+    }
+     loop0n(i,primes.size()){
+        if(primes[i]*primes[i]*primes[i] < LIM)
+            cubes.push_back(primes[i]*primes[i]*primes[i]);
+        else
+            break;
+    }
+   loop0n(i,primes.size()){
+        if(primes[i]*primes[i]*primes[i]*primes[i] < LIM)
+            fourths.push_back(primes[i]*primes[i]*primes[i]*primes[i] );
+        else
+            break;
+    }
+   
+    
+    unordered_map<int,bool> map;
+    int ans=0;
+    loop0n(i,squares.size()){
+        loop0n(j,cubes.size()){
+            loop0n(k,fourths.size()){
+                int n = squares[i]+cubes[j]+fourths[k];
+                if(n < LIM && (map.find(n)==map.end())){
+                    map[n]=true;
+                    ++ans;
+
+                }
+            }
+        }
+    }
+    cout<<ans<<endl;
+}
 
 int main() {
     ios_base::sync_with_stdio(false);
-    vector<long long> primes;
-    //getPrimesSieve(primes,100000000);
-    solve60();
+    solve87();
     return 0;
 }
 
