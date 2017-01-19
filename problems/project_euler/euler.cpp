@@ -41,7 +41,7 @@
   GET_LOOP(__VA_ARGS__, dloopsei, dloopse, dloop0n) \
 (__VA_ARGS__)
 
-
+#define BIT(n,i) ( ( n>>i )&1 )
 #define pb push_back
 #define ALL(v) v.begin(), v.end()
 
@@ -196,9 +196,9 @@ void getPrimesSieve(vector<long long>&primes, const ll n) {
             primes.push_back(i);
 }
 
-void parallelSieve( vector<ll>& primes , const ll n, const int slice ){
+void parallelSieve( vector<ll>& primes , const ll n, const int slice ) {
 
-    for(int l = 2 ; l <= n ;l+=slice){
+    for(int l = 2 ; l <= n ; l+=slice) {
         int r = clamp<long long>(l+slice,-1,n);
 
     }
@@ -426,9 +426,9 @@ inline long long concat(const long long i, const long long j) {
     return  i*pow10(magnitude(j))+j;
 }
 
-bool primalityTest(const long long n){
+bool primalityTest(const long long n) {
 
-    for(long i=2 ; i <= sqrt(n)+1 ;i++)
+    for(long i=2 ; i <= sqrt(n)+1 ; i++)
         if(n%i==0)
             return false;
     return true;
@@ -442,11 +442,11 @@ void solve60() {
 
     unordered_map<long long, bool> concatPrime;
 
-    auto isPrime = [&](const long long& n){
+    auto isPrime = [&](const long long& n) {
         if( concatPrime.find(n) == concatPrime.end())
             concatPrime[n]=primalityTest(n);
 
-         return concatPrime[n];
+        return concatPrime[n];
 
     };
     auto goodSet = [&](const array<long long ,5>& vec, const int p) {
@@ -474,12 +474,13 @@ void solve60() {
                             pset[3] = primes[k];
                             if(goodSet(pset,3)) {
 
-                                       // printf("%d %d %d %d \n" , primes[i],primes[j],primes[l] , primes[k]);
+                                // printf("%d %d %d %d \n" , primes[i],primes[j],primes[l] , primes[k]);
                                 for(int m=k+1; m<LIM ; m++) {
                                     pset[4]=primes[m];
-                                    if(goodSet(pset,4)){
+                                    if(goodSet(pset,4)) {
                                         printf("%d +%d +%d +%d +%d= %d\n" , primes[i],primes[j],primes[l] , primes[k], primes[m], primes[i]+primes[j]+primes[l] + primes[k]+ primes[m]);
                                         return;
+                                    }
                                 }
                             }
                         }
@@ -488,7 +489,6 @@ void solve60() {
             }
         }
     }
-}
 }
 
 //end of problem 60
@@ -1674,51 +1674,51 @@ void solve95() {
 
 //end of problem 95
 
-void solve86NEEDTOBESOLVED(){
+void solve86NEEDTOBESOLVED() {
     constexpr const int LIM=101;
     double EPS2=0.00000000001;
     int ans=0;
     int l=0;
     vector<int> Q (LIM,0);
-        for(int i= 1 ; i < LIM ; i++){
-            for(int j= i ; j < LIM ; j++){
-                for(int k= j ; k< LIM ; k++){
-                    int m= max(max(i,j),k);
-                    double intp;
-                    double a,b,c;
+    for(int i= 1 ; i < LIM ; i++) {
+        for(int j= i ; j < LIM ; j++) {
+            for(int k= j ; k< LIM ; k++) {
+                int m= max(max(i,j),k);
+                double intp;
+                double a,b,c;
 
-                    a = modf( sqrt(i*i+(j+k)*(j+k) ) , &intp );
-                    b = modf( sqrt(j*j+(i+k)*(i+k) ) ,&intp);
-                    c = modf( sqrt(k*k+(i+j)*(i+j) ) ,&intp);
-                    if((a<EPS) || (b<EPS) || (c<EPS)){
-                        Q[m]++;
-                        ans++;
-                        printf("%d %d %d -> %d\n", i,j,k,Q[m] );
+                a = modf( sqrt(i*i+(j+k)*(j+k) ) , &intp );
+                b = modf( sqrt(j*j+(i+k)*(i+k) ) ,&intp);
+                c = modf( sqrt(k*k+(i+j)*(i+j) ) ,&intp);
+                if((a<EPS) || (b<EPS) || (c<EPS)) {
+                    Q[m]++;
+                    ans++;
+                    printf("%d %d %d -> %d\n", i,j,k,Q[m] );
 
-                
-                        }
+
+                }
 
 
 
             }
         }
-        }
-        cout<<ans<<endl;
+    }
+    cout<<ans<<endl;
 }
 
 
-void solve91(){
-    #define PI 3.14159265
+void solve91() {
+#define PI 3.14159265
     typedef array<int,2> vec2i;
-    auto dot = [](const vec2i& a, const vec2i& b){
-        return a[0]*b[0]+a[1]*b[1]; 
+    auto dot = [](const vec2i& a, const vec2i& b) {
+        return a[0]*b[0]+a[1]*b[1];
     };
-    
-    auto magn = [] (const vec2i& a)-> double{
+
+    auto magn = [] (const vec2i& a)-> double {
         return sqrt(a[0]*a[0] + a[1]*a[1]);
     };
 
-    auto angle = [&](const vec2i& a, const vec2i& b){
+    auto angle = [&](const vec2i& a, const vec2i& b) {
         auto magna = magn(a);
         auto magnb = magn(b);
         auto dotab = dot(a,b);
@@ -1728,19 +1728,19 @@ void solve91(){
     vec2i a = {1,0};
     vec2i b = {0,2};
 
-    auto minus = [](const vec2i a, const vec2i& b){
+    auto minus = [](const vec2i a, const vec2i& b) {
         vec2i ret = {a[0]-b[0], a[1]-b[1]};
         return ret;
-         };
-    auto negate = [](const  vec2i a){
+    };
+    auto negate = [](const  vec2i a) {
         vec2i b = {-a[0],-a[1]};
         return b;
     };
-    
-    auto equal = [](double a, double b, double _EPS){
-       return fabs(a - b) < _EPS;
+
+    auto equal = [](double a, double b, double _EPS) {
+        return fabs(a - b) < _EPS;
     };
-    auto isGood = [&] (const vec2i a, const vec2i b, double _EPS){
+    auto isGood = [&] (const vec2i a, const vec2i b, double _EPS) {
         if(a[0]==b[0] && a[1]==b[1])
             return false;
         if(a[0]==0 && a[1]==0)
@@ -1748,76 +1748,79 @@ void solve91(){
         if(b[0]==0 && b[1]==0)
             return false;
         auto ang1 = angle(a,b);
-      auto ang2 = angle(negate(b),minus(a,b));
-      auto ang3 = angle(negate(a),minus(b,a));
-      const double PI2 =M_PI/2.0;
-return       (equal( ang1,PI2 , _EPS ) || equal(ang1,-PI2,_EPS)) ||
-       (equal( ang2,PI2 , _EPS ) || equal(ang2,-PI2,_EPS)) ||
-       (equal( ang3,PI2 , _EPS ) || equal(ang3,-PI2,_EPS)) ;
+        auto ang2 = angle(negate(b),minus(a,b));
+        auto ang3 = angle(negate(a),minus(b,a));
+        const double PI2 =M_PI/2.0;
+        return       (equal( ang1,PI2 , _EPS ) || equal(ang1,-PI2,_EPS)) ||
+                     (equal( ang2,PI2 , _EPS ) || equal(ang2,-PI2,_EPS)) ||
+                     (equal( ang3,PI2 , _EPS ) || equal(ang3,-PI2,_EPS)) ;
 
 
     };
-int ans=0;
+    int ans=0;
     int LIM=50;
-    vec2i zero={0,0};
-#pragma omp parallel for collapse(2) reduction(+:ans)
-   for(int i=0;i<=LIM;i++){
-        for(int j=0;j<=LIM; j++){
+    vec2i zero= {0,0};
+    #pragma omp parallel for collapse(2) reduction(+:ans)
+    for(int i=0; i<=LIM; i++) {
+        for(int j=0; j<=LIM; j++) {
             vec2i one = {j,i};
             if(i!=0 || j!=0)
-             for(int k=i;k<=LIM;k++){
-                for(int l=0;l<=LIM;l++){
+                for(int k=i; k<=LIM; k++) {
+                    for(int l=0; l<=LIM; l++) {
                         vec2i two = {l,k};
                         if(l<=j && k<=i)
                             continue;
-                    if(isGood(one,two, 0.000001)){
-                        //printf("(0,0) (%d,%d), (%d,%d)\n",j,i,l,k);
-                        ans++;
-                        
+                        if(isGood(one,two, 0.000001)) {
+                            //printf("(0,0) (%d,%d), (%d,%d)\n",j,i,l,k);
+                            ans++;
+
                         }
                     }
                 }
-            }
-    
+        }
+
     }
-cout<<ans<<endl;
+    cout<<ans<<endl;
 }
 
-
-void solve87(){
+template<class T, unsigned int EXP>
+T POW(T& base) {
+    return POW<T,EXP-1>(base)*base;
+}
+void solve87() {
     vector<ll> primes;
     getPrimesSieve(primes,7100);
     constexpr const int LIM = 50000000;
     vector<int> squares;
     vector<int> cubes ;
     vector<int> fourths;
-    loop0n(i,primes.size()){
+    loop0n(i,primes.size()) {
         if(primes[i]*primes[i] < LIM)
             squares.push_back(primes[i]*primes[i]);
         else
             break;
     }
-     loop0n(i,primes.size()){
+    loop0n(i,primes.size()) {
         if(primes[i]*primes[i]*primes[i] < LIM)
             cubes.push_back(primes[i]*primes[i]*primes[i]);
         else
             break;
     }
-   loop0n(i,primes.size()){
+    loop0n(i,primes.size()) {
         if(primes[i]*primes[i]*primes[i]*primes[i] < LIM)
             fourths.push_back(primes[i]*primes[i]*primes[i]*primes[i] );
         else
             break;
     }
-   
-    
+
+
     unordered_map<int,bool> map;
     int ans=0;
-    loop0n(i,squares.size()){
-        loop0n(j,cubes.size()){
-            loop0n(k,fourths.size()){
+    loop0n(i,squares.size()) {
+        loop0n(j,cubes.size()) {
+            loop0n(k,fourths.size()) {
                 int n = squares[i]+cubes[j]+fourths[k];
-                if(n < LIM && (map.find(n)==map.end())){
+                if(n < LIM && (map.find(n)==map.end())) {
                     map[n]=true;
                     ++ans;
 
@@ -1828,11 +1831,182 @@ void solve87(){
     cout<<ans<<endl;
 }
 
+// PROBLEM 88 -----------------------------------
+void combine(vector<vector<int>>& w, const int n) {
+    for(auto& s : w) {
+        s.push_back(n);
+    }
+}
+
+vector<vector<int>> asMultiplication(const int n, vector<ll>&primes) {
+    vector<vector<int>> W;
+    int nn=n;
+    vector<int> r = {{nn}};
+    W.push_back(r);
+    int nnn=1;
+    loopse(i,2, n/2+1) {
+        if(nn==primes[i]) {
+            break; ;
+        }
+        if(nn%i==0) {
+            vector<int> A = {nn/i,i};
+            W.push_back(A);
+            vector<vector<int>> wnn = asMultiplication(nn/i,primes);
+            for(auto& ww : wnn) {
+                sort(ww.begin(),ww.end());
+            }
+            sort(wnn.begin(),wnn.end());
+            auto it =unique(wnn.begin(), wnn.end());
+            wnn.resize(distance(wnn.begin(),it));
+
+            combine(wnn, i);
+            W.insert(W.end(), wnn.begin(), wnn.end());
+        }
+        if(nn<primes[i])
+            break;
+    }
+
+    for(auto& ww : W) {
+        sort(ww.begin(),ww.end());
+    }
+    sort(W.begin(),W.end());
+    auto it =unique(W.begin(), W.end());
+    W.resize(distance(W.begin(),it));
+    return W;
+
+}
+
+void solve88() {
+    set<int> S;
+    const int LIM = 12000;
+    vector<ll> primes;
+    getPrimesSieve(primes,LIM);
+    vector<vector<vector<int>>> WM(2*LIM);
+    
+#pragma omp parallel for shared(WM)
+    for(int i=1; i<= 2*LIM; i++) {
+      WM[i-1] = asMultiplication(i,primes);
+
+    }
+
+#pragma omp parallel for  shared(S) 
+    for(int k=2 ; k<=LIM ; k++) {
+        bool go =true;
+        int i=k-1;
+        for(; go && i< WM.size() ; i++) {
+            for(int n=0 ; go&& n < WM[i].size() ; n++) {
+                vector<int> w = WM[i][n];
+                if(w.size()<=k) {
+                    int sum =0;
+                    for(const auto c : w)
+                        sum+=c;
+
+                    int d = k-w.size();
+                    if(d+sum == i+1)
+                    {
+                        go=false;
+                        //cout<<k<<" "<<i+1<<endl;
+#pragma omp critical
+                        S.insert(i+1);
+                    }
+
+
+                }
+            }
+
+        }
+        if(go) {
+            cout<<"WRONGGGGGGGG"<< k<<endl;
+            exit(-1);
+        }
+    }
+    ll ans=0;
+    for(auto & w :S) {
+        ans+=w;
+        // cout<<w<<endl;
+    }
+    cout<<ans<<endl;
+}
+//END OF PROBLEM88 -----------------------------------------
+
+
+//problem 90
+
+void combination( const unsigned short n, const unsigned short k, vector<vector<int>> &C){
+    int LIM = pow( 2 , n )-1; //bits max number using n bits
+    int LOW = pow(2,k) -1;
+    for(int i=LOW ; i < LIM ; i++){
+        //counts bit set
+        int bs =0;
+        for(int b=0; bs<=k && b<n ; b++){
+            if( BIT(i,b) )
+                bs++;
+        }
+        
+        if(bs==k){//good permutation
+            vector<int> p(k);
+            for(int bit=0; bit<n ; bit++)
+                if(BIT(i,bit))
+                    p[--bs]=(bit);
+
+            C.push_back(p);
+            
+        }
+
+    }
+}
+
+bool isGood(const vector<int>& C0, const vector<int>& C1){
+     
+     bool sn1 = C1.end() != find(ALL(C1),6);
+     sn1 = sn1 || (C1.end() != find(ALL(C1),9));
+    
+     bool sn0 = C0.end() != find(ALL(C0),6);
+     sn0 = sn0 || (C0.end() != find(ALL(C0),9));
+    for(int i=1; i<=9 ; i++){
+        int ii=i*i;
+        int a=ii%10;
+        int b=(ii/10)%10;
+
+        
+        bool a0,b0, a1,b1;
+        a0 = C0.end() != find(C0.begin(), C0.end(), a);
+        b0 = C0.end() != find(C0.begin(), C0.end(), b);
+        a0 = a0 || ( (a==6 || a==9) && sn0);
+        b0 = b0 || ( (b==6 || b==9) && sn0);
+
+        a1 = C1.end() != find(C1.begin(), C1.end(), a);
+        b1 = C1.end() != find(C1.begin(), C1.end(), b);
+
+        a1 = a1 || ( (a==6 || a==9) && sn1);
+        b1 = b1 || ( (b==6 || b==9) && sn1);
+
+        if( ! ((a0 && b1) || (b0 && a1)  ))
+            return false;
+        
+    }
+    return true;
+}
+
+void solve90(){
+ vector<vector<int>> C;
+ combination(10,6,C);
+ int ans=0;
+ for(int i=0; i< C.size() ; i++){
+     for(int j=i ; j< C.size(); j++){
+            if(isGood(C[i], C[j]))
+                ans++;
+     }
+ }
+cout<<ans<<endl;
+}
+
 int main() {
     ios_base::sync_with_stdio(false);
-    solve87();
+solve90();
     return 0;
 }
+
 
 
 
