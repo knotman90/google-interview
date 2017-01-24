@@ -140,6 +140,11 @@ int magnitude(T n) {
     return m;
 }
 
+
+
+
+
+
 //TYPEDEFS
 typedef unsigned long ul;
 typedef unsigned long long ull;
@@ -149,6 +154,8 @@ typedef unsigned int uint;
 
 typedef std::pair<l,l> pll;
 typedef std::pair<int,int> pii;
+typedef std::pair<double,double> pdd;
+typedef std::pair<long  double,long double> pldd;
 typedef std::pair<uint,uint> puu;
 
 //sort pair based on their first component. If equal it uses the second ones.
@@ -1783,10 +1790,7 @@ void solve91() {
     cout<<ans<<endl;
 }
 
-template<class T, unsigned int EXP>
-T POW(T& base) {
-    return POW<T,EXP-1>(base)*base;
-}
+
 void solve87() {
     vector<ll> primes;
     getPrimesSieve(primes,7100);
@@ -1882,14 +1886,14 @@ void solve88() {
     vector<ll> primes;
     getPrimesSieve(primes,LIM);
     vector<vector<vector<int>>> WM(2*LIM);
-    
-#pragma omp parallel for shared(WM)
+
+    #pragma omp parallel for shared(WM)
     for(int i=1; i<= 2*LIM; i++) {
-      WM[i-1] = asMultiplication(i,primes);
+        WM[i-1] = asMultiplication(i,primes);
 
     }
 
-#pragma omp parallel for  shared(S) 
+    #pragma omp parallel for  shared(S)
     for(int k=2 ; k<=LIM ; k++) {
         bool go =true;
         int i=k-1;
@@ -1906,7 +1910,7 @@ void solve88() {
                     {
                         go=false;
                         //cout<<k<<" "<<i+1<<endl;
-#pragma omp critical
+                        #pragma omp critical
                         S.insert(i+1);
                     }
 
@@ -1932,43 +1936,43 @@ void solve88() {
 
 //problem 90
 
-void combination( const unsigned short n, const unsigned short k, vector<vector<int>> &C){
+void combination( const unsigned short n, const unsigned short k, vector<vector<int>> &C) {
     int LIM = pow( 2 , n )-1; //bits max number using n bits
     int LOW = pow(2,k) -1;
-    for(int i=LOW ; i < LIM ; i++){
+    for(int i=LOW ; i < LIM ; i++) {
         //counts bit set
         int bs =0;
-        for(int b=0; bs<=k && b<n ; b++){
+        for(int b=0; bs<=k && b<n ; b++) {
             if( BIT(i,b) )
                 bs++;
         }
-        
-        if(bs==k){//good permutation
+
+        if(bs==k) { //good permutation
             vector<int> p(k);
             for(int bit=0; bit<n ; bit++)
                 if(BIT(i,bit))
                     p[--bs]=(bit);
 
             C.push_back(p);
-            
+
         }
 
     }
 }
 
-bool isGood(const vector<int>& C0, const vector<int>& C1){
-     
-     bool sn1 = C1.end() != find(ALL(C1),6);
-     sn1 = sn1 || (C1.end() != find(ALL(C1),9));
-    
-     bool sn0 = C0.end() != find(ALL(C0),6);
-     sn0 = sn0 || (C0.end() != find(ALL(C0),9));
-    for(int i=1; i<=9 ; i++){
+bool isGood(const vector<int>& C0, const vector<int>& C1) {
+
+    bool sn1 = C1.end() != find(ALL(C1),6);
+    sn1 = sn1 || (C1.end() != find(ALL(C1),9));
+
+    bool sn0 = C0.end() != find(ALL(C0),6);
+    sn0 = sn0 || (C0.end() != find(ALL(C0),9));
+    for(int i=1; i<=9 ; i++) {
         int ii=i*i;
         int a=ii%10;
         int b=(ii/10)%10;
 
-        
+
         bool a0,b0, a1,b1;
         a0 = C0.end() != find(C0.begin(), C0.end(), a);
         b0 = C0.end() != find(C0.begin(), C0.end(), b);
@@ -1983,29 +1987,265 @@ bool isGood(const vector<int>& C0, const vector<int>& C1){
 
         if( ! ((a0 && b1) || (b0 && a1)  ))
             return false;
-        
+
     }
     return true;
 }
 
-void solve90(){
- vector<vector<int>> C;
- combination(10,6,C);
- int ans=0;
- for(int i=0; i< C.size() ; i++){
-     for(int j=i ; j< C.size(); j++){
+void solve90() {
+    vector<vector<int>> C;
+    combination(10,6,C);
+    int ans=0;
+    for(int i=0; i< C.size() ; i++) {
+        for(int j=i ; j< C.size(); j++) {
             if(isGood(C[i], C[j]))
                 ans++;
-     }
- }
-cout<<ans<<endl;
+        }
+    }
+    cout<<ans<<endl;
 }
 
+
+//problem 102-----
+void solve102() {
+    FILE* file;
+
+
+    file=fopen("p102_triangles.txt","r");
+    if(!file)
+    {
+        cout<<"something bad happened opening the file\n";
+        exit(-1);
+    }
+
+
+    auto linetwopoints=[](const pdd& p0, const pdd& p1, const int x, const int y) {
+        return (y-p0.second)/(p1.second-p0.second )-(x-p0.first)/(p1.first-p0.first) ;
+    };
+
+    array<pii,3> Pi;
+    int ans=0;
+    while(fscanf(file,"%d,%d,%d,%d,%d,%d\n",&Pi[0].first,&Pi[0].second,&Pi[1].first,&Pi[1].second,&Pi[2].first,&Pi[2].second))
+    {
+
+        array<pdd,3> P;
+        P[0]=Pi[0];
+        P[1]=Pi[1];
+        P[2]=Pi[2];
+        sort(ALL(P),pair_cmp);
+
+        if(P[2].second < P[1].second)
+            swap(P[2],P[1]);
+
+        if(linetwopoints(P[0],P[1],0,0) <=0)  {
+            if(linetwopoints(P[0],P[2],0,0) >=0) {
+                if(linetwopoints(P[1],P[2],0,0) >=0) {
+                    ans++;
+                }
+            }
+        }
+    }
+    fclose(file);
+    cout<<ans<<endl;
+}
+
+//problem 101------------
+
+/*
+ * In order to find the (UNIQUE!) minimal degree polynomial which interpolate n numbers
+ * we here use the lagrangian polynomial.
+ * */
+
+double LagrangePolynomial(const int i, const vector<pldd>& points, const pldd& p) {
+    long double res=1.0;
+    loop0n(m,points.size()) {
+        if(m!=i) {
+            res*=(p.first-points[m].first)/(points[i].first-points[m].first);
+        }
+    }
+    return res;
+}
+
+
+long double interpolateLagrange(const vector<pldd>& points,const  pldd& p) {
+    long double res=0;
+    #pragma omp parallel for reduction(+:res)
+    loop0n(i,points.size()) {
+        res+=points[i].second * LagrangePolynomial(i,points, p);
+    }
+    return res;
+}
+
+
+void solve101() {
+    vector<pldd> points ;
+    int maxd=11;
+    auto evalcube = [&](const long double n) -> long double {
+        return n*n*n;
+    };
+    auto eval = [&](const long double n) -> long double {
+        return 1 -
+        pow(n,1) +
+        pow(n,2) -
+        pow(n,3) +
+        pow(n,4) -
+        pow(n,5) +
+        pow(n,6) -
+        pow(n,7) +
+        pow(n,8) -
+        pow(n,9) +
+        pow(n,10);
+
+    };
+
+    loopse(i,0,maxd)    {
+        const pldd p = mp(i+1,eval(i+1));
+        points.push_back(p);
+
+    }
+
+    long double ans=0;
+    loopse(i,1,maxd)    {
+        vector<pldd> _points(points.begin(), points.begin()+i);
+        ans+=interpolateLagrange(_points,mp(i+1,-1));
+
+    }
+    cout<<(long long int)ans<<endl;
+}
+
+bool checkDuplicateSum(vector<vector<int>>& S,const int v) {
+
+    vector<int> n;
+    n.push_back(v);
+    loop0n(i,S.size()) {
+        loop0n(j,S[i].size()) {
+            n.push_back(S[i][j]+v);
+        }
+    }
+
+    bool ok = true;
+    loop0n(k,n.size()) {
+        if(ok)
+            loop0n(i,S.size()) {
+            if(ok)
+                loop0n(j,S[i].size()) {
+                if(n[k]==S[i][j]) {
+                    ok=false;
+                    break;
+                }
+            }
+        }
+    }
+    if(ok)
+        S.push_back(n);
+
+    return ok;
+
+
+}
+
+
+constexpr int D=7;
+bool noDuplicateSum(const array<int,D>&M) {
+    array<int,D> L;
+    array<int,D> R;
+    L[0]=M[0];
+    for(int i=1 ; i< M.size() ; i++) {
+        L[i]=M[i]+L[i-1];
+    }
+    R[M.size()-1]=M.back();
+    for(int i=M.size()-2 ; i>=0 ; i--) {
+        R[i]=M[i]+R[i+1];
+    }
+
+    bool ok = true;
+    for(int i=M.size()-1 ; ok && i>=0 ; i--) {
+        for(int j=1+M.size()-1-i ; ok && j<M.size() ; j++) {
+            if(R[i] > L[j])
+                ok=false;
+        }
+
+    }
+    return ok;
+
+}
+
+void solve103() {
+
+    int minsum=INT_MAX;
+    constexpr int LIM=50;
+    array<int,D> M= {0,0,0,0,0,0,0}; //,0,0,0};
+    array<int,D> minA;
+    vector<vector<int>> S;
+    int i=0;
+    int sum=0;
+    do {
+
+        M[i]++;
+        sum =0;
+        loop0n(k,i+1) {
+            sum+=M[k];
+        }
+        bool ok = true;
+        bool odd = sum % 2 != 0;
+        bool inc = i==0;
+        inc = inc || (i > 0 && M[i] > M[i-1]);
+        if(i>=2)
+            for(int j=i ; inc && ok && j>1 ; j--)
+                if(M[0]+M[1] <= M[j])
+                    ok=false;
+
+
+
+        if(ok && inc && M[i]<=LIM )
+            if(checkDuplicateSum(S,M[i]))
+                i++;
+
+
+
+        if(i>=D ) {
+            if(  noDuplicateSum(M) && sum<minsum) {
+                minsum=sum;
+                loop0n(k,D) {
+                    minA[k]=M[k];
+                }
+
+            }
+            ok=false;
+        }
+
+
+
+
+        if((!odd && i==D) || !ok || M[i]>=LIM )
+        {
+            do {
+                sum-=M[i];
+                M[i]=0;
+                S.pop_back();
+                i--;
+            } while(M[i]>=LIM);
+        }
+
+
+
+    } while(M[0]<LIM);
+    cout<<minsum<<endl;
+    loop0n(k,D) {
+        cout<<minA[k];
+    }
+    cout<<endl;
+
+
+}
+
+//end of  problem 101  ------------
 int main() {
     ios_base::sync_with_stdio(false);
-solve90();
+    solve43();
     return 0;
 }
+
 
 
 
