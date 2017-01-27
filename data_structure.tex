@@ -577,6 +577,7 @@ Consider now the status of $v$ at the time $u$ is explored by BFS procedure. It 
 BFS build the so called \textit{Breadth tree} which consist of all the simple (and shortest) paths from $s$ to any reachable (from $s$) vertices \footnote{Those vertices which have a not null parent}. Note that this tree is not unique, and depends on the order in which nodes in the adjacency lists are examined. Node can be discovered using different edges.
 
 
+
 \subsection{Exercices}
 %---Problem------------
 \begin{problem}
@@ -864,7 +865,31 @@ Skiena 5-12
 
 \end{problem}
 
+\subsection{Network Flow Problems}
+When graph are interpreted as network we can use them to answer questions regarding flow of some ìkind of material or commodity between two nodes using edges are sort of \textit{pipes}.
+Imagine a material coursing through a system from a source, where the material is produced, to
+a sink, where it is consumed. The source produces the material at some steady rate, and the sink consumes the material at the same rate. The \textit{flow} of the material at any point in the system is intuitively the rate at which the material moves. Flow networks can model many problems, including liquids flowing through pipes,
+parts through assembly lines, current through electrical networks, and information through communication networks.
+Each edge has a capacity at which the material can flow through it (as 200$l$ per hours). Vertices represents junctions between conduits where the flow is not collected or stopped or slowed down. It is called flow conservation (similar to Kirchhoff law).
+One famous example of network problem is the maximum flow which aim to compute the max rate at which a flow can flow from a source to a destination (called sink) node. 
 
+A flow network is a directed \textbf{connected}\footnote{for each vertex $v$ a path from the source to $v$ exists. It means that each node has at least one entering arch. This implies that $|E| \geq |V| -1$} graph in which each edge has a \textbf{positive} capacity, and self-loops  exists.
+
+Let $G=(V,E)$ be a network flow with capacity function $c$ (assign a capacity to each arch), $s$ and $t$ \textit{source} and \textit{sink} nodes respectively.
+
+\begin{description}
+\item [Capacity Constraint] For all $u$ and $v$ $0 	\leq f(u,v) \leq c(u,v)$. This property states that the flow flowing through edge (u,v,) cannot be larger than its capacity.
+\item [Flow Conservation] For all $u \in V - {s,t} $ (all nodes except sink and source)
+\[
+	\sum_{v \in V} f(v,u) = \sum_{v \in V} f(u,v)
+\]
+This property ensure that all the flow entering a node inside the network (not a sink or a source) goes out in its entirety (no flow is retained inside the node).
+
+\end{description}
+Total flow of the network is defined as difference between inflow and outflow from the source node.
+\[
+|f| = \sum_{v \in V} f(s,v) - \sum_{v \in V} f(v,s)
+\]
 
 %-----END OF CHAPTER GRAPH---------------------------
 

@@ -1,5 +1,9 @@
 #include <bits/stdc++.h>
 
+#include <gmpxx.h>
+#include <functional>
+#include <numeric>
+
 // Useful constants
 #define INF (int)1e9
 #define EPS 1e-9
@@ -50,48 +54,39 @@
 #define fi first
 #define se second
 //char to int
-inline constexpr int ctoi(const char c)
-{
+inline constexpr int ctoi(const char c) {
     return c - '0';
 }
 //int to char
-inline constexpr char itoc(const int n)
-{
+inline constexpr char itoc(const int n) {
     return n + '0';
 }
 
-template<typename T> inline T clamp(const T& n, const T& lo, const T& hi)
-{
+template<typename T> inline T clamp(const T& n, const T& lo, const T& hi) {
     return std::max(lo,std::min(n,hi));
 }
 
-template<class T> inline void sort(T &a)
-{
+template<class T> inline void sort(T &a) {
     std::sort(ALL(a));
 }
 
-template<class T1, class T2> inline void sort(T1 &a, T2 comp)
-{
+template<class T1, class T2> inline void sort(T1 &a, T2 comp) {
     sort(ALL(a), comp);
 }
 
-template<class T> inline int read(T& n)
-{
+template<class T> inline int read(T& n) {
     return std::cin >> n ? 1 : -1;
 }
 //reads multiple arguments
-template<typename T, typename... types> inline int read(T &n, types &...args)
-{
+template<typename T, typename... types> inline int read(T &n, types &...args) {
     return read(n) == -1 ? -1 : read(args...) + 1;
 }
 
-template<class T> inline void write(const T& n)
-{
+template<class T> inline void write(const T& n) {
     std::cout << n;
 }
 //reads multiple arguments
-template<typename T, typename... types> inline void write(const char sep, T &n, types &...args)
-{
+template<typename T, typename... types> inline void write(const char sep, T &n, types &...args) {
     write(n);
     write(sep);
     write(sep,args...);
@@ -99,19 +94,16 @@ template<typename T, typename... types> inline void write(const char sep, T &n, 
 
 
 
-template<typename T> inline constexpr bool odd(const T a)
-{
+template<typename T> inline constexpr bool odd(const T a) {
     return bool(a & 1);
 }
 
-template<typename T> inline constexpr bool even(const T a)
-{
+template<typename T> inline constexpr bool even(const T a) {
     return !odd(a);
 }
 
 template<class T>
-inline unsigned int mod (const T m, const T n)
-{
+inline unsigned int mod (const T m, const T n) {
     return m >= 0 ? m % n : ( n - abs( m%n ) ) % n;
 }
 
@@ -141,6 +133,18 @@ int magnitude(T n) {
 }
 
 
+template<class T>
+T ipow(T base, T exp) {
+    T result = 1;
+    while (exp) {
+        if (exp & 1)
+            result *= base;
+        exp >>= 1;
+        base *= base;
+    }
+
+    return result;
+}
 
 
 
@@ -159,8 +163,7 @@ typedef std::pair<long  double,long double> pldd;
 typedef std::pair<uint,uint> puu;
 
 //sort pair based on their first component. If equal it uses the second ones.
-auto pair_cmp = [](const pll& p1, const pll& p2)
-{
+auto pair_cmp = [](const pll& p1, const pll& p2) {
     return (p1.first < p2.first) || (p1.first==p2.first && p1.second < p2.second);
 };
 
@@ -171,7 +174,8 @@ using namespace std;
 
 typedef array<short,10> digits;
 
-void intToDigits( ll n, digits& ds) {
+template<class T>
+void intToDigits( T n, digits& ds) {
     while(n>0) {
         ds[n%10]++;
         n/=10;
@@ -527,8 +531,7 @@ void solve70(const int size) {
         for(ll k=n+1; k<primes.size(); k++) {
             ll b=primes[n]*primes[k];
             ll phi = b-primes[n]-primes[k]+1;
-            if(b<=size)
-            {
+            if(b<=size) {
                 digits dn= {0};
                 intToDigits(b,dn);
                 digits dk= {0};
@@ -540,8 +543,7 @@ void solve70(const int size) {
 
 
                 }
-            }
-            else
+            } else
                 break;
         }
     }
@@ -774,8 +776,7 @@ void solve74() {
         }
         auto it2 = chain.end();
 
-        if(chain.size()==60)
-        {
+        if(chain.size()==60) {
             ans++;
 //            cout<<n<<endl;
         }
@@ -892,8 +893,7 @@ void solve82() {
             ll m = LLONG_MAX;
             loop0n(i,S) {
                 loop0n(j,S) {
-                    if(!V[i][j] && W[i][j] < m)
-                    {
+                    if(!V[i][j] && W[i][j] < m) {
                         m = W[i][j];
                         x=i;
                         y=j;
@@ -967,8 +967,7 @@ void solve83() {
         ll m = LLONG_MAX;
         loop0n(i,S) {
             loop0n(j,S) {
-                if(!V[i][j] && W[i][j] <= m)
-                {
+                if(!V[i][j] && W[i][j] <= m) {
                     m = W[i][j];
                     x=i;
                     y=j;
@@ -1053,8 +1052,7 @@ void visit(node n, int l) {
             c.push_back(*nn);
             type[(*nn).t]=true;
             visit(*nn,l+1);
-            if( found )
-            {
+            if( found ) {
                 return;
             } else {
                 c.pop_back();
@@ -1221,8 +1219,7 @@ void solve96() {
             //printGrid(S);
 
             ans+=S[0][0]*100 + 10*S[0][1] + S[0][2];
-        }
-        else
+        } else
             cout<<"NO SOLUTION!"<<endl;
         Q.clear();
 
@@ -1906,8 +1903,7 @@ void solve88() {
                         sum+=c;
 
                     int d = k-w.size();
-                    if(d+sum == i+1)
-                    {
+                    if(d+sum == i+1) {
                         go=false;
                         //cout<<k<<" "<<i+1<<endl;
                         #pragma omp critical
@@ -2012,8 +2008,7 @@ void solve102() {
 
 
     file=fopen("p102_triangles.txt","r");
-    if(!file)
-    {
+    if(!file) {
         cout<<"something bad happened opening the file\n";
         exit(-1);
     }
@@ -2025,8 +2020,7 @@ void solve102() {
 
     array<pii,3> Pi;
     int ans=0;
-    while(fscanf(file,"%d,%d,%d,%d,%d,%d\n",&Pi[0].first,&Pi[0].second,&Pi[1].first,&Pi[1].second,&Pi[2].first,&Pi[2].second))
-    {
+    while(fscanf(file,"%d,%d,%d,%d,%d,%d\n",&Pi[0].first,&Pi[0].second,&Pi[1].first,&Pi[1].second,&Pi[2].first,&Pi[2].second)) {
 
         array<pdd,3> P;
         P[0]=Pi[0];
@@ -2131,6 +2125,7 @@ bool checkDuplicateSum(vector<vector<int>>& S,const int v) {
                 loop0n(j,S[i].size()) {
                 if(n[k]==S[i][j]) {
                     ok=false;
+                    cout<<"can write "<<n[k]<<endl;
                     break;
                 }
             }
@@ -2145,22 +2140,25 @@ bool checkDuplicateSum(vector<vector<int>>& S,const int v) {
 }
 
 
-constexpr int D=7;
-bool noDuplicateSum(const array<int,D>&M) {
-    array<int,D> L;
-    array<int,D> R;
+//in a sorted set checkes wether 
+//is A,B are subset of M then 
+//sum(A) > sum(B) iff A contains more elements than B
+template<class NUM, uint D>
+bool noDuplicateSum(const array<NUM,D>&M, const uint size=D) {
+    array<NUM,D> L;
+    array<NUM,D> R;
     L[0]=M[0];
-    for(int i=1 ; i< M.size() ; i++) {
+    for(int i=1 ; i< size ; i++) {
         L[i]=M[i]+L[i-1];
     }
-    R[M.size()-1]=M.back();
-    for(int i=M.size()-2 ; i>=0 ; i--) {
+    R[size-1]=M[size-1];
+    for(int i=size-2 ; i>=0 ; i--) {
         R[i]=M[i]+R[i+1];
     }
 
     bool ok = true;
-    for(int i=M.size()-1 ; ok && i>=0 ; i--) {
-        for(int j=1+M.size()-1-i ; ok && j<M.size() ; j++) {
+    for(int i=size-1 ; ok && i>=0 ; i--) {
+        for(int j=1+size-1-i ; ok && j<size ; j++) {
             if(R[i] > L[j])
                 ok=false;
         }
@@ -2172,6 +2170,7 @@ bool noDuplicateSum(const array<int,D>&M) {
 
 void solve103() {
 
+    constexpr const int D=7;
     int minsum=INT_MAX;
     constexpr int LIM=50;
     array<int,D> M= {0,0,0,0,0,0,0}; //,0,0,0};
@@ -2195,30 +2194,21 @@ void solve103() {
                 if(M[0]+M[1] <= M[j])
                     ok=false;
 
-
-
         if(ok && inc && M[i]<=LIM )
             if(checkDuplicateSum(S,M[i]))
                 i++;
 
-
-
         if(i>=D ) {
-            if(  noDuplicateSum(M) && sum<minsum) {
+            if(  noDuplicateSum<int,D>(M) && sum<minsum) {
                 minsum=sum;
                 loop0n(k,D) {
                     minA[k]=M[k];
                 }
-
             }
             ok=false;
         }
 
-
-
-
-        if((!odd && i==D) || !ok || M[i]>=LIM )
-        {
+        if((!odd && i==D) || !ok || M[i]>=LIM ) {
             do {
                 sum-=M[i];
                 M[i]=0;
@@ -2240,19 +2230,129 @@ void solve103() {
 }
 
 //end of  problem 101  ------------
-int main() {
-    ios_base::sync_with_stdio(false);
-    solve43();
-    return 0;
+
+
+//problem 105---------
+template<class NUM,uint D>
+int goodCombo(array<NUM,D>& S, const uint size) {
+    sort(S.begin(), S.begin()+size);
+    int sum = std::accumulate(S.begin(),S.begin()+size, 0,std::plus<int>());
+    bool ok = noDuplicateSum<int,12>(S,size);//sum%2==1;
+    if(ok) {
+        vector<vector<int>> sums;
+        int i=0;
+        do {
+            ok=ok && checkDuplicateSum(sums,S[i]);
+            
+            i++;
+        } while(ok && i<size);
+
+    }
+    if(!ok)
+        sum=-1;
+        
+    return sum;
 }
 
+void solve105() {
+    ifstream file("p105_sets.txt",ios::in);
+    uint ans=0;
+    if (file.good()) {
+        string str;
+        while(getline(file,str)) {
+            //cout<<str<<endl;
+            istringstream ss(str);
+            uint num;
+            char c;
+            array<int, 12> N;
+            uint ins=0;
+            while(ss >> num)
+            {
+                N[ins++]=num;
+                //cout<<num<<" ";
+                ss>>c;
+            }
+            int sum=goodCombo<int,12>(N,ins);
+            if(sum > 0){
+                cout<<"ok->"<<str<<endl;
+                ans+=sum;
+            }
+            //cout<<endl;
+        }
+    }
+    cout<<ans<<endl;
 
 
+}
+
+//end of problem 105
+
+// problem 104  ------------
 
 
+bool checkPandigitally(digits& ds, int s, int e) {
+    for(int i =s ; i<e; i++) {
+        if(ds[i]!=1)
+            return false;
+    }
+    return true;
+}
 
+//strategy. compute the last 9 digits of each fibonacci number
+//making computation only modulo 10^9
+//once you find a number whcih is pandigital in its last digits
+//then compute the full number and check if it's also pandigital
+//in its most 9 significant digits
+//this saves you a lot of computation with large numbers
+void solve104() {
+    constexpr const uint LIM = 1000000;
+    mpz_class fn_1;
+    mpz_class fn;
 
+    uint i=2500;
+    mpz_class p109 = ipow<unsigned long int>(10,9);
+    mpz_fib2_ui(fn.get_mpz_t(), fn_1.get_mpz_t(),i);
+    mpz_class f9;
+    mpz_class next;
+    while(i<LIM) {
+        next = fn+fn_1;
+        mpz_mod(next.get_mpz_t(),next.get_mpz_t(),p109.get_mpz_t());
+        fn_1 = fn;
+        fn=next;
+        i++;
 
+        digits last9 = {0,0,0,0,0,0,0,0,0,0};
+        unsigned long int lnui = mpz_get_ui(fn.get_mpz_t());
+        intToDigits<unsigned long int>(lnui, last9);
 
+        if(checkPandigitally( last9,1,10 ) ) {
 
+            mpz_class fn_real;
+            mpz_fib_ui(fn_real.get_mpz_t(),i);
+            //converting to string
+            char *str;
+            char str_first9[10];
+            str = mpz_get_str(NULL , 10 , fn_real.get_mpz_t());
+            uint ln = strlen(str)+1 ;
+            strncpy(str_first9 , str,9);
+            str_first9[9]='\0';
 
+            unsigned long int fnui = stoul(str_first9);
+            digits first9 = {0,0,0,0,0,0,0,0,0,0};
+            intToDigits<unsigned long int>(fnui, first9);
+            if(checkPandigitally( first9,1,10 ) ) {
+                cout<<i;
+                return;
+            }
+
+        }
+
+    }
+
+}
+//end of problem 104------
+int main() {
+    ios_base::sync_with_stdio(false);
+    solve105();
+    return 0;
+}
