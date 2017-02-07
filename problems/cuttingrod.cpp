@@ -17,6 +17,19 @@ int solveCuttingRod(int N, int* price,int* memo) {
     return m;
 }
 
+int solveBottomUp(int N, int* prices){
+    int best[N+1];
+    best[0]=0;
+    for(int i=1;i<=N;i++){
+        int m=0;
+        for(int j=1;j<=i;j++){
+            m = max(m, prices[j-1]+best[i-j]);
+        }
+        best[i] = m;
+    }
+return best[N];
+}
+
 int main() {
     int prices[MAX];
     int memo[MAX];
@@ -31,8 +44,9 @@ int main() {
         while(i<N)
             cin>>prices[i++];
 
-        int s = solveCuttingRod(N,prices,memo);
-        cout<<"solution is "<<s<<endl;
+        int s2 = solveCuttingRod(N,prices,memo);
+        int s = solveBottomUp(N,prices);
+        cout<<"solution is "<<s<<" "<<s2<<endl;
     }
     return 0;
 }

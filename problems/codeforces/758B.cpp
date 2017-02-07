@@ -1,6 +1,4 @@
 #include <bits/stdc++.h>
-#include <functional>
-#include <numeric>
 
 // Useful constants
 #define INF (int)1e9
@@ -51,45 +49,71 @@
 #define mp make_pair
 #define fi first
 #define se second
-//char to int 
+//char to int
 inline constexpr int ctoi(const char c)
-{ return c - '0'; }
+{
+    return c - '0';
+}
 //int to char
 inline constexpr char itoc(const int n)
-{ return n + '0'; }
+{
+    return n + '0';
+}
 
 template<typename T> inline T clamp(const T& n, const T& lo, const T& hi)
-{ return std::max(lo,std::min(n,hi)); }
+{
+    return std::max(lo,std::min(n,hi));
+}
 
 template<class T> inline void sort(T &a)
-{ std::sort(ALL(a)); }
+{
+    std::sort(ALL(a));
+}
 
 template<class T1, class T2> inline void sort(T1 &a, T2 comp)
-{ sort(ALL(a), comp); }
+{
+    sort(ALL(a), comp);
+}
 
 template<class T> inline int read(T& n)
-{ return std::cin >> n ? 1 : -1; }
+{
+    return std::cin >> n ? 1 : -1;
+}
 //reads multiple arguments
 template<typename T, typename... types> inline int read(T &n, types &...args)
-{ return read(n) == -1 ? -1 : read(args...) + 1; }
+{
+    return read(n) == -1 ? -1 : read(args...) + 1;
+}
 
 template<class T> inline void write(const T& n)
-{ std::cout << n; }
+{
+    std::cout << n;
+}
 //reads multiple arguments
 template<typename T, typename... types> inline void write(const char sep, T &n, types &...args)
-{ write(n); write(sep); write(sep,args...); }
+{
+    write(n);
+    write(sep);
+    write(sep,args...);
+}
 
 
 
 template<typename T> inline constexpr bool odd(const T a)
-{ return bool(a & 1); }
+{
+    return bool(a & 1);
+}
 
 template<typename T> inline constexpr bool even(const T a)
-{ return !odd(a); }
+{
+    return !odd(a);
+}
 
 template<class T>
 inline unsigned int mod (const T m, const T n)
-{ return m >= 0 ? m % n : ( n - abs( m%n ) ) % n; }
+{
+    return m >= 0 ? m % n : ( n - abs( m%n ) ) % n;
+}
 
 template<class T>
 class reader {
@@ -119,32 +143,46 @@ typedef std::pair<uint,uint> puu;
 
 //sort pair based on their first component. If equal it uses the second ones.
 auto pair_cmp = [](const pll& p1, const pll& p2)
-    {
-        return (p1.first < p2.first) || (p1.first==p2.first && p1.second < p2.second);
-    };
-
-//integer power (base^exp)
-template<class T>
-T ipow(T base, T exp) {
-    T result = 1;
-    while (exp) {
-        if (exp & 1)
-            result *= base;
-        exp >>= 1;
-        base *= base;
-    }
-
-    return result;
-}
+{
+    return (p1.first < p2.first) || (p1.first==p2.first && p1.second < p2.second);
+};
 
 
 //------ PROBLEM CODE --------------
 
 using namespace std;
 
+int B[1000]={0};
 int main() {
     ios_base::sync_with_stdio(false);
+    string s;
+    read(s);
+   
+    B[(int)'R']=B[(int)'B']=B[(int)'Y']=B[(int)'G']=0;
+
+    loop0n(i,s.size()){
+        if(s[i]!='!'){
+            for(int j=i; j >=0 ; j-=4)
+                if(s[j]=='!')
+                {
+                    s[j]=s[i];
+                    B[(int)s[i]]++;
+                }
+            
+            for(int j=i+4; j<s.size() ; j+=4)
+                if(s[j]=='!')
+                {
+                    s[j]=s[i];
+                    B[(int)s[i]]++;
+                }
+         
+            }
+        }
+    
+
+    cout<<B[(int)'R']<<" "<<B[(int)'B']<<" "<<B[(int)'Y']<<" "<<B[(int)'G']<<endl;
     
     return 0;
 }
+
 

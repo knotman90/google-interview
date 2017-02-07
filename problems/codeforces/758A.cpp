@@ -1,6 +1,4 @@
 #include <bits/stdc++.h>
-#include <functional>
-#include <numeric>
 
 // Useful constants
 #define INF (int)1e9
@@ -123,28 +121,26 @@ auto pair_cmp = [](const pll& p1, const pll& p2)
         return (p1.first < p2.first) || (p1.first==p2.first && p1.second < p2.second);
     };
 
-//integer power (base^exp)
-template<class T>
-T ipow(T base, T exp) {
-    T result = 1;
-    while (exp) {
-        if (exp & 1)
-            result *= base;
-        exp >>= 1;
-        base *= base;
-    }
-
-    return result;
-}
-
 
 //------ PROBLEM CODE --------------
 
 using namespace std;
 
+int N[101];
 int main() {
     ios_base::sync_with_stdio(false);
-    
+int n; read(n);
+int m=INT_MIN;
+loop0n(i,n){
+    read(N[i]);
+    if(m<N[i])
+        m=N[i];
+}
+int ans=0;
+loop0n(i,n){
+    ans+=m-N[i];
+}
+cout<<ans<<endl;
     return 0;
 }
 
