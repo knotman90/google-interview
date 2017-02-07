@@ -2140,8 +2140,8 @@ bool checkDuplicateSum(vector<vector<int>>& S,const int v) {
 }
 
 
-//in a sorted set checkes wether 
-//is A,B are subset of M then 
+//in a sorted set checkes wether
+//is A,B are subset of M then
 //sum(A) > sum(B) iff A contains more elements than B
 template<class NUM, uint D>
 bool noDuplicateSum(const array<NUM,D>&M, const uint size=D) {
@@ -2243,14 +2243,14 @@ int goodCombo(array<NUM,D>& S, const uint size) {
         int i=0;
         do {
             ok=ok && checkDuplicateSum(sums,S[i]);
-            
+
             i++;
         } while(ok && i<size);
 
     }
     if(!ok)
         sum=-1;
-        
+
     return sum;
 }
 
@@ -2273,7 +2273,7 @@ void solve105() {
                 ss>>c;
             }
             int sum=goodCombo<int,12>(N,ins);
-            if(sum > 0){
+            if(sum > 0) {
                 cout<<"ok->"<<str<<endl;
                 ans+=sum;
             }
@@ -2287,6 +2287,41 @@ void solve105() {
 
 //end of problem 105
 
+
+
+//problem 106---------------
+int fact( int n) {
+    if(n==0)
+        return 1;
+    int rr=n;
+    while(--n) {
+        rr*=n;
+    }
+    return rr;
+}
+int catalan(const int n) {
+    return (fact(2*n)/(fact(n+1)*fact(n)));
+}
+
+int combinations(const int n, const int k) {
+    return fact(n)/(fact(k)*fact(n-k));
+}
+
+void solve106() {
+
+    constexpr const int D = 12;
+    int ans =0;
+    int k=2;
+
+    while(2*k <= D) {
+        ans+= combinations(D, 2*k) * (0.5*combinations(2*k , k) -catalan(k));
+
+        k++;
+    }
+    cout<<ans<<endl;
+}
+
+//---------------
 // problem 104  ------------
 
 
@@ -2351,8 +2386,175 @@ void solve104() {
 
 }
 //end of problem 104------
+
+
+//problem 107----
+template<class T> using min_priority_queue = priority_queue<T, std::vector<T>, std::greater<T>>;
+
+typedef tuple<int,int,int> arc;
+void kruskal(min_priority_queue<arc>& Q, const int D, vector<tuple<int,int,int>> &K) {
+    vector<set<int>> N;
+    loop0n(i,D)
+    {
+        set<int> nn;
+        nn.insert(i);
+        N.push_back(nn);
+    }
+
+    while(!Q.empty()) {
+        auto e = Q.top();
+        int f1 = 0;
+        loop0n(i,N.size()) {
+            if(N[i].find(get<1>(e)) != N[i].end()) {
+                f1=i;
+                break;
+            }
+        }
+
+        int f2 =0;
+        loop0n(i,N.size()) {
+            if(N[i].find(get<2>(e)) != N[i].end()) {
+                f2=i;
+                break;
+            }
+        }
+
+        //this arc connects two disjoint subgraph
+        if( f1  != f2 )
+        {
+            set<int> nnn;
+            nnn.insert(N[f1].begin(), N[f1].end());
+            nnn.insert(N[f2].begin(), N[f2].end());
+
+            int m  = min(f1,f2);
+            int M = max(f1,f2);
+            N.erase(N.begin()+m, N.begin()+m+1);
+            N.erase(N.begin()+M-1, N.begin()+M);
+            N.push_back(nnn);
+            K.push_back(e);
+
+
+        }
+        Q.pop();
+    }
+
+
+}
+
+void solve107() {
+    min_priority_queue<arc > Q;
+    constexpr const int D = 40;
+    int w;
+
+    int S=0;
+    loop0n(i,D) {
+
+        loop0n(j,D) {
+
+            char c;
+            int w=0;
+            string s;
+            cin>>s;
+            char* p;
+            int converted = strtol(s.c_str(), &p, 10);
+            if(*p) {
+                ;
+            } else {
+                w=converted;
+                if(j>i)
+                    S+=w;
+                auto a =make_tuple(w,i,j);
+                // cout<<get<0>(a)<<" "<<get<1>(a)<<" "<<get<2>(a)<<endl;
+                Q.push(a);
+            }
+        }
+    }
+
+
+
+
+    vector<tuple<int,int,int>> K;
+
+    kruskal(Q, D,K);
+
+    int W = std::accumulate(K.begin(),K.end(), 0,
+    [](const int w, const auto& t) {
+        return w+get<0>(t);
+    }
+                           );
+    cout<<S-W<<endl;
+
+}
+
+//end of problem 107--
+
+
+//problem 108 ---
+
+bool factorize( ll p , vector<pii>& F, vector<ll>& primes) {
+    int i=0;
+    int c=0;
+    while(p>1) {
+        if(i>= primes.size())
+            return false;
+        if(p%primes[i]==0) {
+            c++;
+            p/=primes[i];
+        }
+        else {
+            if(c>0) {
+
+                F.push_back(make_pair(primes[i],c));
+                c=0;
+            }
+            i++;
+        }
+
+    }
+    if(c>0) {
+
+        F.push_back(make_pair(primes[i],c));
+        c=0;
+    }
+    return true;
+
+}
+
+ll divisors(vector<pii>& F, vector<ll>& primes) {
+    ll ans =1;
+    loop0n(i,F.size()) {
+        ans*=F[i].second+1;
+    }
+    return ans;
+
+}
+
+void solve108() {
+    constexpr const long LIMP =25;
+    vector<ll> primes;
+    getPrimesSieve(primes,LIMP);
+    ull m=0;
+    int min;
+    
+    for(ll n=2 ; ; n++ ) {
+        vector<pii> F;
+        ll n2=n*n;
+        if(factorize(n2,F,primes)) {
+
+            ll div = divisors(F,primes)/2;//getting number of divisors of n^2. compute factor of n and double all the power of factor of n
+            if(div > 1000) {
+                cout<<n;
+                break;
+            }
+        }
+    }
+
+}
+
+
+//end of problem 108
 int main() {
     ios_base::sync_with_stdio(false);
-    solve105();
+    solve108();
     return 0;
 }
