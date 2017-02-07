@@ -1882,14 +1882,14 @@ void solve88() {
     vector<ll> primes;
     getPrimesSieve(primes,LIM);
     vector<vector<vector<int>>> WM(2*LIM);
-    
+
 #pragma omp parallel for shared(WM)
     for(int i=1; i<= 2*LIM; i++) {
       WM[i-1] = asMultiplication(i,primes);
 
     }
 
-#pragma omp parallel for  shared(S) 
+#pragma omp parallel for  shared(S)
     for(int k=2 ; k<=LIM ; k++) {
         bool go =true;
         int i=k-1;
@@ -1942,7 +1942,7 @@ void combination( const unsigned short n, const unsigned short k, vector<vector<
             if( BIT(i,b) )
                 bs++;
         }
-        
+
         if(bs==k){//good permutation
             vector<int> p(k);
             for(int bit=0; bit<n ; bit++)
@@ -1950,17 +1950,17 @@ void combination( const unsigned short n, const unsigned short k, vector<vector<
                     p[--bs]=(bit);
 
             C.push_back(p);
-            
+
         }
 
     }
 }
 
 bool isGood(const vector<int>& C0, const vector<int>& C1){
-     
+
      bool sn1 = C1.end() != find(ALL(C1),6);
      sn1 = sn1 || (C1.end() != find(ALL(C1),9));
-    
+
      bool sn0 = C0.end() != find(ALL(C0),6);
      sn0 = sn0 || (C0.end() != find(ALL(C0),9));
     for(int i=1; i<=9 ; i++){
@@ -1968,7 +1968,7 @@ bool isGood(const vector<int>& C0, const vector<int>& C1){
         int a=ii%10;
         int b=(ii/10)%10;
 
-        
+
         bool a0,b0, a1,b1;
         a0 = C0.end() != find(C0.begin(), C0.end(), a);
         b0 = C0.end() != find(C0.begin(), C0.end(), b);
@@ -1983,7 +1983,7 @@ bool isGood(const vector<int>& C0, const vector<int>& C1){
 
         if( ! ((a0 && b1) || (b0 && a1)  ))
             return false;
-        
+
     }
     return true;
 }
@@ -2001,9 +2001,40 @@ void solve90(){
 cout<<ans<<endl;
 }
 
+
+void solve102(){
+  auto dot= [](const int x0,const int y0, const int x1, const int y1){
+    return x0*x1+y0*y1;
+  };
+  auto magn = [](const int x0, const int y0){
+    return sqrt(x0*x0+y0*y0);
+  };
+  auto anglebetween = [&](const int x0, const int y0, const int x1, const int y1){
+    return acos(dot(x0,y0,x1,y1)/(magn(x0,y0)*magn(x1,y1)));
+  };
+
+int ans=0;
+  int x0,y0,x1,y1,x2,y2;
+  int l=1000;
+  while(--l) {
+      scanf("%d,%d,%d,%d,%d,%d\n",&x0,&y0,&x1,&y1,&x2,&y2);
+      double angle=0;
+      angle+=anglebetween(x0,y0,x1,y1);
+      angle+=anglebetween(x1,y1,x2,y2);
+      angle+=anglebetween(x2,y2,x0,y0);
+      if(fabs(angle-2*M_PI)<= 0.0001){
+          ans++;
+      }
+
+     }
+  cout<<ans<<endl;
+}
+
+
+
 int main() {
     ios_base::sync_with_stdio(false);
-solve90();
+solve102();
     return 0;
 }
 
