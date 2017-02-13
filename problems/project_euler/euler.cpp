@@ -134,7 +134,7 @@ int magnitude(T n) {
 
 
 template<class T>
-T ipow(T base, T exp) {
+T ipow(T base, uint exp) {
     T result = 1;
     while (exp) {
         if (exp & 1)
@@ -146,9 +146,28 @@ T ipow(T base, T exp) {
     return result;
 }
 
+//remove all elements from col which satisfies the predicate pre
+template <typename Collection,typename Predicate>
+void filterNot(Collection& col,Predicate pre ) {
+    auto returnIterator = std::remove_if(col.begin(),col.end(),pre);
+    col.erase(returnIterator,std::end(col));
 
+}
 
+//remove elements that do not satisfy the predicate
+template <typename Collection,typename Predicate>
+void filter(Collection& col,Predicate predicate) {
+    filterNot(col,[predicate](typename Collection::value_type i) {
+        return !predicate(i);
+    });
 
+}
+
+template <typename Collection,typename unop>
+void map(Collection& col,unop op) {
+    std::transform(col.begin(),col.end(),col.begin(),op);
+
+}
 //TYPEDEFS
 typedef unsigned long ul;
 typedef unsigned long long ull;
@@ -168,6 +187,9 @@ auto pair_cmp = [](const pll& p1, const pll& p2) {
 };
 
 
+//high order fucntion functions
+
+
 //------ PROBLEM CODE --------------
 
 using namespace std;
@@ -180,7 +202,6 @@ void intToDigits( T n, digits& ds) {
         ds[n%10]++;
         n/=10;
     }
-
 }
 
 bool sameDigits(const digits& ds, const digits& dk, const int s=0, const int e=10) {
@@ -2002,32 +2023,32 @@ void solve90() {
 }
 
 
-void solve102(){
-  auto dot= [](const int x0,const int y0, const int x1, const int y1){
-    return x0*x1+y0*y1;
-  };
-  auto magn = [](const int x0, const int y0){
-    return sqrt(x0*x0+y0*y0);
-  };
-  auto anglebetween = [&](const int x0, const int y0, const int x1, const int y1){
-    return acos(dot(x0,y0,x1,y1)/(magn(x0,y0)*magn(x1,y1)));
-  };
+void solve102() {
+    auto dot= [](const int x0,const int y0, const int x1, const int y1) {
+        return x0*x1+y0*y1;
+    };
+    auto magn = [](const int x0, const int y0) {
+        return sqrt(x0*x0+y0*y0);
+    };
+    auto anglebetween = [&](const int x0, const int y0, const int x1, const int y1) {
+        return acos(dot(x0,y0,x1,y1)/(magn(x0,y0)*magn(x1,y1)));
+    };
 
-int ans=0;
-  int x0,y0,x1,y1,x2,y2;
-  int l=1000;
-  while(--l) {
-      scanf("%d,%d,%d,%d,%d,%d\n",&x0,&y0,&x1,&y1,&x2,&y2);
-      double angle=0;
-      angle+=anglebetween(x0,y0,x1,y1);
-      angle+=anglebetween(x1,y1,x2,y2);
-      angle+=anglebetween(x2,y2,x0,y0);
-      if(fabs(angle-2*M_PI)<= 0.0001){
-          ans++;
-      }
+    int ans=0;
+    int x0,y0,x1,y1,x2,y2;
+    int l=1000;
+    while(--l) {
+        scanf("%d,%d,%d,%d,%d,%d\n",&x0,&y0,&x1,&y1,&x2,&y2);
+        double angle=0;
+        angle+=anglebetween(x0,y0,x1,y1);
+        angle+=anglebetween(x1,y1,x2,y2);
+        angle+=anglebetween(x2,y2,x0,y0);
+        if(fabs(angle-2*M_PI)<= 0.0001) {
+            ans++;
+        }
 
-     }
-  cout<<ans<<endl;
+    }
+    cout<<ans<<endl;
 }
 
 
@@ -2289,6 +2310,8 @@ int fact( int n) {
     }
     return rr;
 }
+
+
 int catalan(const int n) {
     return (fact(2*n)/(fact(n+1)*fact(n)));
 }
@@ -2540,10 +2563,355 @@ void solve108() {
 
 }
 
+//end of problem 108--
 
-//end of problem 108
+//problem 109-------
+template<unsigned int NP>
+ll divisors109(array<uint,NP>& exps, const int f) {
+    ll ans =1;
+    loop0n(i,exps.size()) {
+        if(exps[i]>0)
+            ans*=f*exps[i]+1;
+    }
+    return ans;
+
+}
+
+template<unsigned int NP>
+mpz_class expsToNumber(const vector<ll>& primes, const array<uint,NP>& exps) {
+    mpz_class m1 = -1;
+    mpz_class ans =1;
+    loop0n(i,NP) {
+        if(exps[i]>0) {
+            mpz_class e = ipow<unsigned long int>(primes[i],exps[i]);
+            ans = ans*e ;
+
+        }
+    }
+    return ans > 1 ? ans : m1;
+}
+
+
+constexpr const ll TGT109 = 4000000;
+template<unsigned int NP>
+void findN(const vector<ll>& primes, array<uint,NP>& exps, const array<uint,NP>& expsLimits, const int i, mpz_class& ans) {
+    for(int k = 1 ; k < expsLimits[i] ; k++) {
+        exps[i]=k;
+        ll div = divisors109<NP>(exps,2)/2; //check how many divisors the square has
+        if(div > TGT109) {
+            auto n = expsToNumber<NP>(primes,exps);
+            if( mpz_sgn(n.get_mpz_t() )>=1 && mpz_cmp(ans.get_mpz_t(),n.get_mpz_t()) > 0 ) {
+
+                ans=n;
+            }
+
+            //nop need in searching further on this path. other numbers would be larger than smallestN
+
+            break;
+        } else
+            findN<NP>(primes, exps, expsLimits, i+1,ans);
+
+    }
+    exps[i]=0;
+}
+
+void solve109() {
+    constexpr const long LIMP =50;
+    constexpr const uint NP = 20; //using only the first 10 primes
+    constexpr const uint expL = 5;
+    vector<ll> primes;
+    getPrimesSieve(primes,LIMP);
+    array<uint,NP> exps;
+    array<uint,NP> expsLimits;
+    loop0n(i,NP) {
+        exps[i]=0;
+        expsLimits[i]= 5;
+    }
+    mpz_class ans(ULONG_MAX);
+    findN<NP>(primes, exps,expsLimits,0,ans);
+    cout<<ans<<endl;
+
+}
+// end of problem 109--
+
+//strategy: for each number of the same number of digits
+//iterate all over all subset of digits and find all numbers which happen to have the subset identified by the number k
+//of the same digits is a good candidate.
+// for example when k=3 you are checking that digits 1 and 2 are the same. then you take the rest of the number as a key
+//(56003 => rest of the number is 563)
+void solve51() {
+    uint maxM=0;
+    uint maxrest=0;
+    uint maxC=0;
+    ull minmin=0;
+    constexpr const long LIMP = 1000000;
+    vector<ll> primes;
+    getPrimesSieve(primes,LIMP);
+    //m represent the number of digits of primes[i]
+    //iterate over all subset of m elements => see how bits of numbers from 1->2^m changes to get the subsets
+    array<vector<int>,100000> NUMS;
+
+    //for each set of prime number with the same number of digits
+    for(int m=2 ; m <= magnitude(primes.back()) ; m++) {
+
+        //for each subset of digits
+        for(unsigned long  k=1; k<ipow(2,m); k++) {
+
+            bitset<20> b(k);
+            if(b.count()==1)
+                continue;
+            for(int i=0; i<primes.size() && primes[i]<= (ipow(10,m)-1); i++ ) {
+                if(primes[i] >= ipow(10,m-1)) {
+
+                    vector<int> D;
+                    ull number = primes[i];
+                    while(number)
+                    {
+                        D.push_back(number%10);
+                        number /= 10;
+                    }
+
+                    bool eq=true;
+                    int nn=-1;
+                    loop0n(i,m) {
+                        if(!eq)
+                            break;
+                        if(!b[i])
+                            continue;
+                        if(nn==-1)
+                            nn=D[i];
+
+                        if(nn!=D[i])
+                            eq=false;
+                    }
+                    //this is a good number: has all the digits of the subset equals
+                    if(eq) {
+
+                        //compute the int corresponding to bit not set in b
+                        int rest =0;
+                        int p=1;
+                        loop0n(i,m) {
+                            if(!b[i]) {
+                                rest+=D[i]*p;
+                                p*=10;
+                            }
+                        }
+                        NUMS[rest].push_back(primes[i]);
+
+                    }
+                }
+
+            }
+
+
+            // cout<<"Magnitude:"<<m<<" "<<k<<endl;
+            loop0n(q,100000) {
+                if(NUMS[q].size()>0) {
+                    // cout<<"rest "<<q<<endl;
+                    loop0n(p,NUMS[q].size()) {
+                        if(NUMS[q].size() > maxC)
+                        {
+
+                            maxC=NUMS[q].size();
+                            minmin = *min_element(NUMS[q].begin(), NUMS[q].end());
+
+
+                        }
+
+                    }
+                    NUMS[q].clear();
+                }
+            }
+        }
+
+
+    }
+
+    cout<<minmin<<endl;
+}
+
+
+
+void solve52() {
+
+
+    constexpr const uint LIM = 1000000;
+    constexpr const uint MAXMULT=6;
+    vector<digits> DS(LIM);
+    loop0n(i,LIM) {
+        digits ds= {0,0,0,0,0,0,0,0,0,0};
+        intToDigits(i,ds);
+        DS[i]=ds;
+    }
+
+    int n=-1;
+    uint i=1;
+    while(n<0 && ++i<LIM/6) {
+        bool good=true;
+        for(int x=2; good && x <= MAXMULT ; x++) {
+            if(!sameDigits(DS[i],DS[i*x]))
+                good=false;
+        }
+        if(good)
+            n=i;
+    }
+
+    cout<<n<<endl;
+
+}
+
+//problem 53-----
+void solve53() {
+    //first create a 100*100 pascal triangle
+    constexpr const int DIM = 101;
+    constexpr const int ONEM = 1000000;
+    ull pt[DIM][DIM]= {0};
+    loop0n(i,DIM) {
+        pt[i][0]=pt[i][i]=1;
+    }
+    int ans=0;
+    for(int i=1; i < DIM ; i++) {
+        for(int j=1; j < i ; j++) {
+            pt[i][j] = pt[i-1][j]+pt[i-1][j-1];
+            if(pt[i][j]>ONEM) {
+                ++ans;
+                cout<<i<<":"<<j<<endl;
+            }
+        }
+    }
+
+    cout<<ans<<endl;
+}
+//end of problem 53-----
+
+
+//problem 120-----
+bool repeated(const auto& vec) {
+    if(vec.size()%2 !=0)
+        return false;
+    int s2=vec.size()/2;
+    loop0n(i,s2) {
+        if(vec[i]!=vec[i+s2])
+            return false;
+    }
+    return true;
+}
+void solve120() {
+
+    constexpr const ull LIMA = 1000;
+    ull sum = 0;
+    for(ull a=3 ; a<= LIMA ; a++) {
+        const ull A1= a-1;
+        const ull A2= a+1;
+        ull rmax = 0;
+        vector<ull> REMS;
+        ull a1=a-1;
+        ull a2=a+1;
+        ull as=a*a;
+        do {
+            REMS.push_back((a1+a2)%as);
+            a1=(a1*A1)%as;
+            a2=(a2*A2)%as;
+        } while(!repeated(REMS) );
+
+        int M = *max_element(REMS.begin(), REMS.end());
+        sum+=M;
+    }
+    cout<<sum<<endl;
+
+}
+
+//end of problem 120-----
+
+
+//Problem 205
+
+void solve205() {
+
+    vector<int> N[9];
+//there is no need to store all the single sums (since there are only 36 of them)
+//is much better to store only the frequencies. but this is still working fast so....(i'm lazy) =)
+    array<int,4> O= {1,2,3,4};
+    loop0n(i,4) {
+        N[0].push_back(O[i]);
+    }
+    for(int i=1; i<9; i++) {
+        for(const auto& nii : N[i-1])
+            loop0n(j,4) {
+            N[i].push_back(O[j]+nii);
+        }
+    }
+
+    vector<int> M[6];
+    array<int,6> Om= {1,2,3,4,5,6};
+    loop0n(i,6) {
+        M[0].push_back(Om[i]);
+    }
+    for(int i=1; i<6; i++) {
+        for(const auto& nii : M[i-1])
+            loop0n(j,6) {
+            M[i].push_back(Om[j]+nii);
+        }
+    }
+
+    vector<int> NN(37,0);
+    vector<int> MM(37,0);
+
+    for(const auto& nii : N[8]) {
+        NN[nii]++;
+    }
+    for(const auto& nii : M[5]) {
+        MM[nii]++;
+    }
+    int ntot= N[8].size();
+    int mtot= M[5].size();
+    long double prob = 0.0;
+    for(int i=9; i<37; i++) {
+        int cless=0;
+        for(int j=i-1; j>=6 ; j--) {
+            cless+=MM[j];
+        }
+       
+        long double p = ((double)NN[i]/(double)ntot)*((double)cless/(double)mtot);
+        prob+=p;
+    }
+    printf("%.7Lf\n",prob);
+    }
+
+//end of Problem 205
+
+//problem 119--
+void solve199(){
+    constexpr const int L = 1000000;
+    constexpr const int PL = 20;
+    constexpr const  unsigned long long LIM = ULLONG_MAX;
+    
+    vector<ull> NUMS;
+   
+    for(int i=2; i<L ; i++){
+         const ull bLIM = log(LIM)/log((double)i);
+        for(int j=1; j<=bLIM ; j++){
+            ull n = ipow<ull>(i,j);
+            digits ds = {0,0,0,0,0,0,0,0,0,0};
+            intToDigits(n,ds);
+            int sumd =0;
+            loop0n(k,10){
+                sumd+=ds[k]*k;
+            }
+            if(sumd==i && n>=10)
+                NUMS.push_back(n);
+        }
+    }
+    sort(ALL(NUMS));
+   
+    cout<<NUMS[29]<<endl;
+    
+}
+
+//end of problem 119--
+
 int main() {
     ios_base::sync_with_stdio(false);
-    solve108();
+    solve199();
     return 0;
 }
