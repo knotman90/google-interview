@@ -2910,8 +2910,75 @@ void solve199(){
 
 //end of problem 119--
 
+
+//problem 187----
+void solve187(){
+    constexpr const ull LIM = 100000000;
+    constexpr const ull LIMP = LIM/2;
+    ull ans=0;
+    vector<ll> primes;    
+    getPrimesSieve(primes,LIMP); //primes up to LIMP
+    for(int i=0;i<primes.size() ; i++){
+        const ull pl = LIM/primes[i];
+        auto p = upper_bound(ALL(primes) , pl);
+        p--;
+        if(*p >= primes[i]){
+            auto dist = abs(distance(p,primes.begin()+i))+1;
+            ans+=dist;
+        }
+    }
+    cout<<ans<<endl;
+}
+//end of problem 187----
+
+//problem 125----
+bool isPalindromic( ull n){
+    vector<short> D;
+    while(n){
+        D.push_back(n%10);
+        n/=10;
+    }
+    for(int i=0;i<D.size()/2;i++){
+        if(D[i]!=D[D.size()-i-1])
+            return false;
+    }
+    return true;
+}
+void solve125(){
+    constexpr const ull LIM = 100000000;
+    const ull n = sqrt(LIM);
+    ll ans=0;
+    vector<ll> squares(n);
+    
+    loop0n(i,n+1){
+        squares[i]=i*i;
+    }
+    set<ull> NUMS;
+    for(int i=1;i<=n;i++){
+        ull sum=squares[i];
+        for(int j=i+1 ; j<n; j++){
+            sum+=squares[j];
+            if(sum< LIM )
+            {
+                if( isPalindromic(sum) && NUMS.find(sum)==NUMS.end())
+                    {
+                        NUMS.insert(sum);
+                        cout<<sum<<endl;
+                        ans+=sum;
+                    }
+            }else{
+                break;
+            }
+        }
+    }
+    cout<<ans<<endl;
+    
+}
+//end of problem 125----
+
+
 int main() {
     ios_base::sync_with_stdio(false);
-    solve199();
+    solve125();
     return 0;
 }
