@@ -2963,7 +2963,6 @@ void solve125(){
                 if( isPalindromic(sum) && NUMS.find(sum)==NUMS.end())
                     {
                         NUMS.insert(sum);
-                        cout<<sum<<endl;
                         ans+=sum;
                     }
             }else{
