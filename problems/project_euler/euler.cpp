@@ -2871,31 +2871,31 @@ void solve205() {
         for(int j=i-1; j>=6 ; j--) {
             cless+=MM[j];
         }
-       
+
         long double p = ((double)NN[i]/(double)ntot)*((double)cless/(double)mtot);
         prob+=p;
     }
     printf("%.7Lf\n",prob);
-    }
+}
 
 //end of Problem 205
 
 //problem 119--
-void solve199(){
+void solve199() {
     constexpr const int L = 1000000;
     constexpr const int PL = 20;
     constexpr const  unsigned long long LIM = ULLONG_MAX;
-    
+
     vector<ull> NUMS;
-   
-    for(int i=2; i<L ; i++){
-         const ull bLIM = log(LIM)/log((double)i);
-        for(int j=1; j<=bLIM ; j++){
+
+    for(int i=2; i<L ; i++) {
+        const ull bLIM = log(LIM)/log((double)i);
+        for(int j=1; j<=bLIM ; j++) {
             ull n = ipow<ull>(i,j);
             digits ds = {0,0,0,0,0,0,0,0,0,0};
             intToDigits(n,ds);
             int sumd =0;
-            loop0n(k,10){
+            loop0n(k,10) {
                 sumd+=ds[k]*k;
             }
             if(sumd==i && n>=10)
@@ -2903,26 +2903,26 @@ void solve199(){
         }
     }
     sort(ALL(NUMS));
-   
+
     cout<<NUMS[29]<<endl;
-    
+
 }
 
 //end of problem 119--
 
 
 //problem 187----
-void solve187(){
+void solve187() {
     constexpr const ull LIM = 100000000;
     constexpr const ull LIMP = LIM/2;
     ull ans=0;
-    vector<ll> primes;    
+    vector<ll> primes;
     getPrimesSieve(primes,LIMP); //primes up to LIMP
-    for(int i=0;i<primes.size() ; i++){
+    for(int i=0; i<primes.size() ; i++) {
         const ull pl = LIM/primes[i];
         auto p = upper_bound(ALL(primes) , pl);
         p--;
-        if(*p >= primes[i]){
+        if(*p >= primes[i]) {
             auto dist = abs(distance(p,primes.begin()+i))+1;
             ans+=dist;
         }
@@ -2932,52 +2932,119 @@ void solve187(){
 //end of problem 187----
 
 //problem 125----
-bool isPalindromic( ull n){
+bool isPalindromic( ull n) {
     vector<short> D;
-    while(n){
+    while(n) {
         D.push_back(n%10);
         n/=10;
     }
-    for(int i=0;i<D.size()/2;i++){
+    for(int i=0; i<D.size()/2; i++) {
         if(D[i]!=D[D.size()-i-1])
             return false;
     }
     return true;
 }
-void solve125(){
+
+void solve125() {
     constexpr const ull LIM = 100000000;
     const ull n = sqrt(LIM);
     ll ans=0;
     vector<ll> squares(n);
-    
-    loop0n(i,n+1){
+
+    loop0n(i,n+1) {
         squares[i]=i*i;
     }
     set<ull> NUMS;
-    for(int i=1;i<=n;i++){
+    for(int i=1; i<=n; i++) {
         ull sum=squares[i];
-        for(int j=i+1 ; j<n; j++){
+        for(int j=i+1 ; j<n; j++) {
             sum+=squares[j];
             if(sum< LIM )
             {
                 if( isPalindromic(sum) && NUMS.find(sum)==NUMS.end())
-                    {
-                        NUMS.insert(sum);
-                        ans+=sum;
-                    }
-            }else{
+                {
+                    NUMS.insert(sum);
+                    ans+=sum;
+                }
+            } else {
                 break;
             }
         }
     }
     cout<<ans<<endl;
-    
+
 }
 //end of problem 125----
 
 
+//problem 68---
+void solve68() {
+    constexpr const int NG=3;
+    constexpr const uint LIM=NG*3-NG;
+    array<int,NG*3> NS;
+    bitset<LIM> b(0);//which number has been used?
+    for(int i=0; i < LIM ; i++) { //1
+        b[i]=1;
+        for(int j = 0 ; j < LIM ; j++) { //2
+            if(!b[j]) {
+                b[j]=1;
+                for(int k = 0 ; k < LIM ; k++) { //3
+                    if(!b[k]) {
+                        b[k]=1;
+
+                        int sum=i+j+k+3;
+                        for(int l=0; l < LIM; l++) { //4
+                            if(!b[l]) {
+                                b[l]=1;
+                                for(int l1=l+1;  l1 < LIM; l1++) { // 5
+                                    if(!b[l1]) {
+                                        b[l1]=1;
+                                        int sum0 = l+k+l1+3;
+                                        for(int l2=0; sum==sum0 && l2<LIM; l2++) {
+
+                                            int sum2=l2+l1+j+3;
+                                            if(!b[l2] && sum==sum2 && sum0==sum2) {
+                                                NS={i+1,j+1,k+1,l+1,k+1,l1+1,l2+1,l1+1,j+1};
+                                                //min element between elements of indices idx*3
+                                                int min=0;
+                                                for(int idx=2;idx<NG*3;idx+=3){
+                                                    if(NS[idx]<NS[min])
+                                                        min = idx;
+                                                }
+                                                //rotate ns st the minimum element is at position 0
+                                                rotate(ALL(NS), NS.begin()+min);
+                                                cout<<"buona ->"<<sum<<endl;
+                                                printf("%d %d %d %d %d %d | %d %d %d %d %d %d %d %d %d\n",i+1,j+1,k+1,l+1,l1+1,l2+1,
+                                                                            i+1,j+1,k+1,l+1,k+1,l1+1,l2+1,l1+1,j+1);
+                                                                            cout<<sum<<" "<<sum0<<" "<<sum2<<endl;
+
+                                            }
+
+                                        }
+                                        b[l1]=0;
+                                    }
+                                }
+                                b[l]=0;
+                            }
+                        }
+                       b[k]=0; 
+                    }
+                }
+                b[j]=0;
+            }
+           
+        }
+        b[i]=0;
+    }
+}
+
+
+
+
+//end of problem 68---
+
 int main() {
     ios_base::sync_with_stdio(false);
-    solve125();
+    solve68();
     return 0;
 }
