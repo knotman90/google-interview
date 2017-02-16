@@ -2978,10 +2978,25 @@ void solve125() {
 
 
 //problem 68---
+template<class COLLECTION>
+bool cmp_arr(const COLLECTION& v1, const COLLECTION& v2){
+    for(int i=0; i<v1.size() ; i++){
+        if(v1[i]==v2[i])
+            continue;
+        if(v1[i]<v2[i])
+            return true;
+        else
+            return false;
+                
+    }
+    return false;
+}
+
 void solve68() {
     constexpr const int NG=3;
     constexpr const uint LIM=NG*3-NG;
     array<int,NG*3> NS;
+    vector<array<int,NG*3>> SOLS;
     bitset<LIM> b(0);//which number has been used?
     for(int i=0; i < LIM ; i++) { //1
         b[i]=1;
@@ -2996,7 +3011,7 @@ void solve68() {
                         for(int l=0; l < LIM; l++) { //4
                             if(!b[l]) {
                                 b[l]=1;
-                                for(int l1=l+1;  l1 < LIM; l1++) { // 5
+                                for(int l1=0;  l1 < LIM; l1++) { // 5
                                     if(!b[l1]) {
                                         b[l1]=1;
                                         int sum0 = l+k+l1+3;
@@ -3007,17 +3022,24 @@ void solve68() {
                                                 NS={i+1,j+1,k+1,l+1,k+1,l1+1,l2+1,l1+1,j+1};
                                                 //min element between elements of indices idx*3
                                                 int min=0;
-                                                for(int idx=2;idx<NG*3;idx+=3){
+                                                for(int idx=3;idx<NG*3;idx+=3){
                                                     if(NS[idx]<NS[min])
                                                         min = idx;
                                                 }
                                                 //rotate ns st the minimum element is at position 0
-                                                rotate(ALL(NS), NS.begin()+min);
-                                                cout<<"buona ->"<<sum<<endl;
-                                                printf("%d %d %d %d %d %d | %d %d %d %d %d %d %d %d %d\n",i+1,j+1,k+1,l+1,l1+1,l2+1,
-                                                                            i+1,j+1,k+1,l+1,k+1,l1+1,l2+1,l1+1,j+1);
-                                                                            cout<<sum<<" "<<sum0<<" "<<sum2<<endl;
-
+                                                
+                                                
+                                                rotate(NS.begin(),NS.begin()+min,NS.end() );
+                                                //cout<<"buona ->"<<sum<<" "<<min<<endl;
+                                                //printf("%d %d %d %d %d %d | %d %d %d %d %d %d %d %d %d\n",i+1,j+1,k+1,l+1,l1+1,l2+1,
+                                                  //                          i+1,j+1,k+1,l+1,k+1,l1+1,l2+1,l1+1,j+1);
+                                               // cout<<sum<<" "<<sum0<<" "<<sum2<<endl;
+                                                SOLS.push_back(NS);
+//                                                for(const auto& a : NS){
+//                                                      cout<<a<<" ";
+//                                                 }
+//                                                 cout<<endl;
+                                                
                                             }
 
                                         }
@@ -3036,6 +3058,12 @@ void solve68() {
         }
         b[i]=0;
     }
+    
+    auto ans = *std::max_element(SOLS.begin(),SOLS.end(),cmp_arr<array<int,NG*3>>);
+    for(const auto& a : ans){
+         cout<<a;
+    }
+    cout<<endl;
 }
 
 
