@@ -2979,89 +2979,106 @@ void solve125() {
 
 //problem 68---
 template<class COLLECTION>
-bool cmp_arr(const COLLECTION& v1, const COLLECTION& v2){
-    for(int i=0; i<v1.size() ; i++){
+bool cmp_arr(const COLLECTION& v1, const COLLECTION& v2) {
+    for(int i=0; i<v1.size() ; i++) {
         if(v1[i]==v2[i])
             continue;
         if(v1[i]<v2[i])
             return true;
         else
             return false;
-                
+
     }
     return false;
 }
 
 void solve68() {
-    constexpr const int NG=3;
+    constexpr const int NG=5;
     constexpr const uint LIM=NG*3-NG;
     array<int,NG*3> NS;
     vector<array<int,NG*3>> SOLS;
     bitset<LIM> b(0);//which number has been used?
     for(int i=0; i < LIM ; i++) { //1
         b[i]=1;
-        for(int j = 0 ; j < LIM ; j++) { //2
+        for(int j = 0 ; j < LIM ; j++) { //1
             if(!b[j]) {
                 b[j]=1;
-                for(int k = 0 ; k < LIM ; k++) { //3
+                for(int k = 0 ; k < LIM ; k++) { //1
                     if(!b[k]) {
                         b[k]=1;
-
                         int sum=i+j+k+3;
-                        for(int l=0; l < LIM; l++) { //4
+                        for(int l=0; l < LIM; l++) { //2
                             if(!b[l]) {
                                 b[l]=1;
-                                for(int l1=0;  l1 < LIM; l1++) { // 5
+                                for(int l1=0;  l1 < LIM; l1++) { // 2
                                     if(!b[l1]) {
                                         b[l1]=1;
                                         int sum0 = l+k+l1+3;
-                                        for(int l2=0; sum==sum0 && l2<LIM; l2++) {
+                                        for(int l2=0; sum==sum0 && l2<LIM; l2++) { //3
+                                            if(!b[l2]) {
+                                                b[l2]=1;
+                                                for(int l3=0;  l3<LIM; l3++) { //3
+                                                    if(!b[l3]) {
+                                                        b[l3]=1;
+                                                        int sum1 = l2+l1+l3+3;
+                                                        for(int l4=0; sum1==sum0 && l4<LIM; l4++) { //4
+                                                            if(!b[l4]) {
+                                                                b[l4]=1;
+                                                                for(int l5=0;  l5<LIM; l5++) { //4
+                                                                    if(!b[l5]) {
+                                                                        b[l5]=1;
+                                                                        int sum2 = l4+l3+l5+3;
 
-                                            int sum2=l2+l1+j+3;
-                                            if(!b[l2] && sum==sum2 && sum0==sum2) {
-                                                NS={i+1,j+1,k+1,l+1,k+1,l1+1,l2+1,l1+1,j+1};
-                                                //min element between elements of indices idx*3
-                                                int min=0;
-                                                for(int idx=3;idx<NG*3;idx+=3){
-                                                    if(NS[idx]<NS[min])
-                                                        min = idx;
-                                                }
-                                                //rotate ns st the minimum element is at position 0
-                                                
-                                                
-                                                rotate(NS.begin(),NS.begin()+min,NS.end() );
-                                                //cout<<"buona ->"<<sum<<" "<<min<<endl;
-                                                //printf("%d %d %d %d %d %d | %d %d %d %d %d %d %d %d %d\n",i+1,j+1,k+1,l+1,l1+1,l2+1,
-                                                  //                          i+1,j+1,k+1,l+1,k+1,l1+1,l2+1,l1+1,j+1);
-                                               // cout<<sum<<" "<<sum0<<" "<<sum2<<endl;
-                                                SOLS.push_back(NS);
-//                                                for(const auto& a : NS){
-//                                                      cout<<a<<" ";
-//                                                 }
-//                                                 cout<<endl;
-                                                
+                                                                        for(int l6=0;  l6<LIM; l6++) { //5
+                                                                            int sum3=l6+l5+j+3;
+                                                                            if(!b[l6] && sum3==sum2) {
+                                                                                NS= {i+1,j+1,k+1,
+                                                                                l+1,k+1,l1+1,
+                                                                                l2+1,l1+1,l3+1,
+                                                                                l4+1,l3+1,l5+1,
+                                                                                l6+1,l5+1,j+1};
+                                                                                //min element between elements of indices idx*3
+                                                                                int min=0;
+                                                                                for(int idx=3; idx<NG*3; idx+=3) {
+                                                                                    if(NS[idx]<NS[min])
+                                                                                        min = idx;
+                                                                                }
+                                                                                //rotate ns st the minimum element is at position 0
+                                                                                rotate(NS.begin(),NS.begin()+min,NS.end() );
+                                                                                SOLS.push_back(NS);
+                                                                            }
+                                                                        }//5 - l6
+                                                                        b[l5]=0;
+                                                                    }
+                                                                }//4 - l5
+                                                                b[l4]=0;
+                                                            }
+                                                        }//4 - l4
+
+                                                        b[l3]=0;
+                                                    }
+                                                }//3 - l3
+                                                b[l2]=0;
                                             }
-
-                                        }
+                                        }//3 - l2
                                         b[l1]=0;
                                     }
-                                }
+                                }//2 - l1
                                 b[l]=0;
                             }
-                        }
-                       b[k]=0; 
+                        }//2 - l
+                        b[k]=0;
                     }
-                }
+                }//1 -k
                 b[j]=0;
             }
-           
-        }
+        }//1- j
         b[i]=0;
-    }
-    
+    }//1 -i
+
     auto ans = *std::max_element(SOLS.begin(),SOLS.end(),cmp_arr<array<int,NG*3>>);
-    for(const auto& a : ans){
-         cout<<a;
+    for(const auto& a : ans) {
+        cout<<a;
     }
     cout<<endl;
 }
