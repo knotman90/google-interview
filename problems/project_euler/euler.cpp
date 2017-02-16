@@ -2532,7 +2532,34 @@ bool factorize( ll p , vector<pii>& F, vector<ll>& primes) {
 
 }
 
-ll divisors(vector<pii>& F, vector<ll>& primes) {
+ll divisors(ll p, const vector<ll>& primes) {
+    ll ans =1;
+    int i=0;
+    int c=0;
+    while(p>1) {
+        if(p%primes[i]==0) {
+            c++;
+            p/=primes[i];
+        }
+        else {
+            if(c>0) {
+                ans*=c+1;
+                c=0;
+            }
+            i++;
+        }
+
+    }
+    if(c>0) {
+        ans*=c+1;
+        c=0;
+    }
+    return ans;
+
+}
+
+
+ll divisors(vector<pii>& F) {
     ll ans =1;
     loop0n(i,F.size()) {
         ans*=F[i].second+1;
@@ -2553,7 +2580,7 @@ void solve108() {
         ll n2=n*n;
         if(factorize(n2,F,primes)) {
 
-            ll div = divisors(F,primes)/2;//getting number of divisors of n^2. compute factor of n and double all the power of factor of n
+            ll div = divisors(F)/2;//getting number of divisors of n^2. compute factor of n and double all the power of factor of n
             if(div > 1000) {
                 cout<<n;
                 break;
@@ -2786,7 +2813,7 @@ void solve53() {
 
 
 //problem 120-----
-bool repeated(const auto& vec) {
+bool repeated(vector<ull>& vec) {
     if(vec.size()%2 !=0)
         return false;
     int s2=vec.size()/2;
@@ -3083,13 +3110,35 @@ void solve68() {
     cout<<endl;
 }
 
-
+//solve 179---
+void solve179(){
+    constexpr const int LIM = 10000000;
+    l ans=0;
+    vector<int> DIVS(LIM+1,0);
+    DIVS[1]=1;
+   #pragma omp parallel for num_threads(4) schedule(dynamic, 600) 
+    for(int i = 2 ; i<=LIM/2 ; i++){        
+        for(int j=i; j<=LIM ; j+=i){
+            #pragma omp atomic
+            DIVS[j]++;
+        }
+    }
+    #pragma omp parallel for schedule(dynamic, 600)  reduction(+:ans)
+    for(int i=2;i<=LIM-1;i++){
+        if(DIVS[i]==DIVS[i+1]){
+            ans++;
+        }
+    }
+    cout<<ans<<endl;
+    
+}
+//end of solve 179---
 
 
 //end of problem 68---
 
 int main() {
     ios_base::sync_with_stdio(false);
-    solve68();
+    solve179();
     return 0;
 }
