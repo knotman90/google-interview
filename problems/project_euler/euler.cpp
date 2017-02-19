@@ -2509,17 +2509,17 @@ bool factorize( ll p , vector<pii>& F, vector<ll>& primes) {
 
 }
 
-ll divisors(vector<pii>& F, vector<ll>& primes) {
+ll divisors(vector<pii>& F, vector<ll>& primes,const int f) {
     ll ans =1;
     loop0n(i,F.size()) {
-        ans*=F[i].second+1;
+        ans*=f*F[i].second+1;
     }
     return ans;
 
 }
 
 void solve108() {
-    constexpr const long LIMP =25;
+    constexpr const long LIMP =17;
     vector<ll> primes;
     getPrimesSieve(primes,LIMP);
     ull m=0;
@@ -2528,9 +2528,9 @@ void solve108() {
     for(ll n=2 ; ; n++ ) {
         vector<pii> F;
         ll n2=n*n;
-        if(factorize(n2,F,primes)) {
+        if(factorize(n,F,primes)) {
 
-            ll div = divisors(F,primes)/2;//getting number of divisors of n^2. compute factor of n and double all the power of factor of n
+            ll div = divisors(F,primes,2)/2;//getting number of divisors of n^2. compute factor of n and double all the power of factor of n
             if(div > 1000) {
                 cout<<n;
                 break;
@@ -2542,8 +2542,121 @@ void solve108() {
 
 
 //end of problem 108
+void solve109() {
+    constexpr const long LIMP =17;
+    ll P=1000;
+    vector<ll> primes;
+    getPrimesSieve(primes,LIMP);
+    ull m=0;
+    int min;
+
+
+    for(ll n=2 ; ; n++ ) {
+        vector<pii> F;
+        ll n2=n*n;
+        if(factorize(n,F,primes)) {
+
+            ll div = divisors(F,primes,2)/2;//getting number of divisors of n^2. compute factor of n and double all the power of factor of n
+            if(div > P) {
+                cout<<n;
+                break;
+            }
+        }
+    }
+
+}
+
+//problem 112---------------
+template<class T, class CMP_FN>
+bool isIncDec(T n, CMP_FN fn){
+  bool inc=true;
+  int d0 = n%10;
+  n/=10;
+  while(n){
+    int d1=n%10;
+    n/=10;
+    if(!fn(d0,d1))
+      return false;
+    d0=d1;
+  }
+  return true;
+}
+
+template<class T>
+bool isBouncy(T n){
+  return !isIncDec(n,std::less_equal<T>()) && !isIncDec(n,std::greater_equal<T>());
+}
+
+void solve112(){
+  //using int from problem statement. proportion is 90% up to  21780
+  int n=21780;
+  int b=n*0.9;
+  bool end=false;
+  double fracp,intp;
+  while(!end){
+    n++;
+    if(isBouncy(n)){
+      b++;
+    }
+    fracp= modf(n*0.990d,&intp);
+    end= intp==b && fabs(fracp)<=EPS;
+  }
+
+  cout<<n<<endl;
+}
+
+//end of problem 112---------------
+
+
+//problem 145 ------
+
+template<class T>
+T reverse(T n){
+  T ans=0;;
+  while(n){
+    ans*=10;
+    ans+=n%10;
+    n/=10;
+  }
+  return ans;
+}
+
+template<class T>
+void numToVecDigit(T n, vector<int>&D){
+  while(n){
+    D.push_back(n%10);
+    n/=10;
+  }
+  return ;
+}
+
+void solve145(){
+  constexpr const int LIM = 1000000000;
+  vector<int> NUMS(LIM,-1);
+  int ans=0;
+  loop0n(i,LIM){
+    if(NUMS[i]!=-1 || i%10==0 )
+      continue;
+    int rev = reverse(i);
+    int s = rev+i;
+    vector<int> D;
+    numToVecDigit(s,D);
+    if(all_of(D.begin(), D.end() , [](const auto& n) {return n%2!=0;}) ){
+     ans+=2;
+     NUMS[i]=NUMS[rev]=1;
+    // cout<<i<<" "<<rev<<" "<<s<<endl;
+    }else{
+
+     NUMS[i]=NUMS[rev]=0;
+    }
+  }
+    cout<<LIM<<" "<<ans<<endl;
+}
+
+//end of problem 145-----
+
 int main() {
     ios_base::sync_with_stdio(false);
-    solve108();
+    solve145();
     return 0;
 }
