@@ -3120,8 +3120,8 @@ void solve179(){
     l ans=0;
     vector<int> DIVS(LIM+1,0);
     DIVS[1]=1;
-   #pragma omp parallel for num_threads(4) schedule(dynamic, 600) 
-    for(int i = 2 ; i<=LIM/2 ; i++){        
+   #pragma omp parallel for num_threads(4) schedule(dynamic, 600)
+    for(int i = 2 ; i<=LIM/2 ; i++){
         for(int j=i; j<=LIM ; j+=i){
             #pragma omp atomic
             DIVS[j]++;
@@ -3134,7 +3134,7 @@ void solve179(){
         }
     }
     cout<<ans<<endl;
-    
+
 }
 //end of solve 179---
 
@@ -3209,27 +3209,53 @@ void numToVecDigit(T n, vector<int>&D){
   return ;
 }
 
-void solve145(){
-  constexpr const int LIM = 1000000000;
-  vector<int> NUMS(LIM,-1);
-  int ans=0;
-  loop0n(i,LIM){
-    if(NUMS[i]!=-1 || i%10==0 )
-      continue;
-    int rev = reverse(i);
-    int s = rev+i;
-    vector<int> D;
-    numToVecDigit(s,D);
-    if(all_of(D.begin(), D.end() , [](const auto& n) {return n%2!=0;}) ){
-     ans+=2;
-     NUMS[i]=NUMS[rev]=1;
-    // cout<<i<<" "<<rev<<" "<<s<<endl;
-    }else{
+void solve145_(const unsigned int N,int p,vector<bool>& R, int& ans, vector<int>& M){
+  if(p>=N){
+   /* loop0n(i,N){
+      cout<<M[i]<<" ";
+    }
+    cout<<endl;*/
+    ans+=1;
+    return;
+  }
 
-     NUMS[i]=NUMS[rev]=0;
+  if(p<N/2+(N%2!=0))
+  for(int i=0;i<10;i++){
+    int Pi = i%2;
+    if(!p && !i)
+      continue;
+    for(int j=0;j<10;j++){
+      int Pj=j%2;
+      if(!p && !j)
+        continue;
+      if(N%2==1 && p==N/2 && i!=j)
+       continue;
+      R[p+1]=(i+j)>=10;
+      R[N-p]=R[p+1];
+      if((R[p] && Pi==Pj) || (!R[p] && Pi!=Pj))
+      {
+        M[p]=i;
+        M[N-p-1]=j;
+        solve145_(N,p+1,R,ans,M);
+      }
+
     }
   }
-    cout<<LIM<<" "<<ans<<endl;
+  else{
+    if(((M[p]+M[N-p-1]+R[p])%10 )%2 !=0)
+      solve145_(N,p+1,R,ans,M);
+  }
+}
+void solve145(){
+  int ans=0;
+  for(int i=2;i<10;i++){
+    vector<bool> R(i,false);
+    vector<int> M(i,0);
+    solve145_(i,0,R,ans,M);
+  // cout<<i << " "<<ans<<endl;
+  }
+  cout<<ans<<endl;
+
 }
 
 //end of problem 145-----
@@ -3237,7 +3263,7 @@ void solve145(){
 
 int main() {
     ios_base::sync_with_stdio(false);
-    solve179();
+    solve145();
 
     return 0;
 }
