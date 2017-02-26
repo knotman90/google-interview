@@ -3064,10 +3064,11 @@ void solve68() {
                                                                             int sum3=l6+l5+j+3;
                                                                             if(!b[l6] && sum3==sum2) {
                                                                                 NS= {i+1,j+1,k+1,
-                                                                                l+1,k+1,l1+1,
-                                                                                l2+1,l1+1,l3+1,
-                                                                                l4+1,l3+1,l5+1,
-                                                                                l6+1,l5+1,j+1};
+                                                                                     l+1,k+1,l1+1,
+                                                                                     l2+1,l1+1,l3+1,
+                                                                                     l4+1,l3+1,l5+1,
+                                                                                     l6+1,l5+1,j+1
+                                                                                    };
                                                                                 //min element between elements of indices idx*3
                                                                                 int min=0;
                                                                                 for(int idx=3; idx<NG*3; idx+=3) {
@@ -3115,21 +3116,21 @@ void solve68() {
 }
 
 //solve 179---
-void solve179(){
+void solve179() {
     constexpr const int LIM = 10000000;
     l ans=0;
     vector<int> DIVS(LIM+1,0);
     DIVS[1]=1;
-   #pragma omp parallel for num_threads(4) schedule(dynamic, 600)
-    for(int i = 2 ; i<=LIM/2 ; i++){
-        for(int j=i; j<=LIM ; j+=i){
+    #pragma omp parallel for num_threads(4) schedule(dynamic, 600)
+    for(int i = 2 ; i<=LIM/2 ; i++) {
+        for(int j=i; j<=LIM ; j+=i) {
             #pragma omp atomic
             DIVS[j]++;
         }
     }
     #pragma omp parallel for schedule(dynamic, 600)  reduction(+:ans)
-    for(int i=2;i<=LIM-1;i++){
-        if(DIVS[i]==DIVS[i+1]){
+    for(int i=2; i<=LIM-1; i++) {
+        if(DIVS[i]==DIVS[i+1]) {
             ans++;
         }
     }
@@ -3147,41 +3148,41 @@ void solve179(){
 
 //problem 112---------------
 template<class T, class CMP_FN>
-bool isIncDec(T n, CMP_FN fn){
-  bool inc=true;
-  int d0 = n%10;
-  n/=10;
-  while(n){
-    int d1=n%10;
+bool isIncDec(T n, CMP_FN fn) {
+    bool inc=true;
+    int d0 = n%10;
     n/=10;
-    if(!fn(d0,d1))
-      return false;
-    d0=d1;
-  }
-  return true;
+    while(n) {
+        int d1=n%10;
+        n/=10;
+        if(!fn(d0,d1))
+            return false;
+        d0=d1;
+    }
+    return true;
 }
 
 template<class T>
-bool isBouncy(T n){
-  return !isIncDec(n,std::less_equal<T>()) && !isIncDec(n,std::greater_equal<T>());
+bool isBouncy(T n) {
+    return !isIncDec(n,std::less_equal<T>()) && !isIncDec(n,std::greater_equal<T>());
 }
 
-void solve112(){
-  //using int from problem statement. proportion is 90% up to  21780
-  int n=21780;
-  int b=n*0.9;
-  bool end=false;
-  double fracp,intp;
-  while(!end){
-    n++;
-    if(isBouncy(n)){
-      b++;
+void solve112() {
+    //using int from problem statement. proportion is 90% up to  21780
+    int n=21780;
+    int b=n*0.9;
+    bool end=false;
+    double fracp,intp;
+    while(!end) {
+        n++;
+        if(isBouncy(n)) {
+            b++;
+        }
+        fracp= modf(n*0.990d,&intp);
+        end= intp==b && fabs(fracp)<=EPS;
     }
-    fracp= modf(n*0.990d,&intp);
-    end= intp==b && fabs(fracp)<=EPS;
-  }
 
-  cout<<n<<endl;
+    cout<<n<<endl;
 }
 
 //end of problem 112---------------
@@ -3189,81 +3190,138 @@ void solve112(){
 
 //problem 145 ------
 
-template<class T>
-T reverse(T n){
-  T ans=0;;
-  while(n){
-    ans*=10;
-    ans+=n%10;
-    n/=10;
-  }
-  return ans;
-}
 
-template<class T>
-void numToVecDigit(T n, vector<int>&D){
-  while(n){
-    D.push_back(n%10);
-    n/=10;
-  }
-  return ;
-}
-
-void solve145_(const unsigned int N,int p,vector<bool>& R, int& ans, vector<int>& M){
-  if(p>=N){
-   /* loop0n(i,N){
-      cout<<M[i]<<" ";
+void solve145_(const unsigned int N,int p,vector<bool>& R, int& ans, vector<int>& M) {
+    if(p>=N) {
+        /* loop0n(i,N){
+           cout<<M[i]<<" ";
+         }
+         cout<<endl;*/
+        ans+=1;
+        return;
     }
-    cout<<endl;*/
-    ans+=1;
-    return;
-  }
 
-  if(p<N/2+(N%2!=0))
-  for(int i=0;i<10;i++){
-    int Pi = i%2;
-    if(!p && !i)
-      continue;
-    for(int j=0;j<10;j++){
-      int Pj=j%2;
-      if(!p && !j)
-        continue;
-      if(N%2==1 && p==N/2 && i!=j)
-       continue;
-      R[p+1]=(i+j)>=10;
-      R[N-p]=R[p+1];
-      if((R[p] && Pi==Pj) || (!R[p] && Pi!=Pj))
-      {
-        M[p]=i;
-        M[N-p-1]=j;
-        solve145_(N,p+1,R,ans,M);
-      }
+    if(p<N/2+(N%2!=0))
+        for(int i=0; i<10; i++) {
+            int Pi = i%2;
+            if(!p && !i)
+                continue;
+            for(int j=0; j<10; j++) {
+                int Pj=j%2;
+                if(!p && !j)
+                    continue;
+                if(N%2==1 && p==N/2 && i!=j)
+                    continue;
+                R[p+1]=(i+j)>=10;
+                R[N-p]=R[p+1];
+                if((R[p] && Pi==Pj) || (!R[p] && Pi!=Pj))
+                {
+                    M[p]=i;
+                    M[N-p-1]=j;
+                    solve145_(N,p+1,R,ans,M);
+                }
 
+            }
+        }
+    else {
+        if(((M[p]+M[N-p-1]+R[p])%10 )%2 !=0)
+            solve145_(N,p+1,R,ans,M);
     }
-  }
-  else{
-    if(((M[p]+M[N-p-1]+R[p])%10 )%2 !=0)
-      solve145_(N,p+1,R,ans,M);
-  }
 }
-void solve145(){
-  int ans=0;
-  for(int i=2;i<10;i++){
-    vector<bool> R(i,false);
-    vector<int> M(i,0);
-    solve145_(i,0,R,ans,M);
-  // cout<<i << " "<<ans<<endl;
-  }
-  cout<<ans<<endl;
+
+void solve145() {
+    int ans=0;
+    for(int i=2; i<10; i++) {
+        vector<bool> R(i,false);
+        vector<int> M(i,0);
+        solve145_(i,0,R,ans,M);
+        // cout<<i << " "<<ans<<endl;
+    }
+    cout<<ans<<endl;
 
 }
 
 //end of problem 145-----
 
 
+//problem 113----
+constexpr const int LIM113=101;
+ll inc_map[LIM113][10];
+ll dec_map[LIM113][10];
+
+ll ninc(const int size, const int s, vector<int>&A, bool f) {
+
+    /*  if(size==0)
+        loop0n(i,A.size()){
+          cout<<A[i]<<" ";
+        }
+      cout<<endl;*/
+    if(inc_map[size][s]!=-1)
+        return inc_map[size][s];
+
+    if(size==0) {
+        inc_map[size][s]=1;
+        return 1;
+    }
+
+    ll ans=0;
+    for(int i=s; i<=9; i++) {
+        A[size-1]=i;
+        ans+=ninc(size-1,i,A,false);
+    }
+    inc_map[size][s]=ans;
+    return ans;
+}
+
+
+ll ndec(const int size, const int s, vector<int>&A, bool f) {
+    if(size==0) {
+        return 1;
+
+    }
+
+    if(dec_map[size][s]!=-1) {
+        // cout<<size<<" "<<s<<" "<<dec_map[size][s]<<endl;
+         return dec_map[size][s];
+
+    }
+
+    ll ans=0;
+    for(int i=s; i>=f; i--) {
+        A[size-1]=i;
+        ans+=ndec(size-1,i,A,false);
+    }
+    dec_map[size][s]=ans;
+
+   // cout<<size<<" "<<s<<" "<<ans<<endl;
+    return ans;
+}
+
+void solve113() {
+    constexpr const int ND=100;
+    ll ans=0;
+    for(int i=2; i<=ND; i++) {
+        loop0n(i,LIM113+1) {
+            loop0n(j,11) {
+                inc_map[i][j]=dec_map[i][j]=-1;
+            }
+        }
+
+
+        vector<int> A(i,0);
+        ll inc,dec;
+        inc=ninc(i,1,A,true);
+       // cout<<inc<<endl;
+        dec=ndec(i,9,A,true);
+        //cout<<dec<<endl;
+        ans+=inc+dec-9;
+    }
+    cout<<ans+9<<endl;
+}
+
 int main() {
     ios_base::sync_with_stdio(false);
-    solve145();
+    solve113();
 
     return 0;
 }
