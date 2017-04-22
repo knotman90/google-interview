@@ -7,6 +7,7 @@
 #define EPS 1e-9
 // Useful hardware instructions
 #define bitcount __builtin_popcount
+#define gcd __gcd
 // Useful container manipulation / traversal macros
 #define forall(i, a, b) for (int i = a; i < b; i++)
 #define foreach(v, c) \
@@ -136,53 +137,46 @@ T ipow(T base, T exp) {
     return result;
 }
 
-//case counter variable
- static int _case_counter=1;
-template< typename T>
-void printCase(const T& arg){
-    std::cout<<"Case #"<<_case_counter++<<": ";
-    write(arg);
-    write('\n');
-  
-}
-
-template< typename... types>
-void printCase(const char sep=' ',types &...args){
-    std::cout<<"Case #"<<_case_counter++<<": ";
-    write(sep,args...);
-    write('\n');
-  
-}
-
-//gcd of two number
-template<class M, class N >
-M gcds(M& m, N& n) {
-  return std::__gcd(m, n);
-}
-
-//gcd of N numbers
-template<class M, class N, class ... Params >
-M gcds(M& m, N& n, Params &...args) {
-  return gcd(std::__gcd(m, n), args...);
-}
-//gcd of a set of numbers in a container
-template<typename CONTAINER>
-int gcdc(CONTAINER& c) {
-
-  typename CONTAINER::value_type g = c[0];
-  for (int i = 1; i < c.size(); i++) {
-    g = std::__gcd(g, c[i]);
-  }
-  return g;
-}
-
 
 //------ PROBLEM CODE --------------
 
 using namespace std;
 
+constexpr const int S = 1000;
+int M[S] = {0};
+int C[S] = {0};
 int main() {
     ios_base::sync_with_stdio(false);
+    int l;
+    read(l);
+    loop0n(i,l){
+        read(M[i]);
+        if(i>0) 
+            C[i]=C[i-1]+M[i];
+        else
+            C[i]=M[i];
+    }
+   
+   if(C[l-1]!=0){
+        cout<<"YES"<<endl;
+        cout<<1<<endl;
+        cout<<1<<" "<<l<<endl;
+        return 0;
+   }
+    int f=0;
+    loop0n(i,l){
+        if(C[i] !=0  && (C[l-1]-C[i])!=0)
+            break;
+        f++;
+    }
+    if(f==l)
+        cout<<"NO"<<endl;
+    else{
+        cout<<"YES"<<endl;
+        cout<<2<<endl;
+        cout<<1<<" "<<f+1<<endl;
+        cout<<f+1+1<<" " << l<<endl;
+      }
     
     return 0;
 }

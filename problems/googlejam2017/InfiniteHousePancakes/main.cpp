@@ -1,4 +1,6 @@
 #include <bits/stdc++.h>
+#include <functional>
+#include <numeric>
 
 // Useful constants
 #define INF (int)1e9
@@ -49,7 +51,7 @@
 #define mp make_pair
 #define fi first
 #define se second
-//char to int 
+//char to int
 inline constexpr int ctoi(const char c)
 { return c - '0'; }
 //int to char
@@ -57,7 +59,7 @@ inline constexpr char itoc(const int n)
 { return n + '0'; }
 
 template<typename T> inline T clamp(const T& n, const T& lo, const T& hi)
-{ return std::max(lo,std::min(n,hi)); }
+{ return std::max(lo, std::min(n, hi)); }
 
 template<class T> inline void sort(T &a)
 { std::sort(ALL(a)); }
@@ -75,7 +77,7 @@ template<class T> inline void write(const T& n)
 { std::cout << n; }
 //reads multiple arguments
 template<typename T, typename... types> inline void write(const char sep, T &n, types &...args)
-{ write(n); write(sep); write(sep,args...); }
+{ write(n); write(sep); write(sep, args...); }
 
 
 
@@ -87,21 +89,21 @@ template<typename T> inline constexpr bool even(const T a)
 
 template<class T>
 inline unsigned int mod (const T m, const T n)
-{ return m >= 0 ? m % n : ( n - abs( m%n ) ) % n; }
+{ return m >= 0 ? m % n : ( n - abs( m % n ) ) % n; }
 
 template<class T>
 class reader {
 public:
-    void operator()(T& t) const {
-        std::cin>>t;
-    }
+  void operator()(T& t) const {
+    std::cin >> t;
+  }
 };
 
 template<class CONTAINER, class READ_Fn>
 void read(CONTAINER& v, const unsigned int size, const READ_Fn& rfn = reader<typename CONTAINER::value_type>()) {
-    loop0n(i, size) {
-        rfn(v[i]);
-    }
+  loop0n(i, size) {
+    rfn(v[i]);
+  }
 }
 
 //TYPEDEFS
@@ -111,36 +113,105 @@ typedef signed long l;
 typedef signed long long ll;
 typedef unsigned int uint;
 
-typedef std::pair<l,l> pll;
-typedef std::pair<int,int> pii;
-typedef std::pair<uint,uint> puu;
+typedef std::pair<l, l> pll;
+typedef std::pair<int, int> pii;
+typedef std::pair<uint, uint> puu;
 
 //sort pair based on their first component. If equal it uses the second ones.
 auto pair_cmp = [](const pll& p1, const pll& p2)
-    {
-        return (p1.first < p2.first) || (p1.first==p2.first && p1.second < p2.second);
-    };
+{
+  return (p1.first < p2.first) || (p1.first == p2.first && p1.second < p2.second);
+};
+
+//integer power (base^exp)
+template<class T>
+T ipow(T base, T exp) {
+  T result = 1;
+  while (exp) {
+    if (exp & 1)
+      result *= base;
+    exp >>= 1;
+    base *= base;
+  }
+
+  return result;
+}
 
 
+//case counter variable
+static int _case_counter = 1;
+template< typename T>
+void printCase(const T& arg) {
+  std::cout << "Case #" << _case_counter++ << ": ";
+  write(arg);
+  write('\n');
+
+}
+
+template< typename... types>
+void printCase(const char sep = ' ', types &...args) {
+  std::cout << "Case #" << _case_counter++ << ": ";
+  write(sep, args...);
+  write('\n');
+
+}
 //------ PROBLEM CODE --------------
 
 using namespace std;
 
+map<int, int> M;
+
+void printMap() {
+  cout << endl;
+  for (const auto& a : M) {
+    cout << a.first << " " << a.second << endl;
+  }
+}
+
+int ans = INT_MAX;
+int nd = 0;
+
+void solve() {
+
+  int km = M.rbegin()->first;
+  auto it_max = M.rbegin();
+  if (ans > ( km + nd)  )
+    ans = ( km + nd);
+
+
+  if (!(M.size() == 1 && (km == 1))) {
+    it_max->second--;
+    if (it_max->second == 0) {
+      M.erase(km);
+    }
+    M[km / 2]++;
+    M[(km / 2) + (km & 1)]++;
+    nd++;
+    solve();
+
+  }
+ 
+
+}
+
 int main() {
-    ios_base::sync_with_stdio(false);
-    int r=0;int l=0;
-    int n,a,b; read(n,a,b);
-    vector<char> C(n);
-    loop0n(i,n){
-        read(C[i]);
+  ios_base::sync_with_stdio(false);
+  int T; read(T);
+
+  while (T--) {
+    M.clear();
+    ans=INT_MAX;
+    nd=0;
+    int d; read(d);
+    loop0n(i, d) {
+      int pi; read(pi);
+      M[pi]++;
     }
-    a--;b--;
-    if(C[a]==C[b]){
-        cout<<"0"<<endl;
-    }else{
-        cout<<"1"<<endl;
-    }
+    solve();
+    printCase(ans);
     
-    return 0;
+  }
+
+  return 0;
 }
 

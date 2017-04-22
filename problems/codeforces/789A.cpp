@@ -7,6 +7,7 @@
 #define EPS 1e-9
 // Useful hardware instructions
 #define bitcount __builtin_popcount
+#define gcd __gcd
 // Useful container manipulation / traversal macros
 #define forall(i, a, b) for (int i = a; i < b; i++)
 #define foreach(v, c) \
@@ -154,29 +155,6 @@ void printCase(const char sep=' ',types &...args){
   
 }
 
-//gcd of two number
-template<class M, class N >
-M gcds(M& m, N& n) {
-  return std::__gcd(m, n);
-}
-
-//gcd of N numbers
-template<class M, class N, class ... Params >
-M gcds(M& m, N& n, Params &...args) {
-  return gcd(std::__gcd(m, n), args...);
-}
-//gcd of a set of numbers in a container
-template<typename CONTAINER>
-int gcdc(CONTAINER& c) {
-
-  typename CONTAINER::value_type g = c[0];
-  for (int i = 1; i < c.size(); i++) {
-    g = std::__gcd(g, c[i]);
-  }
-  return g;
-}
-
-
 //------ PROBLEM CODE --------------
 
 using namespace std;
@@ -184,6 +162,16 @@ using namespace std;
 int main() {
     ios_base::sync_with_stdio(false);
     
+    int n,k;
+    read(n,k);
+    long ans;
+    while(n--){
+        long wi; read(wi);
+        ans+=ceil((double)wi/(double)k);
+    }
+    ans=ceil((double)ans/2.0);
+    cout<<ans<<endl;
+
     return 0;
 }
 

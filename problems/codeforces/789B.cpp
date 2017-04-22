@@ -7,6 +7,7 @@
 #define EPS 1e-9
 // Useful hardware instructions
 #define bitcount __builtin_popcount
+#define gcd __gcd
 // Useful container manipulation / traversal macros
 #define forall(i, a, b) for (int i = a; i < b; i++)
 #define foreach(v, c) \
@@ -50,7 +51,7 @@
 #define mp make_pair
 #define fi first
 #define se second
-//char to int 
+//char to int
 inline constexpr int ctoi(const char c)
 { return c - '0'; }
 //int to char
@@ -58,7 +59,7 @@ inline constexpr char itoc(const int n)
 { return n + '0'; }
 
 template<typename T> inline T clamp(const T& n, const T& lo, const T& hi)
-{ return std::max(lo,std::min(n,hi)); }
+{ return std::max(lo, std::min(n, hi)); }
 
 template<class T> inline void sort(T &a)
 { std::sort(ALL(a)); }
@@ -76,7 +77,7 @@ template<class T> inline void write(const T& n)
 { std::cout << n; }
 //reads multiple arguments
 template<typename T, typename... types> inline void write(const char sep, T &n, types &...args)
-{ write(n); write(sep); write(sep,args...); }
+{ write(n); write(sep); write(sep, args...); }
 
 
 
@@ -88,13 +89,13 @@ template<typename T> inline constexpr bool even(const T a)
 
 template<class T>
 inline unsigned int mod (const T m, const T n)
-{ return m >= 0 ? m % n : ( n - abs( m%n ) ) % n; }
+{ return m >= 0 ? m % n : ( n - abs( m % n ) ) % n; }
 
 template<class T>
 class reader {
 public:
     void operator()(T& t) const {
-        std::cin>>t;
+        std::cin >> t;
     }
 };
 
@@ -112,15 +113,15 @@ typedef signed long l;
 typedef signed long long ll;
 typedef unsigned int uint;
 
-typedef std::pair<l,l> pll;
-typedef std::pair<int,int> pii;
-typedef std::pair<uint,uint> puu;
+typedef std::pair<l, l> pll;
+typedef std::pair<int, int> pii;
+typedef std::pair<uint, uint> puu;
 
 //sort pair based on their first component. If equal it uses the second ones.
 auto pair_cmp = [](const pll& p1, const pll& p2)
-    {
-        return (p1.first < p2.first) || (p1.first==p2.first && p1.second < p2.second);
-    };
+{
+    return (p1.first < p2.first) || (p1.first == p2.first && p1.second < p2.second);
+};
 
 //integer power (base^exp)
 template<class T>
@@ -137,45 +138,22 @@ T ipow(T base, T exp) {
 }
 
 //case counter variable
- static int _case_counter=1;
+static int _case_counter = 1;
 template< typename T>
-void printCase(const T& arg){
-    std::cout<<"Case #"<<_case_counter++<<": ";
+void printCase(const T& arg) {
+    std::cout << "Case #" << _case_counter++ << ": ";
     write(arg);
     write('\n');
-  
+
 }
 
 template< typename... types>
-void printCase(const char sep=' ',types &...args){
-    std::cout<<"Case #"<<_case_counter++<<": ";
-    write(sep,args...);
+void printCase(const char sep = ' ', types &...args) {
+    std::cout << "Case #" << _case_counter++ << ": ";
+    write(sep, args...);
     write('\n');
-  
-}
 
-//gcd of two number
-template<class M, class N >
-M gcds(M& m, N& n) {
-  return std::__gcd(m, n);
 }
-
-//gcd of N numbers
-template<class M, class N, class ... Params >
-M gcds(M& m, N& n, Params &...args) {
-  return gcd(std::__gcd(m, n), args...);
-}
-//gcd of a set of numbers in a container
-template<typename CONTAINER>
-int gcdc(CONTAINER& c) {
-
-  typename CONTAINER::value_type g = c[0];
-  for (int i = 1; i < c.size(); i++) {
-    g = std::__gcd(g, c[i]);
-  }
-  return g;
-}
-
 
 //------ PROBLEM CODE --------------
 
@@ -183,7 +161,69 @@ using namespace std;
 
 int main() {
     ios_base::sync_with_stdio(false);
-    
+
+    ll b, q, l, m;
+    read(b, q, l, m);
+    vector<ll> bi (m);
+    loop0n(i, m) {
+        read(bi[i]);
+    }
+
+    sort(bi.begin(), bi.end());
+    bool bgood = binary_search(ALL(bi), b) || abs(b) > l;
+    //case of constant value
+    //0 0 0 0 0 0 0 ...
+    //b b b b b b b b
+    if ( b == 0 || q == 1) {
+        if (bgood )
+            cout << 0 << endl;
+        else
+            cout << "inf" << endl;
+
+        return 0;
+    }
+
+
+    //b 0 0 0 0 0
+    if (q == 0) {
+        if (abs(b) <= l && !binary_search(ALL(bi), 0) && 0 <= l )
+            cout << "inf" << endl;
+        else {
+            if (!bgood)
+                cout << 1 << endl;
+            else
+                cout << 0 << endl;
+        }
+        return 0;
+    }
+
+    //b -b b -b b ...
+    if (q == -1)
+    {
+        ll bb1;
+        bb1 = -b;
+        int c = 0;
+        if (!binary_search(ALL(bi), b) && abs(b) <= l)
+            c++;
+        if (!binary_search(ALL(bi), bb1) && abs(bb1) <= l)
+            c++;
+        if(c>0)
+            cout << "inf" << endl;
+        else
+            cout << 0 << endl;
+        return 0;
+    }
+
+
+    ll curr = b;
+    ll ans = 0;
+    while (abs(curr) <=l ) {
+        if (!binary_search(ALL(bi), curr))
+            ans++;
+        curr *= q;
+    }
+    cout << ans << endl;
+
+
     return 0;
 }
-

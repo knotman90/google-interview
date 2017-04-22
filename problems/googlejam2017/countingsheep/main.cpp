@@ -7,6 +7,7 @@
 #define EPS 1e-9
 // Useful hardware instructions
 #define bitcount __builtin_popcount
+#define gcd __gcd
 // Useful container manipulation / traversal macros
 #define forall(i, a, b) for (int i = a; i < b; i++)
 #define foreach(v, c) \
@@ -136,54 +137,66 @@ T ipow(T base, T exp) {
     return result;
 }
 
-//case counter variable
- static int _case_counter=1;
-template< typename T>
-void printCase(const T& arg){
-    std::cout<<"Case #"<<_case_counter++<<": ";
-    write(arg);
-    write('\n');
-  
-}
-
-template< typename... types>
-void printCase(const char sep=' ',types &...args){
-    std::cout<<"Case #"<<_case_counter++<<": ";
-    write(sep,args...);
-    write('\n');
-  
-}
-
-//gcd of two number
-template<class M, class N >
-M gcds(M& m, N& n) {
-  return std::__gcd(m, n);
-}
-
-//gcd of N numbers
-template<class M, class N, class ... Params >
-M gcds(M& m, N& n, Params &...args) {
-  return gcd(std::__gcd(m, n), args...);
-}
-//gcd of a set of numbers in a container
-template<typename CONTAINER>
-int gcdc(CONTAINER& c) {
-
-  typename CONTAINER::value_type g = c[0];
-  for (int i = 1; i < c.size(); i++) {
-    g = std::__gcd(g, c[i]);
-  }
-  return g;
-}
-
 
 //------ PROBLEM CODE --------------
 
 using namespace std;
 
+
+typedef array<short,10> digits;
+
+template<class T>
+void intToDigits( T n, digits& ds) {
+    while(n>0) {
+        ds[n%10]++;
+        n/=10;
+    }
+}
+
+
 int main() {
     ios_base::sync_with_stdio(false);
     
+   
+    
+    
+    int T; read(T);
+    int test=1;
+    int ans=0;
+    
+    while(T-- ){
+        bitset<10> set(0);
+        bool end=false;    
+        ll N; read(N);
+        ll NN = N;
+        ans=0;
+        if(N==0)
+            end=true;
+            
+            for(int i=0; !end; i++, N+=NN,ans++){
+                digits ds = {0,0,0,0,0,0,0,0,0,0};
+                intToDigits<ll>(N,ds);
+                loop0n(i,10){
+                    if(ds[i]>0)
+                        set[i]=true;
+                }
+                
+                end=true;
+                loop0n(i,10){
+                    end = end && set[i];
+                }
+                
+            }
+            cout<<"Case #"<<test++<<": ";
+             if(ans!=0){
+        cout<<ans*NN;
+    }else
+        cout<<"INSOMNIA";
+    
+    cout<<endl;
+        }
+    
+   
     return 0;
 }
 

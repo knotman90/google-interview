@@ -7,6 +7,7 @@
 #define EPS 1e-9
 // Useful hardware instructions
 #define bitcount __builtin_popcount
+#define gcd __gcd
 // Useful container manipulation / traversal macros
 #define forall(i, a, b) for (int i = a; i < b; i++)
 #define foreach(v, c) \
@@ -14,7 +15,7 @@
 #define all(a) a.begin(), a.end()
 #define in(a, b) ((b).find(a) != (b).end())
 #define pb push_back
-#define fill(a, v) memset(a, v, sizeof a)
+
 #define sz(a) ((int)(a.size()))
 #define mp make_pair
 // Some common useful functions
@@ -50,7 +51,7 @@
 #define mp make_pair
 #define fi first
 #define se second
-//char to int 
+//char to int
 inline constexpr int ctoi(const char c)
 { return c - '0'; }
 //int to char
@@ -58,7 +59,7 @@ inline constexpr char itoc(const int n)
 { return n + '0'; }
 
 template<typename T> inline T clamp(const T& n, const T& lo, const T& hi)
-{ return std::max(lo,std::min(n,hi)); }
+{ return std::max(lo, std::min(n, hi)); }
 
 template<class T> inline void sort(T &a)
 { std::sort(ALL(a)); }
@@ -76,7 +77,7 @@ template<class T> inline void write(const T& n)
 { std::cout << n; }
 //reads multiple arguments
 template<typename T, typename... types> inline void write(const char sep, T &n, types &...args)
-{ write(n); write(sep); write(sep,args...); }
+{ write(n); write(sep); write(sep, args...); }
 
 
 
@@ -88,13 +89,13 @@ template<typename T> inline constexpr bool even(const T a)
 
 template<class T>
 inline unsigned int mod (const T m, const T n)
-{ return m >= 0 ? m % n : ( n - abs( m%n ) ) % n; }
+{ return m >= 0 ? m % n : ( n - abs( m % n ) ) % n; }
 
 template<class T>
 class reader {
 public:
     void operator()(T& t) const {
-        std::cin>>t;
+        std::cin >> t;
     }
 };
 
@@ -112,15 +113,15 @@ typedef signed long l;
 typedef signed long long ll;
 typedef unsigned int uint;
 
-typedef std::pair<l,l> pll;
-typedef std::pair<int,int> pii;
-typedef std::pair<uint,uint> puu;
+typedef std::pair<l, l> pll;
+typedef std::pair<int, int> pii;
+typedef std::pair<uint, uint> puu;
 
 //sort pair based on their first component. If equal it uses the second ones.
 auto pair_cmp = [](const pll& p1, const pll& p2)
-    {
-        return (p1.first < p2.first) || (p1.first==p2.first && p1.second < p2.second);
-    };
+{
+    return (p1.first < p2.first) || (p1.first == p2.first && p1.second < p2.second);
+};
 
 //integer power (base^exp)
 template<class T>
@@ -137,53 +138,143 @@ T ipow(T base, T exp) {
 }
 
 //case counter variable
- static int _case_counter=1;
+static int _case_counter = 1;
 template< typename T>
-void printCase(const T& arg){
-    std::cout<<"Case #"<<_case_counter++<<": ";
+void printCase(const T& arg) {
+    std::cout << "Case #" << _case_counter++ << ": ";
     write(arg);
     write('\n');
-  
+
 }
 
 template< typename... types>
-void printCase(const char sep=' ',types &...args){
-    std::cout<<"Case #"<<_case_counter++<<": ";
-    write(sep,args...);
+void printCase(const char sep = ' ', types &...args) {
+    std::cout << "Case #" << _case_counter++ << ": ";
+    write(sep, args...);
     write('\n');
-  
+
 }
 
-//gcd of two number
-template<class M, class N >
-M gcds(M& m, N& n) {
-  return std::__gcd(m, n);
-}
-
-//gcd of N numbers
-template<class M, class N, class ... Params >
-M gcds(M& m, N& n, Params &...args) {
-  return gcd(std::__gcd(m, n), args...);
-}
-//gcd of a set of numbers in a container
-template<typename CONTAINER>
-int gcdc(CONTAINER& c) {
-
-  typename CONTAINER::value_type g = c[0];
-  for (int i = 1; i < c.size(); i++) {
-    g = std::__gcd(g, c[i]);
-  }
-  return g;
-}
-
-
-//------ PROBLEM CODE --------------
+//------ PROBLEM CODE ------------------------------------------------
 
 using namespace std;
+constexpr const int SIZE = 1001;
+
+vector<bool> visited;
+vector<int> solution;
+vector<int> maxSol;
+vector<int> bff;
+vector<vector<int>> P;
+int N;
+
+
+void dfs(int i) {
+    if (visited[i])
+        return ;
+
+    visited[i] = true;
+    solution.push_back(i);
+    dfs(bff[i]);
+
+}
+void solve() {
+    P.clear();
+    loop0n(i, N) {
+        solution.clear();
+        fill(ALL(visited), false);
+
+        dfs(i);
+        P.push_back(solution);
+    }
+    loop0n(i, N) {
+        solution.clear();
+        fill(ALL(visited), false);
+        dfs(i);
+        auto last = solution[solution.size() - 1];
+        auto fst = solution[0];
+        int maxApp = -1;
+        int arr = -1;
+        if ( bff[last] == fst)
+            if (solution.size() > maxSol.size())
+                maxSol = solution;
+        if (bff[last] == solution[solution.size() - 2]) {
+
+            loop0n(j, N) {
+                bool g = false;
+                int s = 0;
+                loop0n(k, P[j].size()) {
+
+
+                    if (P[j][k] == last) {
+                        s = k;
+                        g = true;
+                        break;
+                    }
+                    if (visited[P[j][k]]) {
+                        g = false;
+                        break;
+                    }
+                }
+                if (g && s > maxApp) {
+                    maxApp = s;
+                    arr = j;
+
+                }
+            }
+            if (arr >= 0)
+                solution.insert(solution.end(), P[arr].begin(), P[arr].begin() + maxApp);
+
+            if (solution.size() > maxSol.size())
+                maxSol = solution;
+        }
+
+    }
+}
 
 int main() {
     ios_base::sync_with_stdio(false);
-    
+
+    int T;
+    read(T);
+    while (T--) {
+        read(N);
+        visited.clear();
+
+        bff.clear();
+        bff.resize(N);
+
+        visited.resize(N);
+maxSol.clear();
+
+        loop0n(i, N) {
+            int m; read(m);
+            m--;
+            visited[i] = false;
+            bff[i] = m;
+        }
+        solve();
+        cout << "Case #" << _case_counter++ << ": ";
+        cout << maxSol.size() << endl;
+
+
+    }
     return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

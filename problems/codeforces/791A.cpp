@@ -7,6 +7,7 @@
 #define EPS 1e-9
 // Useful hardware instructions
 #define bitcount __builtin_popcount
+#define gcd __gcd
 // Useful container manipulation / traversal macros
 #define forall(i, a, b) for (int i = a; i < b; i++)
 #define foreach(v, c) \
@@ -134,46 +135,6 @@ T ipow(T base, T exp) {
     }
 
     return result;
-}
-
-//case counter variable
- static int _case_counter=1;
-template< typename T>
-void printCase(const T& arg){
-    std::cout<<"Case #"<<_case_counter++<<": ";
-    write(arg);
-    write('\n');
-  
-}
-
-template< typename... types>
-void printCase(const char sep=' ',types &...args){
-    std::cout<<"Case #"<<_case_counter++<<": ";
-    write(sep,args...);
-    write('\n');
-  
-}
-
-//gcd of two number
-template<class M, class N >
-M gcds(M& m, N& n) {
-  return std::__gcd(m, n);
-}
-
-//gcd of N numbers
-template<class M, class N, class ... Params >
-M gcds(M& m, N& n, Params &...args) {
-  return gcd(std::__gcd(m, n), args...);
-}
-//gcd of a set of numbers in a container
-template<typename CONTAINER>
-int gcdc(CONTAINER& c) {
-
-  typename CONTAINER::value_type g = c[0];
-  for (int i = 1; i < c.size(); i++) {
-    g = std::__gcd(g, c[i]);
-  }
-  return g;
 }
 
 

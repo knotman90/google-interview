@@ -7,6 +7,7 @@
 #define EPS 1e-9
 // Useful hardware instructions
 #define bitcount __builtin_popcount
+#define gcd __gcd
 // Useful container manipulation / traversal macros
 #define forall(i, a, b) for (int i = a; i < b; i++)
 #define foreach(v, c) \
@@ -50,7 +51,7 @@
 #define mp make_pair
 #define fi first
 #define se second
-//char to int 
+//char to int
 inline constexpr int ctoi(const char c)
 { return c - '0'; }
 //int to char
@@ -58,7 +59,7 @@ inline constexpr char itoc(const int n)
 { return n + '0'; }
 
 template<typename T> inline T clamp(const T& n, const T& lo, const T& hi)
-{ return std::max(lo,std::min(n,hi)); }
+{ return std::max(lo, std::min(n, hi)); }
 
 template<class T> inline void sort(T &a)
 { std::sort(ALL(a)); }
@@ -76,7 +77,7 @@ template<class T> inline void write(const T& n)
 { std::cout << n; }
 //reads multiple arguments
 template<typename T, typename... types> inline void write(const char sep, T &n, types &...args)
-{ write(n); write(sep); write(sep,args...); }
+{ write(n); write(sep); write(sep, args...); }
 
 
 
@@ -88,13 +89,13 @@ template<typename T> inline constexpr bool even(const T a)
 
 template<class T>
 inline unsigned int mod (const T m, const T n)
-{ return m >= 0 ? m % n : ( n - abs( m%n ) ) % n; }
+{ return m >= 0 ? m % n : ( n - abs( m % n ) ) % n; }
 
 template<class T>
 class reader {
 public:
     void operator()(T& t) const {
-        std::cin>>t;
+        std::cin >> t;
     }
 };
 
@@ -112,15 +113,15 @@ typedef signed long l;
 typedef signed long long ll;
 typedef unsigned int uint;
 
-typedef std::pair<l,l> pll;
-typedef std::pair<int,int> pii;
-typedef std::pair<uint,uint> puu;
+typedef std::pair<l, l> pll;
+typedef std::pair<int, int> pii;
+typedef std::pair<uint, uint> puu;
 
 //sort pair based on their first component. If equal it uses the second ones.
 auto pair_cmp = [](const pll& p1, const pll& p2)
-    {
-        return (p1.first < p2.first) || (p1.first==p2.first && p1.second < p2.second);
-    };
+{
+    return (p1.first < p2.first) || (p1.first == p2.first && p1.second < p2.second);
+};
 
 //integer power (base^exp)
 template<class T>
@@ -137,53 +138,133 @@ T ipow(T base, T exp) {
 }
 
 //case counter variable
- static int _case_counter=1;
+static int _case_counter = 1;
 template< typename T>
-void printCase(const T& arg){
-    std::cout<<"Case #"<<_case_counter++<<": ";
+void printCase(const T& arg) {
+    std::cout << "Case #" << _case_counter++ << ": ";
     write(arg);
     write('\n');
-  
+
 }
 
 template< typename... types>
-void printCase(const char sep=' ',types &...args){
-    std::cout<<"Case #"<<_case_counter++<<": ";
-    write(sep,args...);
+void printCase(const char sep = ' ', types &...args) {
+    std::cout << "Case #" << _case_counter++ << ": ";
+    write(sep, args...);
     write('\n');
-  
+
 }
 
-//gcd of two number
-template<class M, class N >
-M gcds(M& m, N& n) {
-  return std::__gcd(m, n);
-}
-
-//gcd of N numbers
-template<class M, class N, class ... Params >
-M gcds(M& m, N& n, Params &...args) {
-  return gcd(std::__gcd(m, n), args...);
-}
-//gcd of a set of numbers in a container
-template<typename CONTAINER>
-int gcdc(CONTAINER& c) {
-
-  typename CONTAINER::value_type g = c[0];
-  for (int i = 1; i < c.size(); i++) {
-    g = std::__gcd(g, c[i]);
-  }
-  return g;
-}
-
-
-//------ PROBLEM CODE --------------
+//------ PROBLEM CODE ------------------------------------------------
 
 using namespace std;
+unordered_map <char , int> M;
+array<string, 10> N = {"ZERO", "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE"};
+
+string number;
+void remove(int n) {
+    string num = N[n];
+    loop0n(i, num.size()) {
+        M[num[i]]--;
+    }
+}
+
+void solve() {
+    int i=0;
+    if (M['Z'] > 0) {
+        while(M['Z']) {
+            remove(0);
+            number.push_back('0');
+        }
+    }
+    if (M['X'] > 0)
+         while(M['X']) {
+        remove(6);
+        number.push_back('6');
+    }
+    if (M['U'] > 0)
+         while(M['U']) {
+        remove(4);
+        number.push_back('4');
+    }
+    if (M['W'] > 0)
+         while(M['W']) {
+        remove(2);
+        number.push_back('2');
+    }
+    if (M['G'] > 0)
+         while(M['G']) {
+        remove(8);
+        number.push_back('8');
+    }
+    if (M['F'] > 0)
+         while(M['F']) {
+        remove(5);
+        number.push_back('5');
+    }
+    if (M['S'] > 0)
+         while(M['S']) {
+        remove(7);
+        number.push_back('7');
+    }
+    if (M['I'] > 0)
+         while(M['I']) {
+        remove(9);
+        number.push_back('9');
+    }
+    if (M['N'] > 0)
+         while(M['N']) {
+        remove(1);
+        number.push_back('1');
+    }
+    if (M['H'] > 0)
+         while(M['H']) {
+        remove(3);
+        number.push_back('3');
+    }
+
+}
 
 int main() {
     ios_base::sync_with_stdio(false);
-    
+    //solveStupid();
+
+    int T;
+    read(T);
+    while (T--) {
+        M.clear();
+        number.clear();
+        string s;
+        read(s);
+        loop0n(i, s.size()) {
+            M[s[i]]++;
+        }
+        solve();
+        sort(ALL(number));
+         std::cout << "Case #" << _case_counter++ << ": ";
+         loop0n(i,number.size()){
+            cout<<number[i];
+         }
+         cout<<endl;
+
+    }
     return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -1,12 +1,15 @@
 #include <bits/stdc++.h>
 #include <functional>
 #include <numeric>
+#include <set>
+#include <sys/resource.h>
 
 // Useful constants
 #define INF (int)1e9
 #define EPS 1e-9
 // Useful hardware instructions
 #define bitcount __builtin_popcount
+#define gcd __gcd
 // Useful container manipulation / traversal macros
 #define forall(i, a, b) for (int i = a; i < b; i++)
 #define foreach(v, c) \
@@ -50,7 +53,7 @@
 #define mp make_pair
 #define fi first
 #define se second
-//char to int 
+//char to int
 inline constexpr int ctoi(const char c)
 { return c - '0'; }
 //int to char
@@ -58,7 +61,7 @@ inline constexpr char itoc(const int n)
 { return n + '0'; }
 
 template<typename T> inline T clamp(const T& n, const T& lo, const T& hi)
-{ return std::max(lo,std::min(n,hi)); }
+{ return std::max(lo, std::min(n, hi)); }
 
 template<class T> inline void sort(T &a)
 { std::sort(ALL(a)); }
@@ -76,7 +79,7 @@ template<class T> inline void write(const T& n)
 { std::cout << n; }
 //reads multiple arguments
 template<typename T, typename... types> inline void write(const char sep, T &n, types &...args)
-{ write(n); write(sep); write(sep,args...); }
+{ write(n); write(sep); write(sep, args...); }
 
 
 
@@ -88,13 +91,13 @@ template<typename T> inline constexpr bool even(const T a)
 
 template<class T>
 inline unsigned int mod (const T m, const T n)
-{ return m >= 0 ? m % n : ( n - abs( m%n ) ) % n; }
+{ return m >= 0 ? m % n : ( n - abs( m % n ) ) % n; }
 
 template<class T>
 class reader {
 public:
     void operator()(T& t) const {
-        std::cin>>t;
+        std::cin >> t;
     }
 };
 
@@ -112,15 +115,10 @@ typedef signed long l;
 typedef signed long long ll;
 typedef unsigned int uint;
 
-typedef std::pair<l,l> pll;
-typedef std::pair<int,int> pii;
-typedef std::pair<uint,uint> puu;
+typedef std::pair<l, l> pll;
+typedef std::pair<int, int> pii;
+typedef std::pair<uint, uint> puu;
 
-//sort pair based on their first component. If equal it uses the second ones.
-auto pair_cmp = [](const pll& p1, const pll& p2)
-    {
-        return (p1.first < p2.first) || (p1.first==p2.first && p1.second < p2.second);
-    };
 
 //integer power (base^exp)
 template<class T>
@@ -137,53 +135,175 @@ T ipow(T base, T exp) {
 }
 
 //case counter variable
- static int _case_counter=1;
+static int _case_counter = 1;
 template< typename T>
-void printCase(const T& arg){
-    std::cout<<"Case #"<<_case_counter++<<": ";
+void printCase(const T& arg) {
+    std::cout << "Case #" << _case_counter++ << ": ";
     write(arg);
     write('\n');
-  
+
 }
 
 template< typename... types>
-void printCase(const char sep=' ',types &...args){
-    std::cout<<"Case #"<<_case_counter++<<": ";
-    write(sep,args...);
+void printCase(const char sep = ' ', types &...args) {
+    std::cout << "Case #" << _case_counter++ << ": ";
+    write(sep, args...);
     write('\n');
-  
+
 }
 
-//gcd of two number
-template<class M, class N >
-M gcds(M& m, N& n) {
-  return std::__gcd(m, n);
-}
-
-//gcd of N numbers
-template<class M, class N, class ... Params >
-M gcds(M& m, N& n, Params &...args) {
-  return gcd(std::__gcd(m, n), args...);
-}
-//gcd of a set of numbers in a container
-template<typename CONTAINER>
-int gcdc(CONTAINER& c) {
-
-  typename CONTAINER::value_type g = c[0];
-  for (int i = 1; i < c.size(); i++) {
-    g = std::__gcd(g, c[i]);
-  }
-  return g;
-}
-
-
-//------ PROBLEM CODE --------------
+//------ PROBLEM CODE ------------------------------------------------
 
 using namespace std;
 
+//sort pair based on their first component. If equal it uses the second ones.
+auto pair_cmp = [](const pll& p1, const pll& p2)
+{
+
+    return (p1.second > p2.second) || (p1.second == p2.second && p1.first < p2.first);
+};
+
+struct C
+{
+    bool operator()(const pii &p1, const pii &p2) const
+    {
+        return (p1.second > p2.second) || (p1.second == p2.second && p1.first < p2.first);
+    }
+};
+
+
+std::set<pii, C> *MAP_ptr;
+std::set<pii, C> MAP;
+
+pii last = { -1, -1};
+int k;
+void solve() {
+    //cout<<MAP.size()<<endl;
+    if (k <= 0) {
+        return ;
+    }
+
+    auto feit = MAP.begin();
+    auto el = *feit;
+
+    MAP.erase(feit);
+    auto left = el.first;
+    auto right = left + el.second - 1;
+
+    auto mid = left + el.second / 2;
+
+
+    if (el.second > 1) {
+        auto nwleft = mid - left;
+        if (nwleft > 0)
+            MAP.insert(make_pair(left, nwleft));
+
+
+        auto nwright = right - mid;
+
+        last.first = nwleft;
+        last.second = nwright;
+
+        if (nwright > 0)
+            MAP.insert(make_pair(mid + 1, nwright));
+    } else {
+        last.first = 0;
+        last.second = 0;
+    }
+    k--;
+    return solve();
+
+}
+
+void increaseStackSize(const rlim_t kStackSize){
+     struct rlimit rl;
+    int result;
+
+    result = getrlimit(RLIMIT_STACK, &rl);
+    if (result == 0)
+    {
+        if (rl.rlim_cur < kStackSize)
+        {
+            rl.rlim_cur = kStackSize;
+            result = setrlimit(RLIMIT_STACK, &rl);
+            if (result != 0)
+            {
+                fprintf(stderr, "setrlimit returned result = %d\n", result);
+            }
+        }
+    }
+}
+
+
+map<long, long> MAP2;
+void solveStupid(long k, long n){
+    MAP2
+    while(k > 0){
+        auto maxit = MAP2.begin();
+        if(k<*maxit.second){
+            cout<<*maxit.first;
+            break;
+        }
+        k-=*maxit.second;
+        auto ins1,ins2;
+        ins1=ins2=maxit.first/2;
+        if((*maxit.first)%2==0) {//pari
+            ins2+1;
+        }
+        MAP2.erase(maxit);
+        MAP2[ins1] += maxit.second;
+        MAP2[ins2] += maxit.second;
+    }
+}
+
 int main() {
     ios_base::sync_with_stdio(false);
-    
+
+    const rlim_t kStackSize = 1024L * 1024L * 1024L;   // min stack size = 64 Mb
+   increaseStackSize(kStackSize);
+
+
+    MAP_ptr = new set<pii, C>();
+    MAP = *MAP_ptr;
+    int T;
+    read(T);
+    while (T--) {
+
+
+        int N; read(N);
+        int K; read(K);
+        MAP.clear();
+        MAP.insert(make_pair(1, N));
+
+        k = K;
+        solve();
+
+        cout << "Case #" << _case_counter++ << ": ";
+        cout << max(last.first, last.second) << " " << min(last.first, last.second) << endl;
+
+
+
+
+
+
+    }
     return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
