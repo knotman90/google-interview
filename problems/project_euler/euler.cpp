@@ -3178,7 +3178,7 @@ void solve112() {
         if (isBouncy(n)) {
             b++;
         }
-        fracp = modf(n * 0.990d, &intp);
+        fracp = modf(n * 0.990, &intp);
         end = intp == b && fabs(fracp) <= EPS;
     }
 
@@ -3360,7 +3360,7 @@ void _solve191(int p, C191 val, int AinRow, int nL, long& ans) {
         }
         if ((p + 1) == SIZE191 && AinRow <= LIMIT_AROW_191 &&  nL <=  LIMIT_L_191) {
             #pragma omp atomic
-                ans++;
+            ans++;
             //printstr();
         } else {
             _solve191(p + 1 , C191::O , AinRow, nL, ans);
@@ -3371,7 +3371,7 @@ void _solve191(int p, C191 val, int AinRow, int nL, long& ans) {
 
 }
 void solve191() {
-    
+
     int Ainrow = 0;
     int nL = 0;
     long ans = 0;
@@ -3395,9 +3395,222 @@ void solve191() {
     cout << ans << endl;
 
 }
+
+void solve100() {
+    //by brute forcing some solutions  you can easily notice that
+    //given B_i R_i (a solution) the next one is obtainable by
+    // R_{i+1} = 2B_i+R_i-1;
+    // B_{i+1} = 2*R_{i+1}*+B_i
+    long long R_i, B_i;
+    R_i = 6;
+    B_i = 15;
+    while (R_i + B_i < 1e12) {
+        R_i = 2 * B_i + R_i - 1;
+        B_i = 2 * R_i + B_i;
+    }
+    cout << B_i << endl;
+
+}
+
+
+
+
+void listDivisors(ll n, vector<ll>& div) {
+    for (int i = 1 ; i <= sqrt(n) + 1 ; i++) {
+        if (n % i == 0) {
+            div.push_back(i);
+            if (n / i != i)
+                div.push_back(n / i);
+        }
+    }
+
+}
+
+void solve75() {
+    constexpr const ll SS = 10000;
+    std::map<ll, ll> M;
+    ll ans = 0;
+
+    for (ll i = 12 ; i <= 1500000 ; i += 2 ) {
+        vector<ll> divisors;
+        set<array<ll, 3>> T;
+        ll i2 = i / 2;
+        listDivisors(i2, divisors);
+        for (int l = 0 ; l < divisors.size() ; l++) {
+            for (int k = l + 1  ;   k < divisors.size() ; k++) {
+                ll m = divisors[l];
+                ll s = divisors[k];
+                if (s > m && s < 2 * m && (i2 % (m * s)) == 0 ) {
+                    ll kk = ((i2 / s) / m);
+                    ll y = s - m;
+
+
+                    ll a = kk * (m * m - y * y);
+                    ll b = kk * 2 * m * y;
+                    ll c = kk * (m * m + y * y);
+                    array<ll, 3> tr = {a, b, c};
+                    sort(ALL(tr));
+
+                    T.insert(tr);
+                    //cout<<i<<":"<<kk*(m*m-y*y)<<" "<<kk*2*m*y<<" "<<kk*(m*m+y*y)<<endl;
+                }
+
+
+            }
+        }
+
+
+        if (T.size() == 1) {
+            M[i] = T.size();
+            ans++;
+        }
+
+    }
+    /*for (auto a : M) {
+        if (a.second > 0)
+            cout << a.first << " " << a.second << endl;
+    }*/
+    cout << ans << endl;
+
+}
+
+
+
+///problem 98----------
+using SC = set<char>;
+
+void solve98() {
+    constexpr const int LIM = 50000;
+    //read words;
+    vector<string> words;
+    unordered_map<string, vector<string>> anagrams;
+
+    string word;
+    cin >> word;
+    string ss;
+    for (int i = 0; i < word.size(); i++) {
+        if (word[i] == ',') {
+            words.push_back(ss);
+            ss.clear();
+        } else if (word[i] != '"') {
+            ss += word[i];
+        }
+
+    }
+    words.push_back(ss);
+    for (auto s : words) {
+        string ssorted = s;
+        sort(ssorted.begin(), ssorted.end());
+        anagrams[ssorted].push_back(s);
+    }
+
+    unordered_map<int, vector<ll>> squares;
+    int m = 1;
+    int d = 1;
+    for (int i = 0; i < LIM; i++) {
+        if (i * i > 10 * m) {
+            m *= 10;
+            d++;
+        }
+        squares[d].push_back(i * i);
+    }
+
+    auto isGood = [](string w, ll num, auto & mapping) {
+
+        unordered_map<int, char> RM;
+        for (int i = w.size() - 1 ; i >= 0 ; i--)
+            mapping[w[i]] = -1;
+        for (int i = 0; i <= 9; i++)
+            RM[i] = '!';
+
+
+        for (int i = w.size() - 1 ; i >= 0 ; i--) {
+            int d = num % 10;
+            if (mapping[w[i]] != -1 && d != mapping[w[i]]  )
+                return false;
+            if (RM[d] != '!' && w[i] != RM[d])
+                return false;
+
+            mapping[w[i]] = d;
+            RM[d] = w[i];
+
+            if (i == 0 && d == 0)
+                return false;
+
+            num /= 10;
+        }
+        return true;
+    };
+
+    auto getNumFromMapping = [](string ww, auto & mapping) {
+        ll retNum = 0;
+        int m = 1;
+        for (auto c : ww) {
+            retNum *= 10;
+            retNum += mapping[c];
+            if (retNum == 0) //no zero as first digit
+                return -1ll;
+
+        }
+        return retNum;
+    };
+
+    ll maxAN = LLONG_MIN;
+    for (auto an : anagrams) {
+        if (an.second.size() > 1) { //at least two anagrams
+            for (int i = 0; i < an.second.size() ; i++) { //for each word anagram with those letters
+                string w = an.second[i];
+                for (auto num : squares[w.size()]) { //check all squares numbers of that specific num of digits
+                    unordered_map<char, int> mapping;
+                    if (isGood(w, num, mapping)) { //if the current square is a good than get the mapping letter to digit
+                        for (int j = i + 1; j < an.second.size() ; j++) {
+                            string ww = an.second[j];
+                            ll wwnumber = getNumFromMapping(ww, mapping); //from the given mapping, calculate the number for the word ww
+                            if (binary_search(ALL(squares[w.size()]) , wwnumber)) { //if also that is a square we are good
+                                maxAN = max(maxAN, wwnumber);
+                                //cout << w << " " << ww << " " << num << " " << wwnumber << " " << endl;
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+    }
+    cout << maxAN << endl;
+}
+
+
+///problem 124----------
+
+void solve124() {
+    constexpr const int LIM124 = 100001;
+    vector<ll> primes;
+    getPrimesSieve(primes, 100001);
+    vector<pair<ll, ll>> NR(LIM124);
+    NR[1] = make_pair(1, 1 );
+    for (int i = 2; i < LIM124; i++) {
+        vector<pii> F;
+        if (binary_search(ALL(primes), i)) {
+            NR[i] = make_pair(i, i );
+        } else if (factorize(i, F, primes)) {
+            ll radical = 1;
+            for (int j = 0; j < F.size() ; j++)
+                radical *= F[j].first;
+
+            NR[i] = make_pair(radical, i );
+        }
+    }
+
+    sort(ALL(NR));
+
+    cout << NR[10000].second << endl;
+
+}
+
 int main() {
     ios_base::sync_with_stdio(false);
-    solve191();
+    solve124();
 
     return 0;
 }
