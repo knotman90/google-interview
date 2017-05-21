@@ -17,7 +17,7 @@
 #define all(a) a.begin(), a.end()
 #define in(a, b) ((b).find(a) != (b).end())
 #define pb push_back
-#define fill(a, v) memset(a, v, sizeof a)
+
 #define sz(a) ((int)(a.size()))
 #define mp make_pair
 // Some common useful functions
@@ -226,15 +226,6 @@ void getPrimesSieve(vector<long long>&primes, const ll n) {
     for (ll i = 3 ; i <= n ; i += 2)
         if (nums[i])
             primes.push_back(i);
-}
-
-void parallelSieve( vector<ll>& primes , const ll n, const int slice ) {
-
-    for (int l = 2 ; l <= n ; l += slice) {
-        int r = clamp<long long>(l + slice, -1, n);
-
-    }
-
 }
 
 
@@ -3608,9 +3599,267 @@ void solve124() {
 
 }
 
+
+//problem 114 --------------
+ll ans114 = 0;
+vector<ll> map114[2];
+ll count(const int m, const int l, bool insert) {
+
+    if (map114[insert][l] != -1)
+        return map114[insert][l];
+    ll pans = 0;
+    //filling the restwith empty cells only
+    if (l == 0)
+        return 1;
+    if (l == m && insert)
+        return 1;
+
+    //only one way to fill 3 space with emptiness
+    if (l <= m && !insert)
+        return 1;
+    //no space for inserting
+    if (l < m && insert)
+        return 0;
+
+    //l>=3 && insert
+    if (insert)
+        for (ll i = m ; i <= l ; i++) {
+            pans += count(m, l - i, false);
+        }
+    //l
+    else
+        for (ll i = 1 ; i <= l ; i++) {
+            pans += count(m, l - i, true);
+        }
+
+    map114[insert][l] = pans;
+    return pans;
+
+}
+void solve114() {
+    loop0n(j, 2) {
+        map114[j].resize(51);
+        std::fill(ALL(map114[j]), -1);
+    }
+    int s = 50;
+    cout << count(3, s, true) + count(3, s, false) ;
+
+}
+
+
+void solve115() {
+    //use count of problem 114 search on the value of n
+    int m = 50;
+    int s = 50;
+    loop0n(j, 2) {
+        map114[j].resize(1000);
+        std::fill(ALL(map114[j]), -1);
+    }
+    while (count(m, s, true) + count(m, s, false) < 1000000) {
+        loop0n(j, 2) {
+            std::fill(ALL(map114[j]), -1);
+        }
+        //cout << count(m, s, true) + count(m, s, false) << endl;
+        s++;
+    }
+    cout << s << endl;
+
+}
+
+
+
+//problem 118--------------
+bool insertPrime(const ll prime, digits& digits118) {
+    digits dprimes;
+    std::fill(ALL(dprimes), 0);
+    intToDigits(prime, dprimes);
+    if (dprimes[0]) //0 not included
+        return false;
+    loop0n(i, 10) {
+        if (dprimes[i] > 1)
+            return false;
+        if (dprimes[i] && digits118[i])
+            return false;
+    }
+    //all good can update digits118
+    loop0n(i, 10) {
+        if (dprimes[i])
+            digits118[i] = dprimes[i];//=1
+    }
+    return true;
+}
+
+void removePrime(const ll prime, digits& digits118) {
+    digits dprimes;
+    std::fill(ALL(dprimes), 0);
+    intToDigits(prime, dprimes);
+    loop0n(i, 10) {
+        if (dprimes[i])
+            digits118[i] = 0;
+    }
+}
+
+ll ans118 = 0;
+constexpr const int LIM118 = 123456789;
+vector<ll> solution118;
+void solve_118(vector<ll>& primes, int i, int dc, digits& digits118) {
+    // cout <<i<<" "<< primes.size() <<" "<<primes[i]<< endl;
+    int numD = magnitude(primes[i]);
+    if (dc == 0) {
+        ans118++;
+        //print all solutions
+        /* loop0n(i, solution118.size()) {
+             cout << solution118[i] << " ";
+         } cout << endl;*/
+    }
+    if (numD > dc)
+        return;
+    int j = i;
+
+    while (numD <= dc && j < primes.size()) {
+        if (insertPrime(primes[j] , digits118 )) {
+            //solution118.push_back(primes[j]);
+            dc = dc - numD;
+            solve_118(primes, j + 1, dc , digits118);
+            removePrime(primes[j], digits118);
+            dc = dc + numD;
+            //solution118.pop_back();
+        }
+        j++;
+        numD = magnitude(primes[j]);
+    }
+}
+void solve118() {
+    vector<ll> primes;
+    getPrimesSieve(primes, LIM118);
+
+    auto badPrime = [](const auto & p) {
+        digits dd; std::fill(ALL(dd), 0);
+        intToDigits(p, dd);
+        if (dd[0])
+            return true;
+        loopse(i, 1, 10) {
+            if (dd[i] > 1)
+                return true;
+        }
+        return false;
+    };
+    //remove all prime containing duplicate digits and
+    //zero. those are note part of any subset
+    auto end = std::remove_if(ALL(primes), badPrime);
+    primes.resize(distance(begin(primes), end));
+
+    digits digits118;
+    std::fill(ALL(digits118), 0);
+    solve_118(primes, 0, 9, digits118);
+    cout << ans118 << endl;
+
+}
+
+
+//problem 111-----
+bool isPrime111(const ll p , const vector<ll>& primes) {
+    for (int i = 0; i < primes.size() ; i++) {
+        if (primes[i] > sqrt(p) + 1)
+            break;
+        if (p % primes[i] == 0)
+            return false;
+    }
+    return true;
+}
+
+ll digitsToInt(int numD, digits& d) {
+    ll n = 0;
+    for (int i = 0; i < numD; i++) {
+        n *= 10;
+        n += d[i];
+    }
+    return n;
+}
+
+ll minusOne(int numD, int d, const vector<ll>& primes) {
+    ll s = 0;
+    digits num; std::fill(begin(num), begin(num) + numD, d);
+    for (int i = 0; i < numD ; i++) {
+        for (int j = 0 ; j < 10 ; j++) {
+            num[i] = j;
+            if (num[0] == 0 || num[numD - 1] % 2 == 0) {
+                num[i] = d;
+                continue;
+            }
+            ll number = digitsToInt(numD, num);
+            //cout << "trying " << number ;
+            if (isPrime111(number, primes)) {
+                s += number;
+                //cout<<number <<"-> prime\n";
+            }
+            // cout<< endl;
+            num[i] = d;
+        }
+    }
+    return s;
+}
+
+//all digits of a number of numD digits are filled with digit d
+//only two positions are changed to another digit
+ll minusTwo(int numD, int d, const vector<ll>& primes) {
+    ll s = 0;
+    digits num; std::fill(begin(num), begin(num) + numD, d);
+    for (int i = 0; i < numD ; i++) {
+        for (int j = 0 ; j < 10 ; j++) {
+
+            num[i] = j;
+            if (j == d || num[0] == 0 ) {
+                num[i] = d;
+                continue;
+            }
+            for (int k = i + 1; k < numD ; k++) {
+                for (int l = 0 ; l < 10 ; l++) {
+                    num[k] = l;
+                    if (l == d || num[0] == 0 || num[numD - 1] % 2 == 0) {
+                        num[k] = d;
+                        continue;
+                    }
+                    ll number = digitsToInt(numD, num);
+                    //cout << "trying (" << i<<" "<<j<<","<<k<<" "<<l<<") "<<number ;
+                    if (isPrime111(number, primes)) {
+                        s += number;
+                        //cout <<"-> prime\n";
+                    }
+                    //cout<< endl;
+                    num[k] = d;
+                }
+            }
+            num[i] = d;
+        }
+    }
+    return s;
+}
+
+
+void solve111() {
+    constexpr const long numD = 10;
+    const ll LIM111 = ipow<ll>(10, numD );
+
+    vector<ll> primes;
+    getPrimesSieve(primes, sqrt(LIM111) + 1);
+
+    ll sumsum = 0;
+    for (int d = 0 ; d < 10; d++) {
+        ll sum =  minusOne(numD, d, primes);
+        if (!sum) {
+            // cout << " :2: ";
+            sum = minusTwo(numD, d, primes);
+        }
+        sumsum += sum;
+        //cout << d << " " << sum << endl;
+    }
+    cout << sumsum << endl;
+}
+
 int main() {
     ios_base::sync_with_stdio(false);
-    solve124();
+    solve111();
 
     return 0;
 }
