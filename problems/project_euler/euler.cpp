@@ -3857,9 +3857,157 @@ void solve111() {
     cout << sumsum << endl;
 }
 
+
+
+//problem 142------
+void solve142() {
+    constexpr int LIM142 = 10000;
+    vector<ll> squares;
+    for (ll i = 1 ; i < LIM142 ; i++) {
+        squares.push_back(i * i);
+
+    } ll minSum = LLONG_MAX;
+
+    for (int k = 0 ; k < LIM142 ; k++) {
+
+        for (int m = 0 ; m < k ; m++) {  //m<k
+            ll kkk = squares[k];
+            ll mmm = squares[m];
+            ll qqq = kkk - mmm; // has to be a perfect square
+
+            if (!binary_search(ALL(squares), qqq) )
+                continue;
+
+            for (int l = k - 1 ; l >= 0 ; l--) { //l<k
+                ll lll = squares[l] ;
+
+                ll nnn = kkk + lll - mmm ;
+                ll xx = ((double)(kkk / 2.0) + (double)(lll / 2.0));
+
+                ll ppp = mmm - lll;
+                if (!binary_search(ALL(squares), ppp) )//n has to be a square
+                    continue;
+
+                //make sure that xx and yy are integers
+                if ((even(kkk) && odd(lll)) || ((even(lll) && odd(kkk)) ))
+                    continue;
+                if (mmm <= xx  ||
+                        !binary_search(ALL(squares), nnn) )//n has to be a square
+                    continue;
+
+                ll yy, zz;
+                xx = (double)kkk / 2.0 + (double)lll / 2.0;
+                yy = (double)kkk / 2.0 - (double)lll / 2.0;
+                zz = mmm  - (double)(kkk / 2.0) - (double)(lll / 2.0);
+                ll sum142 = xx + yy + zz;
+                if (sum142 < minSum) {
+                    cout << kkk << " " << mmm << " " << qqq << " " << lll << " " << nnn << " | ";
+                    cout << xx << " " << yy << " " << zz << " = " << sum142 << endl;
+                    minSum = sum142;
+                }
+
+            }
+        }
+    }
+}
+
+//problem 149----------------------------------------------------
+//similar to  kadane's algorithm
+inline ll maxSumAdjc(const vector<ll>& v) {
+    ll maxSum = LLONG_MIN;
+    ll partSum = 0;
+    for (int i = 0; i < v.size() ; i++) {
+
+        partSum += v[i];
+        if (partSum > maxSum) {
+            maxSum = partSum;
+        }
+        if (partSum < 0 )
+            partSum = 0;
+    }
+    return maxSum;
+}
+
+
+
+void solve149() {
+
+    constexpr int SIZE = 2000;
+    vector<ll> M[SIZE + 1];
+    loopse(i, 1, SIZE + 1) {
+        M[i].resize(SIZE + 1);
+        //std::fill(ALL(M[i]), 0);
+    }
+    vector<ll> tmp(SIZE * SIZE + 1, 0);
+    constexpr ll modulus = 1000000;
+    for (ll i = 1 ; i <= 55 ; i++)
+        tmp[i] = (100003 - 200003 * i + 300007 * i * i * i) % modulus - 500000;
+    for (ll i = 56 ; i <= SIZE * SIZE ; i++)
+        tmp[i] = (tmp[i - 24] + tmp[i - 55] + 1000000) % modulus - 500000;
+
+    int i_tmp = 1;
+    for (int i = 1 ; i <= SIZE  ; i++) 
+        for (int j = 1 ; j <= SIZE ; j++, i_tmp++) 
+            M[i][j] = tmp[i_tmp];
+    
+    
+    tmp.clear();
+    ll maxSum = LLONG_MIN;
+    //max among rows
+    #pragma omp parallel for reduction(max:maxSum)
+    for (int i = 1 ; i <= SIZE  ; i++)
+        maxSum = std::max(maxSum , maxSumAdjc(M[i]));
+
+    //max among columns
+    #pragma omp parallel for reduction(max:maxSum)
+    for (int i = 1 ; i <= SIZE  ; i++) {
+        vector<ll> col(SIZE);
+        for (int j = 1 ; j <= SIZE  ; j++)
+            col[j - 1] = M[j][i];
+        maxSum = std::max(maxSum , maxSumAdjc(col));
+    }
+
+    //max among main digonals
+    #pragma omp parallel for reduction(max:maxSum)
+    for (int i = 1 ; i <= SIZE; i++) {
+        vector<ll> diag;
+        for (int k = i,  j = 1 ; k <= SIZE && j <= SIZE  ; k++, j++)
+            diag.push_back(M[k][j]);
+        maxSum = std::max(maxSum , maxSumAdjc(diag));
+    }
+    //max among main digonals
+    #pragma omp parallel for reduction(max:maxSum)
+    for (int j = 2 ; j <= SIZE ; j++) {
+        vector<ll> diag;
+        for (int k = j,  i = 1 ; k <= SIZE && i <= SIZE  ; k++, i++)
+            diag.push_back(M[i][k]);
+        maxSum = std::max(maxSum , maxSumAdjc(diag));
+    }
+
+    //max among anti-digonals
+    #pragma omp parallel for reduction(max:maxSum)
+    for (int i = 1 ; i <= SIZE; i++) {
+        vector<ll> diag;
+        for (int k = i,  j = SIZE ; k <= SIZE && j >= 1   ; k++, j--)
+            diag.push_back(M[k][j]);
+        maxSum = std::max(maxSum , maxSumAdjc(diag));
+    }
+    //max among anti-digonals
+    #pragma omp parallel for reduction(max:maxSum)
+    for (int j = SIZE - 1 ; j >= 1 ; j--) {
+        vector<ll> diag;
+        for (int k = j,  i = 1 ; k >= 1 && i <= SIZE  ; k--, i++)
+            diag.push_back(M[i][k]);
+        maxSum = std::max(maxSum , maxSumAdjc(diag));
+    }
+
+    cout << maxSum << endl;
+}
+
+
 int main() {
     ios_base::sync_with_stdio(false);
-    solve111();
+    solve149();
 
     return 0;
 }
