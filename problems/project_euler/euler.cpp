@@ -3913,13 +3913,20 @@ void solve142() {
 
 //problem 149----------------------------------------------------
 //similar to  kadane's algorithm
-inline ll maxSumAdjc(const vector<ll>& v) {
-    ll maxSum = LLONG_MIN;
-    ll partSum = 0;
+/**
+ Kadane's Algorithm.
+ @param v is the array on which tje algorithm runs
+ @param cmp is a comparing function which expect the partial sum as its first argument (max or min)
+
+*/
+template<class T, class CMP>
+inline T kadane(const vector<T>& v, CMP cmp  ) {
+    T maxSum = LLONG_MIN;
+    T partSum = 0;
     for (int i = 0; i < v.size() ; i++) {
 
         partSum += v[i];
-        if (partSum > maxSum) {
+        if (cmp(partSum, maxSum)) {
             maxSum = partSum;
         }
         if (partSum < 0 )
@@ -3953,10 +3960,11 @@ void solve149() {
     
     tmp.clear();
     ll maxSum = LLONG_MIN;
+    auto cmp = [](const ll & a, const ll &b) {return std::max(a,b);};
     //max among rows
     #pragma omp parallel for reduction(max:maxSum)
     for (int i = 1 ; i <= SIZE  ; i++)
-        maxSum = std::max(maxSum , maxSumAdjc(M[i]));
+        maxSum = std::max(maxSum , kadane(M[i],cmp));
 
     //max among columns
     #pragma omp parallel for reduction(max:maxSum)
@@ -3964,7 +3972,7 @@ void solve149() {
         vector<ll> col(SIZE);
         for (int j = 1 ; j <= SIZE  ; j++)
             col[j - 1] = M[j][i];
-        maxSum = std::max(maxSum , maxSumAdjc(col));
+        maxSum = std::max(maxSum , kadane(col,cmp));
     }
 
     //max among main digonals
@@ -3973,7 +3981,7 @@ void solve149() {
         vector<ll> diag;
         for (int k = i,  j = 1 ; k <= SIZE && j <= SIZE  ; k++, j++)
             diag.push_back(M[k][j]);
-        maxSum = std::max(maxSum , maxSumAdjc(diag));
+        maxSum = std::max(maxSum , kadane(diag,cmp));
     }
     //max among main digonals
     #pragma omp parallel for reduction(max:maxSum)
@@ -3981,7 +3989,7 @@ void solve149() {
         vector<ll> diag;
         for (int k = j,  i = 1 ; k <= SIZE && i <= SIZE  ; k++, i++)
             diag.push_back(M[i][k]);
-        maxSum = std::max(maxSum , maxSumAdjc(diag));
+        maxSum = std::max(maxSum , kadane(diag,cmp));
     }
 
     //max among anti-digonals
@@ -3990,7 +3998,7 @@ void solve149() {
         vector<ll> diag;
         for (int k = i,  j = SIZE ; k <= SIZE && j >= 1   ; k++, j--)
             diag.push_back(M[k][j]);
-        maxSum = std::max(maxSum , maxSumAdjc(diag));
+        maxSum = std::max(maxSum , kadane(diag,cmp));
     }
     //max among anti-digonals
     #pragma omp parallel for reduction(max:maxSum)
@@ -3998,16 +4006,58 @@ void solve149() {
         vector<ll> diag;
         for (int k = j,  i = 1 ; k >= 1 && i <= SIZE  ; k--, i++)
             diag.push_back(M[i][k]);
-        maxSum = std::max(maxSum , maxSumAdjc(diag));
+        maxSum = std::max(maxSum , kadane(diag,cmp));
     }
 
     cout << maxSum << endl;
 }
 
 
+//problem 150----------------
+void solve150(){
+    //generate the triangular matrix
+    vector<vector<ll>> M;
+    constexpr int LIM150 = 500500;
+    ll t = 0;
+    const ll two20 = ipow<ll>(2,20);
+    const ll two19 = ipow<ll>(2,19);
+    int row_c = 0;
+    for(int i = 0 ; i < 500500 ;){
+        vector<ll> row(row_c+1);
+        ll psum = 0;
+        for(int j = 0 ; i < 500500 && j < row_c+1 ; j++,i++ ){
+            t = (615949l*t+797807l) % two20;
+            row[j] = t - two19;
+        }
+        M.push_back(row);
+        row_c++;
+    }
+
+    //compute prefix sum
+    loop0n(i,M.size()){
+        loopse(j,1,M[i].size()){
+            M[i][j] += M[i][j-1];
+        }
+    }
+
+//for each pair of columns
+    for(int i=0; i <  M.size() ; i++){
+        for(int j=i; j<M.size() ; j++){
+            vector<ll> row_ij; //
+            for(int k = i ; k <=j ; k++){
+                ll s = i == 0 ? M[k][j] ? M[k][j]-M[i-1][j];
+                row_ij.push_back(s);
+            }
+        }
+    }
+
+    cout<<M[0][0]<<" "<<M[1][1]-M[1][0]<<" "<<endl;
+
+}
+
 int main() {
     ios_base::sync_with_stdio(false);
-    solve149();
+    solve150();
 
     return 0;
 }
