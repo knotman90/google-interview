@@ -1,3 +1,5 @@
+
+*.orig
 build/
 ## Core latex/pdflatex auxiliary files:
 *.aux
