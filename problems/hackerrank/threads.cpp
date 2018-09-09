@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 #include <functional>
 #include <numeric>
+#include <thread>
 
 // Useful constants
 #define INF (int)1e9
@@ -186,63 +187,62 @@ int gcdc(CONTAINER& c) {
   return g;
 }
 
-// Lambda has type: D -> T -> D
-template <typename D, typename Iterator, typename Lambda>
-D fold(Iterator s, Iterator e, const D& a, Lambda l) {
-  D acc = a;
-  while (s != e) {
-    acc = l(acc, *s);
-    s++;
-  }
-  return acc;
-}
-
 //------ PROBLEM CODE --------------
-
 using namespace std;
 
-int M[101][101][11] = {};
-
-inline int getVal(const int x1, const int y1, const int x2, const int y2, const int t,
-           const int c) {
-  int tot=0;
-  for (int cc = 0; cc <= c; ++cc) {
-    int count = 0;
-    count += M[x2][y2][cc];
-    if (x1 - 1 >= 1) count -= M[x1 - 1][y2][cc];
-    if (y1 - 1 >= 1) count -= M[x2][y1 - 1][cc];
-    if (y1 - 1 >= 1 && x1 - 1 >= 1) count += M[x1 - 1][y1 - 1][cc];
-    tot += count * ((cc + t) % (c + 1));
+std::atomic<bool> result(false);
+static int id = 0;
+template <typename Iterator>
+static void parallel2_any_of(Iterator begin, Iterator end, const int id,
+                             int poll) {
+  int cpoll = 0;
+  // cout<<"thread "<<id<<" started\n";
+  for (auto it = begin; it != end; ++it, ++cpoll) {
+    if (result || (*it) != 0) {
+      result = 1 + distance(begin, it);
+      return;
+    }
   }
-  return tot;
+
+  /*int found = false;
+  for (auto it = begin; it != end; ++it, ++cpoll) {
+    if (cpoll == poll) {
+      if (result) return;
+      cpoll = 0;
+    }
+    if ((*it) != 0) {
+      result = 1 + distance(begin, it);
+      return;
+    }
+  }*/
 }
 
 int main() {
-  int n, q, c;
-  read(n, q, c);
+  ios_base::sync_with_stdio(false);
+  constexpr size_t lim = 3000000000;
+  vector<int> input(lim, 0);
 
-  for (int i = 0; i < n; i++) {
-    int x, y, s;
-    read(x, y, s);
-    ++M[x][y][s];
-   
+  input[lim / 2+lim/3] = 1;
+  constexpr int num_threads = 8;
+  size_t chunk_size = input.size() / num_threads;
+
+  auto startt = chrono::steady_clock::now();
+  std::vector<std::thread> threads;
+  cout << "start" << endl;
+  const int n = 50000;
+  for (size_t i = 0; i < num_threads; ++i) {
+    const auto& begin = input.begin() + i * chunk_size;
+    const auto& end =
+        input.begin() + std::min((i + 1) * chunk_size, input.size());
+
+    threads.emplace_back(thread(parallel2_any_of<decltype(input.begin())>,
+                                begin, end, ++id, n + rand() % 1000));
   }
-
-  for (int xx = 1; xx <= 100; ++xx)
-    for (int yy = 2; yy <= 100; ++yy)
-      for (int cc = 0; cc <= c; ++cc) M[xx][yy][cc] += M[xx][yy - 1][cc];
-
-  for (int xx = 2; xx <= 100; ++xx) 
-    for (int yy = 1; yy <= 100; ++yy)
-      for (int cc = 0; cc <= c; ++cc) M[xx][yy][cc] += M[xx - 1][yy][cc];
-
-    for (int i = 0; i < q; i++) {
-      int t;
-      int x1, x2, y1, y2;
-      read(t, x1, y1, x2, y2);
-
-      cout << getVal(x1, y1, x2, y2, t, c) << endl;
-    }
-
-    return 0;
+  for (int i = 0; i < threads.size(); i++) threads[i].join();
+  auto endt = chrono::steady_clock::now();
+  auto diff = endt - startt;
+  if (result)
+    cout << "found ->" << result << " in "
+         << chrono::duration<double, milli>(diff).count() << " ms " << endl;
+  return 0;
 }

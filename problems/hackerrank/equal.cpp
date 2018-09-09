@@ -201,48 +201,56 @@ D fold(Iterator s, Iterator e, const D& a, Lambda l) {
 
 using namespace std;
 
-int M[101][101][11] = {};
+constexpr array<int, 3> DIVS = {5, 2, 1};
 
-inline int getVal(const int x1, const int y1, const int x2, const int y2, const int t,
-           const int c) {
-  int tot=0;
-  for (int cc = 0; cc <= c; ++cc) {
-    int count = 0;
-    count += M[x2][y2][cc];
-    if (x1 - 1 >= 1) count -= M[x1 - 1][y2][cc];
-    if (y1 - 1 >= 1) count -= M[x2][y1 - 1][cc];
-    if (y1 - 1 >= 1 && x1 - 1 >= 1) count += M[x1 - 1][y1 - 1][cc];
-    tot += count * ((cc + t) % (c + 1));
+pii make_equal(const int a, const int b) {
+  // a <= b
+  int diff = b - a;
+
+  pii ret(0, diff);
+
+  for (const auto n : DIVS) {
+    int div = diff / n;
+    if (div) {
+      ret.first += div;
+      diff -= n * div;
+    }
+    if (!diff) break;
   }
-  return tot;
+  return ret;
 }
 
 int main() {
-  int n, q, c;
-  read(n, q, c);
+  ios_base::sync_with_stdio(false);
+  int T;
+  read(T);
+  while (T--) {
+    int n;
+    read(n);
+    vector<int> C;
+    C.reserve(n);
+    loop0n(i, n) {
+      int a;
+      read(a);
+      C.push_back(a);
+    }
+    sort(ALL(C));
+    int add = 0;
+    int ans = 0;
+    for (int i = 0; i < n - 1; ++i) {
+      C[i + 1] += add;
+      pii ret0 = make_equal(C[i], C[i + 1]);
+      pii ret5 = make_equal(C[i], C[i + 1]+5);
+      pii ret2 = make_equal(C[i], C[i + 1]+2);
+      pii ret1 = make_equal(C[i], C[i + 1]+1);
+      
 
-  for (int i = 0; i < n; i++) {
-    int x, y, s;
-    read(x, y, s);
-    ++M[x][y][s];
-   
+      // cout<<ret.first<<" "<<ret.second<<endl;
+      add += ret.second;
+      ans += ret.first;
+    }
+    cout << ans << endl;
   }
 
-  for (int xx = 1; xx <= 100; ++xx)
-    for (int yy = 2; yy <= 100; ++yy)
-      for (int cc = 0; cc <= c; ++cc) M[xx][yy][cc] += M[xx][yy - 1][cc];
-
-  for (int xx = 2; xx <= 100; ++xx) 
-    for (int yy = 1; yy <= 100; ++yy)
-      for (int cc = 0; cc <= c; ++cc) M[xx][yy][cc] += M[xx - 1][yy][cc];
-
-    for (int i = 0; i < q; i++) {
-      int t;
-      int x1, x2, y1, y2;
-      read(t, x1, y1, x2, y2);
-
-      cout << getVal(x1, y1, x2, y2, t, c) << endl;
-    }
-
-    return 0;
+  return 0;
 }

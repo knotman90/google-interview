@@ -201,48 +201,65 @@ D fold(Iterator s, Iterator e, const D& a, Lambda l) {
 
 using namespace std;
 
-int M[101][101][11] = {};
+constexpr int N = 55;
+constexpr int M = 55;
 
-inline int getVal(const int x1, const int y1, const int x2, const int y2, const int t,
-           const int c) {
-  int tot=0;
-  for (int cc = 0; cc <= c; ++cc) {
-    int count = 0;
-    count += M[x2][y2][cc];
-    if (x1 - 1 >= 1) count -= M[x1 - 1][y2][cc];
-    if (y1 - 1 >= 1) count -= M[x2][y1 - 1][cc];
-    if (y1 - 1 >= 1 && x1 - 1 >= 1) count += M[x1 - 1][y1 - 1][cc];
-    tot += count * ((cc + t) % (c + 1));
+bool T[N][M];
+
+
+void  cleanString(const string& s, string& res){
+res.clear();
+  for(const auto c : s){
+    char cl = tolower(c);
+    if(cl >= 'a' && cl<='z'){
+      res+=cl;
+    }
   }
-  return tot;
 }
 
-int main() {
-  int n, q, c;
-  read(n, q, c);
-
-  for (int i = 0; i < n; i++) {
-    int x, y, s;
-    read(x, y, s);
-    ++M[x][y][s];
+bool check(string ans, vector<string> S)
+{
    
-  }
-
-  for (int xx = 1; xx <= 100; ++xx)
-    for (int yy = 2; yy <= 100; ++yy)
-      for (int cc = 0; cc <= c; ++cc) M[xx][yy][cc] += M[xx][yy - 1][cc];
-
-  for (int xx = 2; xx <= 100; ++xx) 
-    for (int yy = 1; yy <= 100; ++yy)
-      for (int cc = 0; cc <= c; ++cc) M[xx][yy][cc] += M[xx - 1][yy][cc];
-
-    for (int i = 0; i < q; i++) {
-      int t;
-      int x1, x2, y1, y2;
-      read(t, x1, y1, x2, y2);
-
-      cout << getVal(x1, y1, x2, y2, t, c) << endl;
+  for(int i = 0 ; i < 3 ; i++ )
+    for(int j = 0 ; j < 3 ;j++){
+      for (int z = 0; z < 3; ++z)
+      {
+        if(i!=j && i!= z && j!=z){
+          string ss="";
+          ss += S[i];
+          ss += S[j];
+          ss += S[z];
+          if((ss)==ans)
+            return true;
+        }
+      }
     }
+    return false;
+}
+int main() {
 
-    return 0;
+  vector<string>S;
+  string s;
+  string cs;
+  read(s); cleanString(s,cs); S.push_back(cs);
+  read(s); cleanString(s,cs); S.push_back(cs);
+  read(s); cleanString(s,cs); S.push_back(cs);
+  
+
+  
+  int N; read(N);
+  loop0n(i,N){
+    string ans; read(ans);
+    cleanString(ans,cs);
+    if(check( cs,S))
+      cout<<"ACC";
+    else
+      cout<<"WA";
+    cout<<endl;
+  }  
+  
+  return 0;
+  
+  
+  
 }

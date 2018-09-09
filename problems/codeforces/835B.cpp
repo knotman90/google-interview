@@ -208,13 +208,10 @@ int main() {
   digits.reserve(100000);
   string s;
   read(s);
-  // cout<<s<<endl;
-  int sum = 0;
   for (int i = 0; i < s.size(); i++) {
     digits.push_back(s[i] - '0');
     sum += s[i] - '0';
   }
-  // cout<<sum<<endl;
   if (sum >= k) {
     cout << 0 << endl;
     return 0;

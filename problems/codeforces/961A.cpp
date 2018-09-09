@@ -111,9 +111,9 @@ class reader {
   void operator()(T& t) const { std::cin >> t; }
 };
 
-template <class CONTAINER, class READ_Fn>
-void read(CONTAINER& v, const unsigned int size,
-          const READ_Fn& rfn = reader<typename CONTAINER::value_type>()) {
+template <class CONTAINER>
+void read_collection(CONTAINER& v, const unsigned int size) {
+  reader<typename CONTAINER::value_type> rfn;
   loop0n(i, size) { rfn(v[i]); }
 }
 
@@ -201,48 +201,14 @@ D fold(Iterator s, Iterator e, const D& a, Lambda l) {
 
 using namespace std;
 
-int M[101][101][11] = {};
-
-inline int getVal(const int x1, const int y1, const int x2, const int y2, const int t,
-           const int c) {
-  int tot=0;
-  for (int cc = 0; cc <= c; ++cc) {
-    int count = 0;
-    count += M[x2][y2][cc];
-    if (x1 - 1 >= 1) count -= M[x1 - 1][y2][cc];
-    if (y1 - 1 >= 1) count -= M[x2][y1 - 1][cc];
-    if (y1 - 1 >= 1 && x1 - 1 >= 1) count += M[x1 - 1][y1 - 1][cc];
-    tot += count * ((cc + t) % (c + 1));
-  }
-  return tot;
-}
-
 int main() {
-  int n, q, c;
-  read(n, q, c);
-
-  for (int i = 0; i < n; i++) {
-    int x, y, s;
-    read(x, y, s);
-    ++M[x][y][s];
-   
+  int n,m; read(n,m);
+  vector<int> T(n,0);
+  loop0n(i,m){
+    int a; read(a);
+    T[a-1]++;
   }
+  cout<<*min_element(T.begin(), T.end())<<endl;
 
-  for (int xx = 1; xx <= 100; ++xx)
-    for (int yy = 2; yy <= 100; ++yy)
-      for (int cc = 0; cc <= c; ++cc) M[xx][yy][cc] += M[xx][yy - 1][cc];
-
-  for (int xx = 2; xx <= 100; ++xx) 
-    for (int yy = 1; yy <= 100; ++yy)
-      for (int cc = 0; cc <= c; ++cc) M[xx][yy][cc] += M[xx - 1][yy][cc];
-
-    for (int i = 0; i < q; i++) {
-      int t;
-      int x1, x2, y1, y2;
-      read(t, x1, y1, x2, y2);
-
-      cout << getVal(x1, y1, x2, y2, t, c) << endl;
-    }
-
-    return 0;
+  return 0;
 }

@@ -201,48 +201,40 @@ D fold(Iterator s, Iterator e, const D& a, Lambda l) {
 
 using namespace std;
 
-int M[101][101][11] = {};
+ll dp[51][251] = {{0}};
+ll dp_rec[51][251] = {{-1}};
+ll coin[51] = {0};
 
-inline int getVal(const int x1, const int y1, const int x2, const int y2, const int t,
-           const int c) {
-  int tot=0;
-  for (int cc = 0; cc <= c; ++cc) {
-    int count = 0;
-    count += M[x2][y2][cc];
-    if (x1 - 1 >= 1) count -= M[x1 - 1][y2][cc];
-    if (y1 - 1 >= 1) count -= M[x2][y1 - 1][cc];
-    if (y1 - 1 >= 1 && x1 - 1 >= 1) count += M[x1 - 1][y1 - 1][cc];
-    tot += count * ((cc + t) % (c + 1));
-  }
-  return tot;
+ll ways(const int n, const int m) {
+  if (m < 0 && n > 0) return 0;
+  if (n < 0) return 0;
+  if (n == 0) return 1;
+  if (dp_rec[m][n] != -1) return dp_rec[m][n];
+  ll w = ways(n, m - 1) + ways(n - coin[m], m);
+  dp_rec[m][n] = w;
+  return w;
 }
 
 int main() {
-  int n, q, c;
-  read(n, q, c);
-
-  for (int i = 0; i < n; i++) {
-    int x, y, s;
-    read(x, y, s);
-    ++M[x][y][s];
-   
+  ll n, m;
+  read(n, m);
+  loop0n(i, m) {
+    read(coin[i]);
+    fill(begin(dp_rec[i]), begin(dp_rec[i]) + 1 + n, -1);
   }
+  cout << ways(n, m - 1);
+}
 
-  for (int xx = 1; xx <= 100; ++xx)
-    for (int yy = 2; yy <= 100; ++yy)
-      for (int cc = 0; cc <= c; ++cc) M[xx][yy][cc] += M[xx][yy - 1][cc];
+int main_iterative() {
+  ios_base::sync_with_stdio(false);
+  ll n, m;
+  read(n, m);
+  loop0n(i, m) { read(coin[i]); }
+  dp[0][0] = 1;
+  for (int i = 1; i <= m; ++i)
+    for (int j = 0; j <= n; ++j)
+      dp[i][j] = dp[i - 1][j] + (coin[i - 1] <= j ? dp[i][j - coin[i - 1]] : 0);
 
-  for (int xx = 2; xx <= 100; ++xx) 
-    for (int yy = 1; yy <= 100; ++yy)
-      for (int cc = 0; cc <= c; ++cc) M[xx][yy][cc] += M[xx - 1][yy][cc];
-
-    for (int i = 0; i < q; i++) {
-      int t;
-      int x1, x2, y1, y2;
-      read(t, x1, y1, x2, y2);
-
-      cout << getVal(x1, y1, x2, y2, t, c) << endl;
-    }
-
-    return 0;
+  cout << dp[m][n] << endl;
+  return 0;
 }

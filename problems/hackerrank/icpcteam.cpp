@@ -199,50 +199,65 @@ D fold(Iterator s, Iterator e, const D& a, Lambda l) {
 
 //------ PROBLEM CODE --------------
 
-using namespace std;
-
-int M[101][101][11] = {};
-
-inline int getVal(const int x1, const int y1, const int x2, const int y2, const int t,
-           const int c) {
-  int tot=0;
-  for (int cc = 0; cc <= c; ++cc) {
-    int count = 0;
-    count += M[x2][y2][cc];
-    if (x1 - 1 >= 1) count -= M[x1 - 1][y2][cc];
-    if (y1 - 1 >= 1) count -= M[x2][y1 - 1][cc];
-    if (y1 - 1 >= 1 && x1 - 1 >= 1) count += M[x1 - 1][y1 - 1][cc];
-    tot += count * ((cc + t) % (c + 1));
-  }
-  return tot;
-}
-
-int main() {
-  int n, q, c;
-  read(n, q, c);
-
-  for (int i = 0; i < n; i++) {
-    int x, y, s;
-    read(x, y, s);
-    ++M[x][y][s];
-   
-  }
-
-  for (int xx = 1; xx <= 100; ++xx)
-    for (int yy = 2; yy <= 100; ++yy)
-      for (int cc = 0; cc <= c; ++cc) M[xx][yy][cc] += M[xx][yy - 1][cc];
-
-  for (int xx = 2; xx <= 100; ++xx) 
-    for (int yy = 1; yy <= 100; ++yy)
-      for (int cc = 0; cc <= c; ++cc) M[xx][yy][cc] += M[xx - 1][yy][cc];
-
-    for (int i = 0; i < q; i++) {
-      int t;
-      int x1, x2, y1, y2;
-      read(t, x1, y1, x2, y2);
-
-      cout << getVal(x1, y1, x2, y2, t, c) << endl;
+template <class T>
+T ipow(T base, T exp, T modulo) {
+  T res = 1;
+  while (exp) {
+    if (exp & 1)
+      res *= base;
+    else {
+      res *= ipow(base, exp / 2, modulo);
     }
 
-    return 0;
+    exp >>= 1;
+    res = res % modulo;
+  }
+  return res;
+}
+
+ll countPower2(const int exp, int multiplier, const int modulo) {
+  ll p2 = ipow(2, exp, modulo);
+  ll result = 0;
+  while (multiplier--) {
+    result += p2;
+    result %= modulo;
+  }
+  return result;
+}
+
+using namespace std;
+constexpr int LIM = 50000;
+
+constexpr int N = 500;
+constexpr int K = 500;
+int M[N][K];
+int main() {
+  ios_base::sync_with_stdio(false);
+  int n, m;
+  read(n, m);
+  loop0n(i, n) {
+    loop0n(j, m) {
+      char c;
+      read(c);
+      M[i][j] = c == '1' ? true : false;
+    }
+  }
+  int mmax = INT_MIN;
+  int nteam = 0;
+  loop0n(i, n - 1) {
+    for (int j = i + 1; j <= n; ++j) {
+      int count = 0;
+      for (int k = 0; k < m; k++)
+        if (M[i][k] || M[j][k]) ++count;
+
+      if (count > mmax) {
+        nteam = 1;
+        mmax = count;
+      } else if (count == mmax)
+        ++nteam;
+    }
+  }
+  cout << mmax << endl << nteam << endl;
+
+  return 0;
 }

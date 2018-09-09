@@ -199,50 +199,77 @@ D fold(Iterator s, Iterator e, const D& a, Lambda l) {
 
 //------ PROBLEM CODE --------------
 
-using namespace std;
+template <class T>
+T ipow(T base, T exp, T modulo) {
+  T res = 1;
+  while (exp) {
+    if (exp & 1)
+      res *= base;
+    else {
+      res *= ipow(base, exp / 2, modulo);
+    }
 
-int M[101][101][11] = {};
-
-inline int getVal(const int x1, const int y1, const int x2, const int y2, const int t,
-           const int c) {
-  int tot=0;
-  for (int cc = 0; cc <= c; ++cc) {
-    int count = 0;
-    count += M[x2][y2][cc];
-    if (x1 - 1 >= 1) count -= M[x1 - 1][y2][cc];
-    if (y1 - 1 >= 1) count -= M[x2][y1 - 1][cc];
-    if (y1 - 1 >= 1 && x1 - 1 >= 1) count += M[x1 - 1][y1 - 1][cc];
-    tot += count * ((cc + t) % (c + 1));
+    exp >>= 1;
+    res = res % modulo;
   }
-  return tot;
+  return res;
+}
+
+ll countPower2(const int exp, int multiplier, const int modulo) {
+  ll p2 = ipow(2, exp, modulo);
+  ll result = 0;
+  while (multiplier--) {
+    result += p2;
+    result %= modulo;
+  }
+  return result;
+}
+
+using namespace std;
+constexpr int LIM = 500000;
+
+bool makeAbsPermutation(vector<int>& N, const int k, const int s, const int e) {
+  if(k==0)
+    return true;
+  int n = e - s + 1;
+  if (n < 2 * k) return false;
+  int left = s + 2 * k-1;
+  int right = e - 2 * k;
+  if (2 * k != n && right < left) return false;
+
+  // process left
+  for (int i = s; i < s + k; ++i) 
+    swap(N[i], N[i + k]);
+
+  if (2 * k == n) return true;
+
+  // process right
+  for (int i = e; i > e - k ; --i) 
+    swap(N[i], N[i - k]);
+
+  // the rest recursively
+  if (left + 1 < right )
+    return makeAbsPermutation(N, k,left + 1, right );
+  else
+    return true;
 }
 
 int main() {
-  int n, q, c;
-  read(n, q, c);
-
-  for (int i = 0; i < n; i++) {
-    int x, y, s;
-    read(x, y, s);
-    ++M[x][y][s];
-   
+  ios_base::sync_with_stdio(false);
+  int T;
+  read(T);
+  while (T--) {
+    int n, k;
+    read(n, k);
+    vector<int> N(n, 0);
+    vector<int> S(n, 0);
+    loop0n(i, n) { N[i] = i + 1; }
+    if (makeAbsPermutation( N, k, 0, n - 1)) {
+      loop0n(i, n) { cout << N[i] << " "; }
+    } else
+      cout << -1;
+    cout << endl;
   }
 
-  for (int xx = 1; xx <= 100; ++xx)
-    for (int yy = 2; yy <= 100; ++yy)
-      for (int cc = 0; cc <= c; ++cc) M[xx][yy][cc] += M[xx][yy - 1][cc];
-
-  for (int xx = 2; xx <= 100; ++xx) 
-    for (int yy = 1; yy <= 100; ++yy)
-      for (int cc = 0; cc <= c; ++cc) M[xx][yy][cc] += M[xx - 1][yy][cc];
-
-    for (int i = 0; i < q; i++) {
-      int t;
-      int x1, x2, y1, y2;
-      read(t, x1, y1, x2, y2);
-
-      cout << getVal(x1, y1, x2, y2, t, c) << endl;
-    }
-
-    return 0;
+  return 0;
 }

@@ -207,9 +207,9 @@ int main() {
   const int tot1 = s*v1+2*t1;
   const int tot2 = s*v2+2*t2;
 
-  if(tot1 > tot2)
+  if(tot1 < tot2)
     cout<<"First";
-  else if (tot2 > tot1)
+  else if (tot2 < tot1)
     cout<<"Second";
   else
     cout<<"Friendship";

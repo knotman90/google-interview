@@ -343,6 +343,51 @@ A d-ary heap is like a binary heap, but instead of 2 children, nodes have d chil
 %-----CHAPTER GRAPH---------------------------
 \chapter{Graph}
 
+\section{Maximum Flow Problem}
+Given a directed graph with $G=(V,E,c)$ where  $c(u,v) \in \mathcal{R}, (u,v) \in E$ is a function that specifies the capacity of an edge the goal is to find the maximum flow from two nodes $s \ne t \in V$ called \textit{source} and \textit{sink}. Usually the source has not incoming edges while the sink has not outgoing edges. A flow is a function $f(u,v)$ that specifies the amount of good moving along the $(u,v)$ edge s.t.
+\begin{itemize}
+	\item $f(u,v) \leq c(u,v)$ i.e. the flow associated with the edge does not exceed its capacity,
+	\item $\sum_{(u,v) \in E} f(u,v) = \sum_{(v,w) \in E} f(v,w)$, $v \neq s, v \neq t$, i.e. for all node $v$ other than the sink and the source the amount of flow entering it is equal to the flow exiting $v$. Intuitively it means that all the flow that is pushed in the source travels to the sink.
+\end{itemize}
+\textbf{Goal of the maximum flow problem is to find the maximum amount of flow that leave $s$ (or alternatively that reaches $t$)}.
+
+\subsection{Greedy Approach to the Maximum Flow Problem}
+Let's try to determine the maximum flow in a network via a greedy approach. At this stage is not clear whether such approach would produce an optimal solution.
+The approach consists in starting with zero flows for all the edges and greedily updating them as we figure out that we can send more flow from $s$ to $t$.
+
+\begin{algorithm}[H]
+	\KwData{Graph G}
+	\KwResult{The maximum flow through the network}
+	\ForEach{$(u,v) \in E$}{
+		$f_{(u,v)} \gets 0$\;
+	}
+	
+	\While{$P$ path in $G$. }{
+		$\Delta = \min_{(u,v) \in P}(c(u,v) - f(u,v))$ minimal residual capacity of edges in $P$\;
+		\ForEach{$(u,v) \in P$}{
+			$f_{(u,v)} \gets f_{(u,v)}+\Delta$ add newly discovered flow to all the edges of $P$.
+		}
+	}
+	\caption{Greedy Maximum Flow approach}
+	\label{alg:greedy_max_flow}
+\end{algorithm}
+Note that \ref{alg:greedy_max_flow} has only to search for paths in $G$ taking care of making sure the constraints are satisfied. This is easily done with BFS or DFS in linear time (in the number of edges). Note also that there may be many of such paths, and the algorithm chooses one aritrarly.
+\textbf{This algorithm is not optimal, i.e. find a suboptimal solution to the problem.} as can be seen in Figure \ref{fig:max_flow}.
+\begin{figure}
+	\label{fig:max_flow}
+	\centering
+	\includegraphics[scale=0.5]{max_flow_example}
+	\caption{An example of how the greedy algorithm return a suboptimal flow.}
+\end{figure}
+Regarding the Figure \ref{fig:max_flow}, imagine that the first path that the algorithm considers is the zig-zag one: $s,v,w,t$. $\Delta$ would be $\min{3,5,3}=3$. This means that at the subsequent iteration the graph would not contain any path from $s$ to $t$ at all, giving a result of $3$, while there is a flow of $5$ if we allow to route a flow of $2$ via $s,v,t$ and a flow of $2$ via $s,W,t$ and a flow of $1$ via $s,v,w,t$.
+
+Luckily the if the same approach is applied to a different kind of graph derived from the original one, the algorithm leads to the optimal solution. This derived graph is called: \textit{residual graph}.
+
+\subsubsection{Residual Graph}
+The idea is to be able to perform kind of \textit{undo} operation in such cases where the greedy algorithm get stuck as seen in the previous example.
+The idea is to augment the original graph by having a pair of edges for each of the original edges. One edge specifies the flow $f(u,v)$ and the other one residual capacity i.e. $c(u,v) - f(u,v)$.
+
+
 
 \section{Exercices}
 

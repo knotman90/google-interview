@@ -7,6 +7,7 @@
 #define EPS 1e-9
 // Useful hardware instructions
 #define bitcount __builtin_popcount
+#define gcd __gcd
 // Useful container manipulation / traversal macros
 #define forall(i, a, b) for (int i = a; i < b; i++)
 #define foreach(v, c) \
@@ -14,8 +15,9 @@
 #define all(a) a.begin(), a.end()
 #define in(a, b) ((b).find(a) != (b).end())
 #define pb push_back
+#define fill(a, v) memset(a, v, sizeof a)
 #define sz(a) ((int)(a.size()))
-#define mp make_pair
+
 // Some common useful functions
 #define maX(a, b) ((a) > (b) ? (a) : (b))
 #define miN(a, b) ((a) < (b) ? (a) : (b))
@@ -45,7 +47,7 @@
 #define ALL(v) v.begin(), v.end()
 
 // for map, pair
-#define mp make_pair
+
 #define fi first
 #define se second
 // char to int
@@ -124,16 +126,20 @@ typedef signed long l;
 typedef signed long long ll;
 typedef unsigned int uint;
 
-using vi = std::vector<int>;
-
 typedef std::pair<l, l> pll;
 typedef std::pair<int, int> pii;
 typedef std::pair<uint, uint> puu;
 
 // sort pair based on their first component. If equal it uses the second ones.
 auto pair_cmp = [](const pll& p1, const pll& p2) {
-  return (p1.first > p2.first) ||
+  return (p1.first < p2.first) ||
          (p1.first == p2.first && p1.second < p2.second);
+};
+
+struct C {
+  bool operator()(const pii& p1, const pii& p2) const {
+    return pair_cmp(p1, p2);
+  }
 };
 
 // integer power (base^exp)
@@ -149,100 +155,70 @@ T ipow(T base, T exp) {
   return result;
 }
 
-// case counter variable
-static int _case_counter = 1;
-template <typename T>
-void printCase(const T& arg) {
-  std::cout << "Case #" << _case_counter++ << ": ";
-  write(arg);
-  write('\n');
-}
-
-template <typename... types>
-void printCase(const char sep = ' ', types&... args) {
-  std::cout << "Case #" << _case_counter++ << ": ";
-  write(sep, args...);
-  write('\n');
-}
-
-// gcd of two number
-template <class M, class N>
-M gcds(M& m, N& n) {
-  return std::__gcd(m, n);
-}
-
-// gcd of N numbers
-template <class M, class N, class... Params>
-M gcds(M& m, N& n, Params&... args) {
-  return gcd(std::__gcd(m, n), args...);
-}
-// gcd of a set of numbers in a container
-template <typename CONTAINER>
-int gcdc(CONTAINER& c) {
-  typename CONTAINER::value_type g = c[0];
-  for (int i = 1; i < c.size(); i++) {
-    g = std::__gcd(g, c[i]);
-  }
-  return g;
-}
-
-// Lambda has type: D -> T -> D
-template <typename D, typename Iterator, typename Lambda>
-D fold(Iterator s, Iterator e, const D& a, Lambda l) {
-  D acc = a;
-  while (s != e) {
-    acc = l(acc, *s);
-    s++;
-  }
-  return acc;
-}
-
 //------ PROBLEM CODE --------------
 
 using namespace std;
 
-int M[101][101][11] = {};
+template <typename T>
+struct triple {
+  triple(T a, T b, T c) : first(a), second(b), third(c) {}
+  T first, second, third;
+};
+// sort pair based on their first component. If equal it uses the second ones.
+template <typename T>
+bool triple_cmp(const triple<T>& p1, const triple<T>& p2) {
+  return (p1.first < p2.first) ||
+         (p1.first == p2.first && p1.second < p2.second) ||
+         (p1.first == p2.first && p1.second == p2.second &&
+          p1.third == p2.third && p1.third < p2.third);
+};
 
-inline int getVal(const int x1, const int y1, const int x2, const int y2, const int t,
-           const int c) {
-  int tot=0;
-  for (int cc = 0; cc <= c; ++cc) {
-    int count = 0;
-    count += M[x2][y2][cc];
-    if (x1 - 1 >= 1) count -= M[x1 - 1][y2][cc];
-    if (y1 - 1 >= 1) count -= M[x2][y1 - 1][cc];
-    if (y1 - 1 >= 1 && x1 - 1 >= 1) count += M[x1 - 1][y1 - 1][cc];
-    tot += count * ((cc + t) % (c + 1));
-  }
-  return tot;
-}
-
+auto len = [](const triple<int>& t) { return t.second - t.first + 1; };
+template <typename T>
+bool distance_cmp(const triple<T>& p1, const triple<T>& p2) {
+  auto d = len(p1);
+  auto d1 = len(p2);
+  return (d < d1) || (d == d1 && p1.third < p2.third);
+};
 int main() {
-  int n, q, c;
-  read(n, q, c);
+  ios_base::sync_with_stdio(false);
 
+  int n, x;
+  read(n, x);
+  vector<triple<int>> voucher;
+  voucher.reserve(n);
   for (int i = 0; i < n; i++) {
-    int x, y, s;
-    read(x, y, s);
-    ++M[x][y][s];
-   
+    int a, b, c;
+    read(a, b, c);
+    voucher.push_back((triple<int>(a, b, c)));
   }
 
-  for (int xx = 1; xx <= 100; ++xx)
-    for (int yy = 2; yy <= 100; ++yy)
-      for (int cc = 0; cc <= c; ++cc) M[xx][yy][cc] += M[xx][yy - 1][cc];
+  sort(ALL(voucher), distance_cmp<int>);
+  int currcost;
+  int min_cost = INT_MAX;
+  for (int i = 0; i < n-1; i++) {
+    auto it1 = voucher.begin() + i;
+    int rest = x - len(voucher[i]);
+    auto it = lower_bound(
+        voucher.begin()+i+1,voucher.end(), rest,
+        [](const triple<int>& p, auto val) { return len(p) < val; });
 
-  for (int xx = 2; xx <= 100; ++xx) 
-    for (int yy = 1; yy <= 100; ++yy)
-      for (int cc = 0; cc <= c; ++cc) M[xx][yy][cc] += M[xx - 1][yy][cc];
-
-    for (int i = 0; i < q; i++) {
-      int t;
-      int x1, x2, y1, y2;
-      read(t, x1, y1, x2, y2);
-
-      cout << getVal(x1, y1, x2, y2, t, c) << endl;
+    while (it != voucher.end()) {
+      if (len(*it) != rest) break;
+      auto cost = (*it).third + (*it1).third;
+      if(cost >= min_cost)
+        break;
+      if (((*it).second < (*it1).first || (*it1).second < (*it).first))  {
+          // non overlapping
+          if (cost < min_cost) 
+            min_cost = cost;
+          break;  // can exit since they are ordered by cost too
+        }
+        ++it;
     }
+  }
+  min_cost != INT_MAX ? (cout<<min_cost) : cout<<-1;
+  cout<<endl;
 
-    return 0;
+  return 0;
 }

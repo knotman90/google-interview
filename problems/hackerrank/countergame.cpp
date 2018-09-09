@@ -186,63 +186,57 @@ int gcdc(CONTAINER& c) {
   return g;
 }
 
-// Lambda has type: D -> T -> D
-template <typename D, typename Iterator, typename Lambda>
-D fold(Iterator s, Iterator e, const D& a, Lambda l) {
-  D acc = a;
-  while (s != e) {
-    acc = l(acc, *s);
-    s++;
-  }
-  return acc;
-}
-
 //------ PROBLEM CODE --------------
 
 using namespace std;
+constexpr int LIM = 500000;
 
-int M[101][101][11] = {};
+bool makeAbsPermutation(vector<int>& N, const int k, const int s, const int e) {
+  if (k == 0) return true;
+  int n = e - s + 1;
+  if (n < 2 * k) return false;
+  int left = s + 2 * k - 1;
+  int right = e - 2 * k;
+  if (2 * k != n && right < left) return false;
 
-inline int getVal(const int x1, const int y1, const int x2, const int y2, const int t,
-           const int c) {
-  int tot=0;
-  for (int cc = 0; cc <= c; ++cc) {
-    int count = 0;
-    count += M[x2][y2][cc];
-    if (x1 - 1 >= 1) count -= M[x1 - 1][y2][cc];
-    if (y1 - 1 >= 1) count -= M[x2][y1 - 1][cc];
-    if (y1 - 1 >= 1 && x1 - 1 >= 1) count += M[x1 - 1][y1 - 1][cc];
-    tot += count * ((cc + t) % (c + 1));
-  }
-  return tot;
+  // process left
+  for (int i = s; i < s + k; ++i) swap(N[i], N[i + k]);
+
+  if (2 * k == n) return true;
+
+  // process right
+  for (int i = e; i > e - k; --i) swap(N[i], N[i - k]);
+
+  // the rest recursively
+  if (left + 1 < right)
+    return makeAbsPermutation(N, k, left + 1, right);
+  else
+    return true;
 }
 
 int main() {
-  int n, q, c;
-  read(n, q, c);
+  ios_base::sync_with_stdio(false);
 
-  for (int i = 0; i < n; i++) {
-    int x, y, s;
-    read(x, y, s);
-    ++M[x][y][s];
-   
-  }
-
-  for (int xx = 1; xx <= 100; ++xx)
-    for (int yy = 2; yy <= 100; ++yy)
-      for (int cc = 0; cc <= c; ++cc) M[xx][yy][cc] += M[xx][yy - 1][cc];
-
-  for (int xx = 2; xx <= 100; ++xx) 
-    for (int yy = 1; yy <= 100; ++yy)
-      for (int cc = 0; cc <= c; ++cc) M[xx][yy][cc] += M[xx - 1][yy][cc];
-
-    for (int i = 0; i < q; i++) {
-      int t;
-      int x1, x2, y1, y2;
-      read(t, x1, y1, x2, y2);
-
-      cout << getVal(x1, y1, x2, y2, t, c) << endl;
+  int T;
+  read(T);
+  while (T--) {
+    unsigned long long n;
+    read(n);
+    bool winner = true;
+    while (n > 1) {
+      if (__builtin_popcountll(n) == 1)  // power of two
+        n >>= 1;
+      else {
+        unsigned long long sub = (1ull << (64 - __builtin_clzll(n) - 1));
+        n &= ~sub;
+      }
+      winner = !winner;
     }
-
-    return 0;
+    if (winner)
+      cout << "Richard";
+    else
+      cout << "Louise";
+    cout << endl;
+  }
+  return 0;
 }
