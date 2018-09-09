@@ -8,6 +8,8 @@ int solve(const int n){
 		return 0;
 	if(n == 2)
 		return 1;
+	if(n == 3)
+		return 2;
 	if(n % 2 == 0)
 		return 1+solve(n/2);
 	if( n & (1<<1))
