@@ -91,10 +91,239 @@ Per esempio immagina di dover risolvere il problema: Qual è l'angolo tra le lan
 
 
 
+#Interview Questions
+
+## Check if a string contains only unique chars.
+
+### Questions
+- Does the string contain only a-z?
+
+##### Brute force
+
+```c++
+bool unique_char(const string& str)
+{
+	for(unsigned  i = 0 ; i < str.size() ; ++i){
+		for(unsigned  j = i+1 ; j < str.size() ; ++j)
+		{
+			if( str[i] == str[j])
+				return false;
+		}
+		return true;
+}
+```
+This has complexity O(N^2)
+
+
+##### Sorting
+If the string is sorted, then it is only necessary to check for subsequent chars, as equal chars would appear in sequence.
+
+
+```c++
+bool unique_char_sorting( string str) //make a copy so you do not modfy the original str
+{
+	sort(begin(str), end(str));
+	for(auto a = begin(str), b = a+1 ; b != end(str) ; ++a, ++b){
+		if(*a == *b)
+			return false;
+	}
+	return true;
+}
+```
+
+##### Using reference counting
+Assuming that the alphabet is not greater than the ascii set (256 elements) then we can always return true if the string is longer or if we have counted at least two times the same char. We keep track of the chars in an array the size of the alphabet.
+
+```c++
+bool unique_char_ref_counting( const string& str)
+{
+	array<bool, 256> counters;
+	fill(begin(counter) , end(counter), false);
+
+	for( const auto c : str)
+	{	
+		const unsigned idx = c-'a';
+		if( counter[idx] )
+			return false;
+		counter[idx] = true;
+
+	}
+	return true;
+}
+```
+Complexity is O(n) time and O(n) space;
+
+##### Using reference counting on smaller alphabet
+if we know for sure that our alphabet is only composed of letters then we can keep track of the counting in the bit of a single integer.
+
+```c++
+bool unique_char_ref_improved(const string& str)
+{
+	unsigned counters = 0;
+	for( const auto c : str)
+	{	
+		const unsigned idx = c-'a';
+		if( counters & (1 << idx) )
+			return false;
+
+		counters |= (1 << idx);
+	}
+	return true;
+}
+```
+
+##### Using reference counting on smaller alphabet CASE INSENSITIVE
+If we add the requirement that the check should be case insensitive then we could fix checking wether the char is lower than 'a' meaning is it an upper case letter (upper case letter come before)
+
+```c++
+bool unique_char_ref_improved_case_insensitive(const string& str)
+{
+	unsigned counters = 0;
+	for( const auto c : str)
+	{	
+		const unsigned idx = c < 'a' ? c -'A' : c -'a';
+		if( counters & (1 << idx) )
+			return false;
+
+		counters |= (1 << idx);
+	}
+	return true;
+}
+```
 
 
 
+## Reverse a null terminated string 
+
+### Questions
+
+Easy approach would be to allocate space for a new string and then fill the new string with characters from the end toward the beginning of the input string and then copy the new string into the old one. This would incur in a space cost that is unnecessary.
+
+```c
+void reverse1( char * str)
+{
+	const unsigned size = strlen(str);
+	char* rev = (char*)malloc(sizeof(char)*size+1);
+	for(int i = size - 1 , idx = 0; i >= 0 ; i--, idx++)
+	   rev[idx] = str[i];
+    rev[size]='\0';
+
+    for(unsigned i = 0 ; i < size ; i++)
+		str[i]=rev[i];
+    
+	free(rev);
+}
+
+```
+
+We can do better by reversing in-place
+```c
+void reverse2( char * const str)
+{
+	const unsigned length = strlen(str);
+	for(int i = length - 1 , idx = 0; i > idx ; i--, idx++){
+	   char c = str[idx];
+	   str[idx] = str[i];
+	   str[i] = c;
+	}
+}
+```
+
+we can avoid using the third variable by using xor operation three times
+```c
+void reverseXOR( char * const str)
+{
+	const unsigned length = strlen(str);
+	for(int i = length - 1 , idx = 0; i > idx ; i--, idx++){
+	   str[idx]^= str[i];
+	   str[i]  ^= str[idx];
+	   str[idx]^= str[i];
+	}
+}
+```
+## Given two string write a function that returns true if one string is a permutation of the other, false otherwise
+
+### Questions
+First notice that the two string are required to have the same length.
+
+#### Sorting the two string
+One approach is to sort the two string and then check if they are equal. This would cost O(n1 log n1) + O(n2 log n2) where n1 and n2 are the length of the two strings.
+
+```c++
+bool is_permutation(const string& str1 , const string& str2)
+{
+	if(str1.size() != str2.size())
+		return false;
+	
+	sort(begin(str1), end(str1));
+	sort(begin(str2), end(str2));
+
+	return str1==str2;
+}
+```
+#### We can do better if we use count the occurrences of the chars in the two strings. If all the occurrences are equal then the two strings are permutations of each other
+
+```c++
+bool is_permutation(const string& str1 , const string& str2)
+{
+	const int size = str1.size();
+	if(size != str2.size())
+		return false;
+
+	constexpr unsigned ALPH_SIZE = 256;
+	array<unsigned, ALPH_SIZE> counters;
+	fill(begin(counter), end(counters) , 0);
+
+	for( int i = 0 ; i < size ; i++){
+		++counters[str1[i]-'a'];
+		--counters[str2[i]-'a'];
+	}
+
+	const bool fail = any_of(begin(counters) , end(counters) , 
+		[](const auto c){ return c != 0;}
+		);
+
+		return !fail;
+}
+```
+
+Complexity is O(n) time and O(1) space;
 
 
+## Given a string s,t transform it s.t. each char in it is substituted by t 
 
+### Questions
 
+Approach is to, first count the number of occurrences of spaces. 
+Then resize the current string in order to accomodate the occurrences of t. 
+Then use two pointer strategy . One pointer point to the last valid char of s (before resizing) and the other to the last posizion o s. Non space character are copied from the first pointer to the second, while spaces are substituted by t.
+
+```c++
+string solve(string s, const string t){
+	const unsigned sizet = t.size();
+	const unsigned old_size = s.size();
+	const unsigned spaces = count_if(begin(s), end(s), 
+		[](const char c){
+		return isspace(c);}
+		);
+	
+	const unsigned new_size = old_size - spaces + sizet*spaces; //new_size > s.size()
+	s.resize(new_size);
+
+	auto p2 = s.end() -1;
+	for(int i = old_size-1 ; i  >= 0  ; --i){
+		if(!isspace(s[i]))
+		{
+			*p2 = s[i];
+			p2--;
+		}
+		else
+		{
+			copy(begin(t), end(t) , p2-sizet+1);
+			p2-=sizet;
+		}
+	}
+return s;
+}
+
+```
