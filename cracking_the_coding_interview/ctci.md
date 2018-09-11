@@ -327,3 +327,133 @@ return s;
 }
 
 ```
+
+
+## Create a method that compress a string s, s.t. each subsequent k occurrences of the char c is replaced by `ck`. 
+Fro example `aaabccjjja` would become `a3b1c2j3a1`. If the compressed string is the same size or larger then return the original string.
+
+### Questions
+
+
+```c++
+#include <sstream>
+#include <string>
+
+std::string compress(const std::string& s){
+	std::stringstream  ss;
+	unsigned count = 1;
+	for(unsigned i = 0 ; i < s.size()-1 ; ++i, count++)
+	{
+		if(s[i] != s[i+1])
+		{
+			ss<<s[i]<<count;
+			count = 0;
+		}
+	}
+	ss<<s.back()<<count;
+	return ss.str().size() < s.size() ? ss.str() : s;
+}
+```
+
+### Follow-up question: Create a method that decompress the string compressed with the method above. If the input is not valid return the original string
+```c++
+std::string decompress(const std::string& s)
+{
+	std::stringstream ss;
+	for (unsigned i = 0; i < s.size() ; i++)
+	{      
+        const int cp = i;
+        int num = 0;
+        for(int p =1 ; i < s.size() && s[i+1] >= '1' && s[i+1] <= '9' ; ++i , p*=10)
+            num+= (s[i+1] - '0')*p;
+                   
+        if(num==0)
+            return s;
+        
+		for( int j = num; j > 0 ; j--)
+			ss<<s[cp];
+
+	}
+	return ss.str();
+}
+
+```
+
+
+
+## Write a function s.t. given a matrix MxN if one of its cell (l,k) is zero, then the whole row and column is set to zero.
+
+### Questions
+- How big is the matrix?
+- Should we only optimize for space?
+- What is the range of numbers stored in the matrix? Only positive?
+
+The naive approach would be to loop over the matrix and whenever we found zero cell, simply iterator over the corrensponding row and column and set them to zero. This would cost more than necessary when more than one cell implies the zeroing of a row or a column. In the worst case, when the matrix is full of zeros, the cost if MxNx(M+N) = M^2N+N^2M, (assuming M = O(N) the complexity is cubic) because for each cell we need to loop over an entire row and an entire column.
+
+Another approach could be to iterator over the matrix and for each zero cell (l,m) store l in a set containing all the columnn to be zeroed and m into another set of all the column to be zeroed. Then we would, in the worst case only iterate through all row and columns once.
+The complexity is MxNx(log(M)+log(N)), and assuming M = O(N) it would be N^2log(N);
+We could remove the log(N) factor using an unordere map, but during the zeroing of the matrix we could potentially lose cache advantage because we would zero rows and columns potentially far from each other.
+
+
+Noter that is M and N are relatively small and we could afford to use more space, then we could allocate two arrays of the size of the rows and columns, respectively and use them as flags. Alternatively, is their size is smaller than 32 or 64 we could use the bit of an `int` or a `long` as flags.
+```c++
+void zeroMatrix(vector<vector<int>>& mat){
+	set<int> C,R;
+	for(int i = 0 ; i < mat.size() ; i++  )
+		for( int j = 0 ; j < mat[i].size() ; j++)
+		{
+			if(mat[i][j] == 0){
+				R.insert(i);
+				C.insert(j);
+			}
+		}
+
+	for(const auto r : R)
+		setRow(mat, r, 0);
+	
+	for(const auto c : C)
+		setColumn(mat, c, 0);
+}
+```
+
+## Follow up question
+How about doing without using any extra memory at all?
+If the there is at least a number that will never appear in the matrix then  we can use the last row  and the last column to mark the cells that need to be zeroed.
+Imagine the matrix can only hold positive numbers.
+
+```c++
+void zeroMatrix(vector<vector<int>>& mat){
+	const int lastrow = mat.size()-1;
+	const int lastcol = mat[0].size()-1;
+	for(int i = 0 ; i < mat.size() ; i++  )
+		for( int j = 0 ; j < mat[i].size() ; j++)
+		{
+			if(mat[i][j] == 0){
+				mat[i][lastcol] = -1;
+				mat[lastrow][j] = -1;
+			}
+		}
+
+	for(int i = 0 ; i <= lastrow ; i++  )
+		if(mat[i][lastcol] < 0)
+			setRow(mat, i, 0);
+	
+	for( int j = 0 ; j <=lastcol ; j++)
+		if(mat[lastrow][j] < 0 )
+			setColumn(mat, j , 0);
+}
+```
+
+
+## Using only one call to substring, determine whether the string s2 is a rotation of the string s1
+
+### Questions
+
+This problem is trivial once you notice that a the string  "modavideciaomichi" concatenated with itself always contains the test string s1 if and only if it is substring of it.
+
+given s1 = ciamichiamodavide , then s2 = modavideciaomichi then s2s2 = modavideciaomichimodavideciaomichi contains ciaomichiamodavide.
+
+
+bool isRotation(const string& s1 , const string & s2){
+	return isSubstring(s1, s2+s2);
+}
