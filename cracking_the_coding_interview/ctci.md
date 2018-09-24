@@ -151,7 +151,7 @@ bool unique_char_ref_counting( const string& str)
 	return true;
 }
 ```
-Complexity is O(n) time and O(n) space;
+Complexity is O(n) time and O(1) space;
 
 ##### Using reference counting on smaller alphabet
 if we know for sure that our alphabet is only composed of letters then we can keep track of the counting in the bit of a single integer.
@@ -453,7 +453,326 @@ This problem is trivial once you notice that a the string  "modavideciaomichi" c
 
 given s1 = ciamichiamodavide , then s2 = modavideciaomichi then s2s2 = modavideciaomichimodavideciaomichi contains ciaomichiamodavide.
 
-
+```c++
 bool isRotation(const string& s1 , const string & s2){
 	return isSubstring(s1, s2+s2);
 }
+```
+
+## Given a string `s`, print the first non-repeated char 
+
+### Questions
+- What is such char does not exist? assume returning `0` in this case.
+
+#### Approch 1 - Brute force
+One approach consist in, for each character starting from the beginning of `s` to check whether it is repeated in the following part of the string.
+
+
+```c++
+char first_non_repeated_brute_force(const string&s)
+{
+	for(char c = 'a' ; c <='z' ; ++c)
+	{
+		const auto it = find_if(begin(s) , end(s), [&c](const auto cc){return cc==c || toupper(c)==cc;});
+		if(it == end(s) )
+			return c;
+	}
+	return 0;
+}
+
+```
+This solution has complexity of `O(26n)=O(n)`.
+
+
+#### Approch 2 - Brute force
+We can make it O(n+26) by storing a bit for each of the 26 char, and setting it to true if we have encountered it in the string.
+
+
+```c++
+char first_non_repeated_improved(const string&s)
+{
+	array<bool, 26> C;
+	fill(begin(C), end(C), false);
+	for(const char c : s)
+	{
+		const unsigned idx = tolower(c)-'a';
+		C[idx] = true;
+	}
+	for (int i = 0; i < C.size(); ++i)
+	{
+		if(!C[i])
+			return 'a'+i;
+	}
+	return 0;
+}
+
+```
+
+## Reverse a string using recursion
+### Questions
+
+
+This is easy once you realise that you can swap each char from the first half with every char of the last half. Start swapping `0` and `s.size()-1` till the two values overlap (we have reached the half of the string).
+
+```c++
+void reverse_helper(string&, unsigned  , unsigned );
+
+void reserve(string& s)
+{
+	return reverse_helper(s, 0 , s.size()-1);
+}
+void reverse_helper(string &s, const unsigned l , const unsigned r)
+{
+	if(l>=r)
+		return;
+	swap(s[l],s[r]);
+	reverse_helper(s, l+1 , r-1 );
+}
+```
+
+Another approach is to use ostringstream to build a new string.
+The recursive call at index `i` will first reverse the rest of the string and then will append char at position `i`.
+
+```c++
+void reserve_ss(string& s)
+{
+	ostringstream oss;
+	reverse_helper_ss(s, 0 , oss);
+	s = oss.str();
+}
+
+void reverse_helper_ss(string &, const unsigned  , ostringstream& );
+
+
+void reverse_helper_ss(string &s, const unsigned l , ostringstream& os)
+{
+	if(l>=s.size())
+		return;
+
+	reverse_helper_ss(s, l+1 , os);
+	os<<s[l];
+}
+```
+
+
+
+# Questions on Linked List
+
+# Implement a doubly linked list using only a pointer `both` which is the `xor` of `next` and `prev`
+Make sure that the Linked List provides at least two methods
+- `add` , which add a node at the end of the list
+- `search` which return the n-th element of the list.
+
+
+Note that:
+-  `A XOR B XOR A = B`. 
+- The `both` pointer is the XOR or prev and next. 
+- Since head does not have any prev, `head.both=next` 
+- and since tail does not have any next `tail.both=prev`.
+
+The Node of a linked list is pretty standard and will contain a value element the payload of the node and a `both` pointer defined as `XOR(prev, next)`
+```c++
+template < class T >
+  struct Node {
+    Node * both;
+    T value;
+    Node(T el): value(el) {};
+  };
+```
+
+The linked list contains two pointers: the head and the tail and an unsigned containing the length of the list.
+
+The insert work as follows:
+If the list is empty then by definition when we add a node N head and tail will both point to the same node. N.both will point to `nullptr` because it has no next and no prev.
+If the list is not empty then we need to fix the current tail both pointer because after the addition the old tail will have a next element. So since tail.`both=prev`, and n is the new tail.next, all we have to do is to `XOR(tail.both, &T)`. 
+T.both need also to be fixed. Since `n` is the new tail, we know that `n.both=prev`, and since n will be the new tail, `n.prev` is the current tail. So `T.both=tail`
+Now all the both pointers are fix, and we need to update the tail `tail=n`.
+
+
+
+`Find` work under the following idea: given `n.both=prev^next`, what we need in order to extract `next` fro `both` is `prev`. So while searching we will carry with use `prev`, and we can visit the `curr.both ^ prev = next` node if needed.
+
+```c++
+template < typename T >
+  class LinkedList {
+    public:
+      LinkedList(): head(nullptr), tail(nullptr), length(0) {};
+    void insert(T el) {
+      Node <T> * n = new Node(el);
+      if (!head) {
+        head = tail = n;
+      } else {
+        tail -> both = XORPtr(tail -> both, n);
+        n -> both = tail;
+        tail = n;
+      }
+      ++length;
+    }
+
+    T find(const unsigned idx) {
+      return find_helper(idx, nullptr, head);
+    }
+
+    void remove(const T el)
+    {
+    	return remove_helper(el, nullptr, head);
+    }
+
+    void print() {
+        if(!head || length == 0)
+            cout<<"EMPTY"<<endl;
+      for (unsigned i = 0; i < length; i++) {
+        cout << find(i) << " ";
+      }
+      cout << endl;
+    }
+
+    private:
+      Node <T> * head, * tail;
+    unsigned length;
+
+    void remove_helper(const T& el, Node<T>* prev, Node<T>* curr)
+    {
+    	if(!curr)
+    		return;
+        
+        Node<T>*const next = XORPtr(curr->both, prev);
+    	if(curr->value == el){
+            if(prev) prev->both = XORPtr( XORPtr(prev->both , curr) , next);                  
+            if(next) next->both = XORPtr( XORPtr(next->both , curr) , prev);
+            length--;
+            
+            if(!prev)
+                head = next;
+            if(!next)
+                tail = prev;
+            
+    		return;
+        }
+
+    	
+    	return remove_helper(el, curr, next);
+    }
+
+    T find_helper(const unsigned idx, Node <T> * prev, Node <T> * curr) {
+
+      if (idx == 0)
+        return curr -> value;
+      Node <T> * const next = XORPtr(curr -> both, prev);
+      return find_helper(idx - 1, curr, next);
+    }
+
+    Node <T> * XORPtr(Node <T> * a, Node <T> * b) {
+      return (Node <T> * )(
+        (unsigned long) a ^ (unsigned long) b
+      );
+    }
+
+  };
+
+
+So in order to do the traversal what we need to do is to retrieve the `next` point
+```c++
+template < typename T >
+  class LinkedList {
+    public:
+      LinkedList(): head(nullptr), tail(nullptr), length(0) {};
+    void insert(T el) {
+      Node <T> * n = new Node(el);
+      if (!head) {
+        head = tail = n;
+      } else {
+        tail -> both = XORPtr(tail -> both, n);
+        n -> both = tail;
+        tail = n;
+      }
+      ++length;
+    }
+
+    T find(const unsigned idx) {
+      return find_helper(idx, nullptr, head);
+    }
+
+    void remove(const T el)
+    {
+    	return remove_helper(el, nullptr, head);
+    }
+
+    void print() {
+        if(!head || length == 0)
+            cout<<"EMPTY"<<endl;
+      for (unsigned i = 0; i < length; i++) {
+        cout << find(i) << " ";
+      }
+      cout << endl;
+    }
+
+    private:
+      Node <T> * head, * tail;
+    unsigned length;
+
+    void remove_helper(const T& el, Node<T>* prev, Node<T>* curr)
+    {
+    	if(!curr)
+    		return;
+        
+        Node<T>*const next = XORPtr(curr->both, prev);
+    	if(curr->value == el){
+            if(prev) prev->both = XORPtr( XORPtr(prev->both , curr) , next);                  
+            if(next) next->both = XORPtr( XORPtr(next->both , curr) , prev);
+            length--;
+            
+            if(!prev)
+                head = next;
+            if(!next)
+                tail = prev;
+            
+    		return;
+        }
+
+    	
+    	return remove_helper(el, curr, next);
+    }
+
+    T find_helper(const unsigned idx, Node <T> * prev, Node <T> * curr) {
+
+      if (idx == 0 || !curr)
+        return curr -> value;
+      Node <T> * const next = XORPtr(curr -> both, prev);
+      return find_helper(idx - 1, curr, next);
+    }
+
+    Node <T> * XORPtr(Node <T> * a, Node <T> * b) {
+      return (Node <T> * )(
+        (unsigned long) a ^ (unsigned long) b
+      );
+    }
+
+  };
+
+int main() {
+
+  LinkedList < int > ll;
+    constexpr unsigned S = 10;
+    vector<int> el;
+    el.resize(S);
+
+    for (int i = 0; i < S; i++)
+        el[i] = i;
+    
+   for (int i = 0; i < 10; i++) {
+    ll.insert(el[i]);
+    ll.print();
+  }
+   //remove them randomly
+   unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+   shuffle (el.begin(), el.end(), std::default_random_engine(seed));
+  //remove head  
+   for (int i = 0; i < 10; i++) {
+    ll.remove(el[i]);
+    ll.print();
+  }  
+   
+  return 0;
+}
+```
