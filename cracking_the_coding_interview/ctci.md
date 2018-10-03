@@ -558,10 +558,19 @@ void reverse_helper_ss(string &s, const unsigned l , ostringstream& os)
 
 # Questions on Linked List
 
+First we provide a simple implementation of Linked List that we will use thoughout the rest of the chapter.
+
+```c++
+template<class T>
+
+```
+
+
+
 # Implement a doubly linked list using only a pointer `both` which is the `xor` of `next` and `prev`
 Make sure that the Linked List provides at least two methods
 - `add` , which add a node at the end of the list
-- `search` which return the n-th element of the list.
+- `get` which return the n-th element of the list.
 
 
 Note that:
@@ -609,8 +618,8 @@ template < typename T >
       ++length;
     }
 
-    T find(const unsigned idx) {
-      return find_helper(idx, nullptr, head);
+    T get(const unsigned idx) {
+      return get_helper(idx, nullptr, head);
     }
 
     void remove(const T el)
@@ -654,7 +663,7 @@ template < typename T >
     	return remove_helper(el, curr, next);
     }
 
-    T find_helper(const unsigned idx, Node <T> * prev, Node <T> * curr) {
+    T get_helper(const unsigned idx, Node <T> * prev, Node <T> * curr) {
 
       if (idx == 0)
         return curr -> value;
@@ -776,3 +785,64 @@ int main() {
   return 0;
 }
 ```
+
+
+
+
+# Write a function that taken a list, removes duplicates from it.
+
+```c++
+template<class T>
+T remove_duplicates_brute_force(Node<T>* head , const unsigned k)
+{
+	while(head){
+		head = head.next;
+	}
+}
+```
+
+
+# Implement an algorithm to find the kth to last element of a singly linked list.
+
+Using two pointers. First move the first pointer k position ahead. Then start moving both pointers until the last pointer reached the end of the list. The element pointerd by the first pointer is the k to last element of the list.
+
+```c++
+template<class T>
+T k_to_last(List<T>& list , const unsigned k)
+{
+	assert(k <= list.size());
+	it1 = begin(list);
+	it2 = begin(list);
+	while(k--)
+		++it1;
+	while(it1 != end(list))
+	{
+		++it1;
+		++it2;
+	}
+	return *it2;
+}
+```
+
+
+# You are given a binary number `B`.  Your task is to output the value of the kth bit of the resulting number `B'` after performing the following operation `n` times:
+
+Each bit in B get transformed as follows:
+- `0`  becomes `01` 
+- `1`  becomes `10`
+
+Example
+`B=1011` , `n=3`, `k=10 `
+```bash
+0. B=1011
+1. B=10011010
+2. B=1 0 0 1 1 0 1 0 0 1 1  0  0  1  0  1
+idx= 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 
+```
+The correct answer is answer: `1`; If `k` is 5 then the correct answer is `0`.
+
+#Question
+
+First notice that after each iteration the string doubles its size.
+After `n` iteration it will have size `|B|*2^n`
+
