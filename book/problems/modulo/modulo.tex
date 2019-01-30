@@ -1,0 +1,71 @@
+\chapter{Modulo Problem}
+\section{Informal problem statement}
+In this problem we are given an function $F(i,j,k)$ and two integers $N$ and $P$, and we have to first find out what is the maximum value that function can result in, and then count the number of ways we can obtain such result.
+
+Given two integers $1 \leq N \leq P $ determine the number of unordered triplets $(i,j,k)$, $1 \leq i,j,k \leq P$, s.t. the Eq. \ref{eq:modulo_problem:formula} is maximized.
+\begin{equation}
+	\label{eq:modulo_problem:formula}
+	F(i,j,k)^N = ( ( (N \bmod{i}) \bmod{j} ) \bmod{k}) \bmod{N}
+\end{equation}
+
+\section{Example}
+For example suppose $N = 4$ and $P = 5$, then a the following would all be valid triplets, because Eq. \ref{eq:modulo_problem:formula} evaluates to $\max\limits_{i,j,k}F(i,j,k)^N=1$ ( the maximum value this function ever reach) when we plug them in:
+\begin{itemize}
+	\item $(3,3,3) \Rightarrow ( ( (4 \bmod{3}) \bmod{3} ) \bmod{3}) \bmod{4} = 1 \bmod{3} \bmod{3} \bmod{4} = 1$
+	\item $(3,3,4) \Rightarrow ( ( (4 \bmod{3}) \bmod{3} ) \bmod{4}) \bmod{4} = 1 \bmod{3} \bmod{4} \bmod{4} = 1$
+	\item $(5,5,3) \Rightarrow ( ( (4 \bmod{5}) \bmod{5} ) \bmod{3}) \bmod{4} = 4 \bmod{5} \bmod{3} \bmod{4} = 4 \bmod{3} =1$
+\end{itemize}
+
+\section{Solution}
+First, let's start by looking a bit closer to Eq. \ref{eq:modulo_problem:formula} and let define $M = \max\limits_{i,j,k}F(i,j,k)^N$.
+
+We notice that (Let's focus on the case where $N > 1$) :
+
+\begin{enumerate}
+	\item $M \leq N$ because the innermost expression i.e. $(N \bmod i) \leq N$ irrespective of the value of $i$
+	\item $M < N$ because $(x \bmod N)= < N$
+	\item $M >=1$, by for instance plugging-in $i=j=k=N-1$
+	\item Since $M \ge 1$ then  $( ( (N \bmod{i}) \bmod{j} ) \bmod{k}) \neq N$. Moreover $(N \bmod i) \leq N$ so $( ( (N \bmod{i}) \bmod{j} ) \bmod{k}) < N$. For these reasons we can drop the last modulo operation. It is going to make no difference for our final result.
+\end{enumerate}
+
+In order to find the exact value of $M$ let's try to figure out what the maximum value of the following Equation is: $N \bmod{i}$
+Simply by sampling some values for a certain $N$ (let's say $10$ and $17$) we can get a sense of what $M$ is:
+
+For $N=10$ the maximum value $M=4$ is obtained for $i=6$:
+\begin{align*}
+	(N \bmod{9}) &= 1  & (N \bmod{8}) &= 1 & (N \bmod{7}) &= 1 \\
+	(N \bmod{6}) &= 1  & (N \bmod{5}) &= 1 & (N \bmod{4}) &= 1 \\
+	(N \bmod{3}) &= 1  & (N \bmod{2}) &= 1 & (N \bmod{1}) &= 1 
+\end{align*}
+while for $N=17$, $M=8$ is obtained for $i=9$:
+\begin{align*}
+	(N \bmod{16}) &= 1  & (N \bmod{15}) &= 2 & (N \bmod{14}) &= 3 & (N \bmod{13}) &= 4 \\
+	(N \bmod{12}) &= 5  & (N \bmod{11}) &= 6 & (N \bmod{10}) &= 7 & (N \bmod{9})  &= 8 \\
+	(N \bmod{8})  &= 1  & (N \bmod{7})  &= 3 & (N \bmod{6})  &= 5 & (N \bmod{5})  &= 2 \\
+	(N \bmod{4})  &= 1  & (N \bmod{3})  &= 2 & (N \bmod{2})  &= 1 & (N \bmod{1})  &= 0 
+\end{align*}
+
+From the previous examples it seems that the maximum is $ \floor{\frac{N}{2}}$ when $N$ is odd and $ \floor{\frac{N-1}{2}}$  when $N$ is even.
+
+
+We can actually prove that this is always the case:
+If $N$ is odd then:
+\begin{itemize}
+	\item $\floor{\frac{N}{2}} = \frac{N-1}{2}$
+	\item if $i \leq \frac{N-1}{2}$ then $(N \bmod{i}) < \frac{N-1}{2}$
+	\item if $i > \frac{N-1}{2}$ then $(N \bmod{i}) = N-i$. 
+	\item $N-i$ is maximum when $i$ is smallest i.e. at $\frac{N-1}{2}+1$. In this case, $(N \bmod{i}) = N - (\frac{N-1}{2}+1) = \frac{N-1}{2} = \floor{\frac{N}{2}}$
+\end{itemize}
+
+If $N$ is even then:
+\begin{itemize}
+	\item if $i \leq \frac{N}{2}$ then $(N \bmod{i}) < \frac{N}{2}$
+	\item if $i > \frac{N}{2}$ then $(N \bmod{i}) = N-i$. 
+	\item $N-i$ is maximum when $i$ is smallest i.e. at $\frac{N}{2}+1$. In this case, $(N \bmod{i}) = N - (\frac{N}{2}+1) = \frac{N}{2}-1 = \floor{\frac{N-1}{2}}$
+\end{itemize}
+
+Now we that we know that the value of $M = \max\limits_{i,j,k}F(i,j,k)^N$ we can start conting the number of solutions to our problem.
+The strategy in counting consist in 
+
+
+
