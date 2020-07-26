@@ -12,7 +12,8 @@ int main() {
   unsigned n;
   cin >> n;
 
-  while (n--) {
+  while (n--)
+  {
     unsigned a;
     cin >> a;
     if (!(a & 1)) a--;
@@ -22,3 +23,5 @@ int main() {
 
   return 0;
 }
+
+

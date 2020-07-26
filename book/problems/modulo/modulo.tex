@@ -65,7 +65,22 @@ If $N$ is even then:
 \end{itemize}
 
 Now we that we know that the value of $M = \max\limits_{i,j,k}F(i,j,k)^N$ we can start conting the number of solutions to our problem.
-The strategy in counting consist in 
 
+
+The strategy in counting consist in trying to obtain $M$ during one of the modulo operations of the Eq. \ref{eq:modulo_problem:formula} and then propagate is thoughout the rest of the formula. If the result of $(N mod i) $ in Eq. \ref{eq:modulo_problem:formula} is $M$ then values of $j$ and $k$ must be larger than $M$. If $(N \bmod i) \neq M$ then we will have to let $N$ propagate to the next modulo operation and then the same resoning applied for the first modulo operation applies to the rest of the equation i.e. $( ( N \bmod{j} ) \bmod{k}) \bmod{N}$
+
+Let $G_N= P-N$ be the count of numbers strictly greater than $N$ and  $G_M= P-M$ the count of numbers greater than $M$·
+We can distinguish three distinc cases:
+\begin{enumerate}
+	\item $(N \bmod i)=M$. Then $j,k$ are forces to be greater than $M$. The number of possible solution arising from this case is $G_M^2$.
+	\item $(N \bmod i)=N$ and  $(N \bmod j)=M$. There are $G_N$ possible values for $i$ one for $j$ and $G_M$ for $k$. The total count for this case is $G_N \times G_M$
+	\item $(N \bmod i)=$N and  $(N \bmod j)=N$. There are $G_N$ possible values for $i$ and $j$ but only one for $k$. The total count for this case is $G_N^2$
+\end{enumerate}
+
+The solution to the problem is the sum of solutions for each indivial case: 
+\begin{equation}
+	\label{eq:modulo_problem:solution}
+	G_M^2 + G_N^2 + G_N G_M 
+\end{equation}
 
 

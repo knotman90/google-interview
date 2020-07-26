@@ -3669,6 +3669,7 @@ void solve150() {
   cout << M[0][0] << " " << M[1][1] - M[1][0] << " " << endl;
 }
 
+
 int main() {
   ios_base::sync_with_stdio(false);
   solve150();
